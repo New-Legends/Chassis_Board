@@ -26,6 +26,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "System_Config.h"
 
 /* USER CODE END Includes */
 
@@ -46,12 +47,14 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
+osThreadId startTaskHandle;
 
 /* USER CODE END Variables */
 osThreadId testHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
+void start_task(void const *argument);
 
 /* USER CODE END FunctionPrototypes */
 
@@ -125,6 +128,10 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+
+  osThreadDef(start, start_task, osPriorityNormal, 0, 128);
+  startTaskHandle = osThreadCreate(osThread(start), NULL);
+
   /* USER CODE END RTOS_THREADS */
 
 }
@@ -151,6 +158,22 @@ __weak void test_task(void const * argument)
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
+
+
+
+__weak void start_task(void const *argument)
+{
+  /* USER CODE BEGIN test_task */
+  System_Resource_Init();
+  /* Infinite loop */
+  for (;;)
+  {
+    Task_start();
+    /* Delete_Graph the default task. */
+    osThreadTerminate(startTaskHandle);
+  }
+  /* USER CODE END test_task */
+}
 
 /* USER CODE END Application */
 
