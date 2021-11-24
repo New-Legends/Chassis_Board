@@ -751,6 +751,11 @@
               <FileType>8</FileType>
               <FilePath>..\user_code\application\my_test_task.cpp</FilePath>
             </File>
+            <File>
+              <FileName>communicat_task.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\user_code\application\communicat_task.cpp</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -774,6 +779,11 @@
               <FileType>1</FileType>
               <FilePath>..\user_code\hardware\bsp_led.c</FilePath>
             </File>
+            <File>
+              <FileName>bsp_rc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user_code\hardware\bsp_rc.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -788,6 +798,13 @@
         </Group>
         <Group>
           <GroupName>user_code/protocol</GroupName>
+          <Files>
+            <File>
+              <FileName>remote_control.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\user_code\protocol\remote_control.cpp</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>::CMSIS</GroupName>

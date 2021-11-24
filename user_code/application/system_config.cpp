@@ -5,7 +5,11 @@
 #include "System_Config.h"
 #include "FreeRTOS.h"
 #include "task.h"
+
+#include "communicat_task.h"
 #include "my_test_task.h"
+
+
 
 #define Tiny_Stack_Size       64
 #define Small_Stack_Size      128
@@ -21,9 +25,10 @@
 #define PrioritySuperHigh     7
 #define PriorityRealtime      8
 
-TaskHandle_t My_Test_Task_Handle;
+TaskHandle_t my_test_task_handle;
+TaskHandle_t communicat_task_handle;
 
-    /**
+/**
 * @brief Load and start User Tasks.
 * @note  Edit this function to add tasks into the activated tasks list.
 */
@@ -33,6 +38,9 @@ void System_Resource_Init(void)
     // remote_control_init();
     // usart1_tx_dma_init();
     // can_filter_init();
+
+
+
     /* Applications Init ----------------*/
 }
 
@@ -42,8 +50,10 @@ void System_Resource_Init(void)
 */
 void Task_start(void)
 {
-    ;
         /* Syetem Service init --------------*/
         /* Applications Init ----------------*/
-        xTaskCreate(my_test_task, "my_test_task", Normal_Stack_Size, NULL, PriorityAboveNormal, &My_Test_Task_Handle);
+        xTaskCreate(communicat_task, "communicat_task", Large_Stack_Size, NULL, PriorityHigh, &communicat_task_handle);
+
+        xTaskCreate(my_test_task, "my_test_task", Normal_Stack_Size, NULL, PriorityAboveNormal, &my_test_task_handle);
+
 }
