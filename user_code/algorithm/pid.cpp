@@ -1,7 +1,3 @@
-//
-// Created by WSJ on 2021/11/2.
-//
-
 #include "pid.h"
 
 #define LimitMax(input, max)   \
@@ -16,42 +12,74 @@
         }                      \
     }
 
-void pid::PID_init(uint8_t mode_, const fp32 PID[3], fp32 max_out_, fp32 max_iout_) {
-    mode = mode_;
-    Kp = PID[0];
-    Ki = PID[1];
-    Kd = PID[2];
-    max_out = max_out_;
-    max_iout = max_iout_;
-    Dbuf[0] = Dbuf[1] = Dbuf[2] = 0.0f;
-    error[0] = error[1] = error[2] = Pout = Iout = Dout = out = 0.0f;
+
+/**
+  * @brief          pid struct data init
+  * @param[out]     pid: PID结构数据指针
+  * @param[in]      mode: PID_POSITION:普通PID
+  *                 PID_DELTA: 差分PID
+  * @param[in]      PID: 0: kp, 1: ki, 2:kd
+  * @param[in]      max_out: pid最大输出
+  * @param[in]      max_iout: pid最大积分输出
+  * @retval         none
+  */
+void pid::init(uint8_t mode_, const fp32 *pid_parm, fp32 *error, fp32 *set, fp32 *ref, fp32 *error_delta)
+{
+    mode = mode;
+    data.Kp = pid_parm[0];
+    data.Ki = pid_parm[1];
+    data.Kd = pid_parm[2];
+    data.max_iout = pid_parm[4];
+    data.max_out = pid_parm[3];
+
+    data.set = set;
+    data.ref = ref;
+    data.error = *set - *ref;
+
+    if (data.mode == PID_ANGLE)
+        data.error_delta = error_delta;
 }
 
-fp32 pid::PID_calc(fp32 ref, fp32 set_) {
-    error[2] = error[1];
-    error[1] = error[0];
-    set = set_;
-    fdb = ref;
-    error[0] = set - ref;
-    if (mode == PID_POSITION) {
-        Pout = Kp * error[0];
-        Iout += Ki * error[0];
-        Dbuf[2] = Dbuf[1];
-        Dbuf[1] = Dbuf[0];
-        Dbuf[0] = (error[0] - error[1]);
-        Dout = Kd * Dbuf[0];
-        LimitMax(Iout, max_iout);
-        out = Pout + Iout + Dout;
-        LimitMax(out, max_out);
-    } else if (mode == PID_DELTA) {
-        Pout = Kp * (error[0] - error[1]);
-        Iout = Ki * error[0];
-        Dbuf[2] = Dbuf[1];
-        Dbuf[1] = Dbuf[0];
-        Dbuf[0] = (error[0] - 2.0f * error[1] + error[2]);
-        Dout = Kd * Dbuf[0];
-        out += Pout + Iout + Dout;
-        LimitMax(out, max_out);
-    }
-    return out;
+/**
+  * @brief          pid计算
+  * @param[out]     pid: PID结构数据指针
+  * @param[in]      ref: 反馈数据
+  * @param[in]      set: 设定值
+  * @retval         pid输出
+  */
+void pid::pid_calc()
+{   
+    data.last_error = data.error;
+    data.error = *data.set - *data.ref;
+    if (mode == PID_SPEED)
+        *data.error_delta = data.error - data.last_error;
+
+    
+    data.Pout = data.Kp * data.error;
+    data.Iout += data.Ki * data.error;
+    data.Dout = data.Kd * (*data.error_delta);
+
+    LimitMax(data.Iout, data.max_iout);
+    LimitMax(data.out, data.max_out);
+}
+
+/**
+  * @brief          pid 输出清除
+  * @param[out]     pid: PID结构数据指针
+  * @retval         none
+  */
+void pid::pid_clear()
+{
+    mode = 0;
+    data.Kp = 0;
+    data.Ki = 0;
+    data.Kd = 0;
+    data.max_out = 0;
+    data.max_iout = 0;
+
+    data.set = 0;
+    data.ref = 0;
+    data.error = 0;
+
+    data.error_delta = 0;
 }

@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;..\user_code\algorithm;..\user_code\application;..\user_code\componet\support;..\user_code\componet\include;..\user_code\componet\device;..\user_code\hardware;..\user_code\module;..\user_code\protocol</IncludePath>
+              <IncludePath>../Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;..\user_code\algorithm;..\user_code\application;..\user_code\componet\support;..\user_code\componet\include;..\user_code\componet\device;..\user_code\bsp;..\user_code\module;..\user_code\protocol;..\user_code\device</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -736,9 +736,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>user_code/algorithm</GroupName>
-        </Group>
-        <Group>
           <GroupName>user_code/application</GroupName>
           <Files>
             <File>
@@ -759,34 +756,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>user_code/componet</GroupName>
-        </Group>
-        <Group>
-          <GroupName>user_code/hardware</GroupName>
-          <Files>
-            <File>
-              <FileName>bsp_can.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user_code\hardware\bsp_can.c</FilePath>
-            </File>
-            <File>
-              <FileName>bsp_usart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user_code\hardware\bsp_usart.c</FilePath>
-            </File>
-            <File>
-              <FileName>bsp_led.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user_code\hardware\bsp_led.c</FilePath>
-            </File>
-            <File>
-              <FileName>bsp_rc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user_code\hardware\bsp_rc.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>user_code/module</GroupName>
           <Files>
             <File>
@@ -797,12 +766,80 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>user_code/algorithm</GroupName>
+          <Files>
+            <File>
+              <FileName>pid.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\user_code\algorithm\pid.cpp</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>user_code/device</GroupName>
+          <Files>
+            <File>
+              <FileName>motor.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\user_code\device\motor.cpp</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>user_code/protocol</GroupName>
           <Files>
             <File>
               <FileName>remote_control.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\user_code\protocol\remote_control.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>can_receive.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\user_code\protocol\can_receive.cpp</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>user_code/componet</GroupName>
+        </Group>
+        <Group>
+          <GroupName>user_code/bsp</GroupName>
+          <Files>
+            <File>
+              <FileName>bsp_adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user_code\bsp\bsp_adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_buzzer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user_code\bsp\bsp_buzzer.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_can.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user_code\bsp\bsp_can.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_delay.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user_code\bsp\bsp_delay.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_led.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user_code\bsp\bsp_led.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_rc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user_code\bsp\bsp_rc.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user_code\bsp\bsp_usart.c</FilePath>
             </File>
           </Files>
         </Group>

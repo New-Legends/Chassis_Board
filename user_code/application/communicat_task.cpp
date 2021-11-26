@@ -6,18 +6,14 @@
 #include "bsp_usart.h"
 #include "bsp_led.h"
 
-
-
 #include "remote_control.h"
+#include "can_receive.h"
 
 
 
-extern UART_HandleTypeDef huart3;
-extern DMA_HandleTypeDef hdma_usart3_rx;
+uint8_t c_flag = 0;
 
-static uint8_t flag = 0;
 
-remote_control_c remote_control;
 
 /**
   * @brief          communucat_task
@@ -30,20 +26,58 @@ void communicat_task(void *pvParameters)
 
 
   remote_control.init();
+  can_receive.init();
 
   while (1)
   {
-    flag = HAL_GPIO_ReadPin(KEY_GPIO_Port, KEY_Pin);
+    c_flag = HAL_GPIO_ReadPin(KEY_GPIO_Port, KEY_Pin);
     HAL_Delay(20);
-
-
 
 
   }
 }
 
+
+#ifdef __cplusplus             //告诉编译器，这部分代码按C语言的格式进行编译，而不是C++的
+extern "C"{
+
+
+//TODO 设备检测未更新
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
+{
+  // if (hcan == &CHASSIS_CAN) //接底盘CAN 信息
+  // {
+  CAN_RxHeaderTypeDef rx_header;
+  uint8_t rx_data[8];
+  HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rx_header, rx_data);
+  switch (rx_header.StdId)
+  {
+  //底盘动力电机
+  case CAN_FR_MOTOR_ID:
+    can_receive.get_motor_measure(0, rx_data);
+    //detect_hook(CHASSIS_MOtor_FR_MOTOR_TOE);
+    break;
+  case CAN_FL_MOTOR_ID:
+    can_receive.get_motor_measure(1, rx_data);
+    //detect_hook(CHASSIS_MOtor_FL_MOTOR_TOE);
+    break;
+  case CAN_BL_MOTOR_ID:
+    can_receive.get_motor_measure(2, rx_data);
+    //detect_hook(CHASSIS_MOtor_BL_MOTOR_TOE);
+    break;
+  case CAN_BR_MOTOR_ID:
+    can_receive.get_motor_measure(3, rx_data);
+    //detect_hook(CHASSIS_MOtor_BR_MOTOR_TOE);
+    break;
+  default:
+  {
+    break;
+  }
+  }
+  //  }
+}
 // TODO 设备检查未更新
-//串口中断
+//遥控器串口
 void USART3_IRQHandler(void)
 {
   if (huart3.Instance->SR & UART_FLAG_RXNE) //接收到数据
@@ -122,3 +156,16 @@ void USART3_IRQHandler(void)
     }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+}
+#endif

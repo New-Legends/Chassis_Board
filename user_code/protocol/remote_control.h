@@ -21,6 +21,12 @@
 #define REMOTE_CONTROL_H
 #include "struct_typedef.h"
 #include "bsp_rc.h"
+#include "main.h"
+
+
+extern UART_HandleTypeDef huart3;
+extern DMA_HandleTypeDef hdma_usart3_rx;
+
 
 //遥控器出错数据上限
 #define RC_CHANNAL_ERROR_VALUE 700
@@ -175,11 +181,11 @@ typedef __packed struct
 
 
 //遥控器控制
-class remote_control_c
+class Remote_control
 {
 public:
         //接收原始数据，为18个字节，给了36个字节长度，防止DMA传输越界
-        static uint8_t sbus_rx_buf[2][SBUS_RX_BUF_NUM];
+        uint8_t sbus_rx_buf[2][SBUS_RX_BUF_NUM];
 
         RC_ctrl_t rc_ctrl;
         RC_ctrl_t last_rc_ctrl; 

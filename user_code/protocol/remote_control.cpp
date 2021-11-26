@@ -7,17 +7,18 @@
 
 #include "string.h"
 
-void remote_control_c::init()
+void Remote_control::init()
 {
     RC_Init(sbus_rx_buf[0], sbus_rx_buf[1], SBUS_RX_BUF_NUM);
+    usart1_tx_dma_init();
 }
 
-const RC_ctrl_t * remote_control_c::get_remote_control_point()
+const RC_ctrl_t * Remote_control::get_remote_control_point()
 {
     return &rc_ctrl;
 }
 
-const RC_ctrl_t *remote_control_c::get_last_remote_control_point()
+const RC_ctrl_t *Remote_control::get_last_remote_control_point()
 {
     return &last_rc_ctrl;
 }
@@ -30,7 +31,7 @@ const RC_ctrl_t *remote_control_c::get_last_remote_control_point()
   * @param[out]     rc_ctrl: 遥控器数据指
   * @retval         none
   */
-void remote_control_c::unpack(uint8_t num)
+void Remote_control::unpack(uint8_t num)
 {
     if (sbus_rx_buf[num] == NULL)
     {
@@ -76,7 +77,7 @@ void remote_control_c::unpack(uint8_t num)
   * @param[in]      sbus: sbus数据, 18字节
   * @retval         none
   */
-void remote_control_c::sbus_to_usart1(uint8_t num)
+void Remote_control::sbus_to_usart1(uint8_t num)
 {
     static uint8_t usart_tx_buf[20];
     static uint8_t i = 0;
@@ -89,7 +90,7 @@ void remote_control_c::sbus_to_usart1(uint8_t num)
     usart1_tx_dma_enable(usart_tx_buf, 20);
 }
 
-uint8_t remote_control_c::RC_data_is_error()
+uint8_t Remote_control::RC_data_is_error()
 {
     //使用了go to语句 方便出错统一处理遥控器变量数据归零
     if (RC_abs(rc_ctrl.rc.ch[0]) > RC_CHANNAL_ERROR_VALUE)
@@ -138,7 +139,7 @@ error:
 
 
 //取正函数
-int16_t remote_control_c::RC_abs(int16_t value)
+int16_t Remote_control::RC_abs(int16_t value)
 {
     if (value > 0)
     {
@@ -150,12 +151,12 @@ int16_t remote_control_c::RC_abs(int16_t value)
     }
 }
 
-void remote_control_c::slove_RC_lost(void)
+void Remote_control::slove_RC_lost(void)
 {
     RC_restart(SBUS_RX_BUF_NUM);
 }
 
-void remote_control_c::slove_data_error(void)
+void Remote_control::slove_data_error(void)
 {
     RC_restart(SBUS_RX_BUF_NUM);
 }

@@ -2,6 +2,10 @@
     "files.associations": {
         "main.h": "c",
         "cmsis_os.h": "c",
-        "bsp_usart.h": "c"
+        "bsp_usart.h": "c",
+        "stm32f4xx_hal.h": "c",
+        "bsp_delay.h": "c",
+        "struct_typedef.h": "c",
+        "bsp_can.h": "c"
     }
 }

@@ -6,6 +6,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "bsp_delay.h"
+
 #include "communicat_task.h"
 #include "my_test_task.h"
 
@@ -35,11 +37,7 @@ TaskHandle_t communicat_task_handle;
 void System_Resource_Init(void)
 {
     /* Syetem Service init --------------*/
-    // remote_control_init();
-    // usart1_tx_dma_init();
-    // can_filter_init();
-
-
+    delay_init();
 
     /* Applications Init ----------------*/
 }
