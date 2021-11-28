@@ -3,12 +3,12 @@
 
 #ifdef __cplusplus
 #include "struct_typedef.h"
-enum PID_MODE
+typedef enum
 {
-    PID_SPEED = 0,  //速度环
-    PID_ANGLE,   //角度环
+    PID_SPEED = 0, //速度环
+    PID_ANGLE,     //角度环
 
-};
+} pid_mode_e;
 
 typedef struct
 {
@@ -37,14 +37,14 @@ typedef struct
 
 
 
-class pid {
+class Pid {
 public:
     uint8_t mode;
     pid_data_t data;
 
-    void init(uint8_t mode_, const fp32 *pid_parm, fp32 *error, fp32 *set, fp32 *ref, fp32 *delta);
+    void init(pid_mode_e mode_, const fp32 *pid_parm, fp32 *ref_, fp32 *set_, fp32 *erro_delta_);
 
-    void pid_calc(); 
+    fp32 pid_calc(); 
 
     void pid_clear();
 };

@@ -3,7 +3,7 @@
 #include "pid.h"
 #include "bsp_led.h"
 
-uint8_t flag = 0;
+uint8_t test_flag = 0;
 
 /**
   * @brief          test_task
@@ -13,16 +13,10 @@ uint8_t flag = 0;
 void my_test_task(void *pvParameters)
 {
 
-
-
-
-
-
-
   while (1)
   {
-      flag = HAL_GPIO_ReadPin(KEY_GPIO_Port, KEY_Pin);
-      HAL_Delay(200);
+    test_flag = HAL_GPIO_ReadPin(KEY_GPIO_Port, KEY_Pin);
+    HAL_Delay(20);
 
 
   }

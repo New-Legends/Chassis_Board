@@ -9,6 +9,12 @@
 #ifdef  __cplusplus
 extern "C" {
 #endif
+
+//底盘电机无电流输出
+#define CHASSIS_NO_CURRENT 0
+
+
+
 extern void Task_start(void);
 extern void System_Resource_Init(void);
 

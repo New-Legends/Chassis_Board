@@ -186,7 +186,6 @@ class Remote_control
 public:
         //接收原始数据，为18个字节，给了36个字节长度，防止DMA传输越界
         uint8_t sbus_rx_buf[2][SBUS_RX_BUF_NUM];
-
         RC_ctrl_t rc_ctrl;
         RC_ctrl_t last_rc_ctrl; 
         
@@ -194,6 +193,7 @@ public:
 
         const RC_ctrl_t *get_remote_control_point();
         const RC_ctrl_t *get_last_remote_control_point();       
+
 
 
         void unpack(uint8_t num);

@@ -52,7 +52,7 @@ typedef struct
 //   fp32 target_power;
 // } super_cap_measure_t;
 
-class can_receive_c {
+class Can_receive {
 public: 
   //反馈数据结构体
   motor_measure_t chassis_motor[4];

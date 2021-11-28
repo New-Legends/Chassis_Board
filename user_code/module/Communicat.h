@@ -4,13 +4,12 @@
 #include "cmsis_os.h"
 #include "main.h"
 
-#include "remote_control.h"
-#include ""
+#include "Remote_control.h"
+#include "Can_receive.h"
 
-extern remote_control_c remote_control;
-extern can_receive_c can_receive;
 
-class communicat
+
+class Communicat
 {
 public:
     void init();
@@ -18,8 +17,9 @@ public:
 
 };
 
+extern Remote_control remote_control;
+extern Can_receive can_receive;
 
-
-
+extern Communicat communicat;
 
 #endif

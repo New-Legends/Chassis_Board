@@ -11,14 +11,13 @@
 extern CAN_HandleTypeDef hcan1;
 extern CAN_HandleTypeDef hcan2;
 
-
-
-
-void can_receive_c::init() {
+void Can_receive::init()
+{
     can_filter_init();
 }
 
-void can_receive_c::get_motor_measure(uint8_t num, uint8_t data[8]) {
+void Can_receive::get_motor_measure(uint8_t num, uint8_t data[8])
+{
     chassis_motor[num].last_ecd = chassis_motor[num].ecd;
     chassis_motor[num].ecd = (uint16_t)(data[0] << 8 | data[1]);
     chassis_motor[num].speed_rpm = (uint16_t)(data[2] << 8 | data[3]);
@@ -34,7 +33,7 @@ void can_receive_c::get_motor_measure(uint8_t num, uint8_t data[8]) {
 * @param[in]      motor4: (0x204) 3508电机控制电流, 范围 [-16384,16384]
 * @retval         none
 */
-void can_receive_c::can_cmd_chassis(int16_t motor1, int16_t motor2, int16_t motor3, int16_t motor4)
+void Can_receive::can_cmd_chassis(int16_t motor1, int16_t motor2, int16_t motor3, int16_t motor4)
 {
     uint32_t send_mail_box;
     chassis_tx_message.StdId = CAN_CHASSIS_ALL_ID;
@@ -58,7 +57,7 @@ void can_receive_c::can_cmd_chassis(int16_t motor1, int16_t motor2, int16_t moto
   * @param[in]      none
   * @retval         none
   */
-void can_receive_c::can_cmd_chassis_reset_ID(void)
+void Can_receive::can_cmd_chassis_reset_ID(void)
 {
     uint32_t send_mail_box;
     chassis_tx_message.StdId = 0x700;
@@ -82,7 +81,7 @@ void can_receive_c::can_cmd_chassis_reset_ID(void)
   * @param[in]      i: 电机编号,范围[0,3]
   * @retval         电机数据指针
   */
-const motor_measure_t *can_receive_c::get_chassis_motor_measure_point(uint8_t i)
+const motor_measure_t *Can_receive::get_chassis_motor_measure_point(uint8_t i)
 {
     return &chassis_motor[i];
 }
