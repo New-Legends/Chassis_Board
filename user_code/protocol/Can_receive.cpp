@@ -15,7 +15,7 @@ void Can_receive::init()
 {
     can_filter_init();
 }
-
+ 
 void Can_receive::get_motor_measure(uint8_t num, uint8_t data[8])
 {
     chassis_motor[num].last_ecd = chassis_motor[num].ecd;
@@ -86,3 +86,10 @@ const motor_measure_t *Can_receive::get_chassis_motor_measure_point(uint8_t i)
     return &chassis_motor[i];
 }
 
+void Can_receive::get_rc_board_com(uint8_t data[8])
+{
+    chassis_receive.ch_1 = (int16_t)(data[0] << 8 | data[1]);
+    chassis_receive.ch_2 = (int16_t)(data[2] << 8 | data[3]);
+    chassis_receive.ch_3 = (int16_t)(data[5] << 8 | data[6]);
+    chassis_receive.v = (uint16_t)(data[6] << 8 | data[7]);
+}

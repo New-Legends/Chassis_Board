@@ -749,14 +749,14 @@
               <FilePath>..\user_code\application\my_test_task.cpp</FilePath>
             </File>
             <File>
-              <FileName>communicat_task.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\user_code\application\communicat_task.cpp</FilePath>
-            </File>
-            <File>
               <FileName>chassis_task.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\user_code\application\chassis_task.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>communicate_task.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\user_code\application\communicate_task.cpp</FilePath>
             </File>
           </Files>
         </Group>
@@ -817,6 +817,11 @@
               <FileName>Referee.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\user_code\protocol\Referee.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>Ui.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\user_code\protocol\Ui.cpp</FilePath>
             </File>
           </Files>
         </Group>

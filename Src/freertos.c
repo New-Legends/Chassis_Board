@@ -29,9 +29,7 @@
 
 
 #include "system_config.h"
-// #include "my_test_task.h"
-// #include "chassis_task.h"
-// #include "communicat_task.h"
+
 
 
 /* USER CODE END Includes */
@@ -141,14 +139,6 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(start, start_task, osPriorityNormal, 0, 128);
   startTaskHandle = osThreadCreate(osThread(start), NULL);
 
-  // osThreadDef(communicatTask, communicat_task, osPriorityHigh, 0, 512);
-  // communicatTaskHandle = osThreadCreate(osThread(communicatTask), NULL);
-
-  // osThreadDef(chassisTask, chassis_task, osPriorityAboveNormal, 0, 128);
-  // chassisTaskHandle = osThreadCreate(osThread(chassisTask), NULL);
-
-  // osThreadDef(my_testTasK, my_test_task, osPriorityNormal, 0, 128);
-  // my_testTaskHandle = osThreadCreate(osThread(my_testTasK), NULL);
 
   /* USER CODE END RTOS_THREADS */
 

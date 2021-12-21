@@ -8,7 +8,7 @@
 
 #include "bsp_delay.h"
 
-#include "communicat_task.h"
+#include "communicate_task.h"
 #include "my_test_task.h"
 #include  "chassis_task.H"
 
@@ -27,7 +27,7 @@
 #define PriorityRealtime      8
 
 TaskHandle_t my_test_task_handle;
-TaskHandle_t communicat_task_handle;
+TaskHandle_t communicate_task_handle;
 TaskHandle_t chassis_task_handle;
 
 
@@ -53,7 +53,7 @@ void Task_start(void)
         /* Applications Init ----------------*/
         //xTaskCreate(chassis_task, "chassis_task", Large_Stack_Size, NULL, PriorityHigh, &chassis_task_handle);
 
-        xTaskCreate(communicat_task, "communicat_task", Large_Stack_Size, NULL, PriorityHigh, &communicat_task_handle);
+        xTaskCreate(communicate_task, "communicate_task", Large_Stack_Size, NULL, PriorityHigh, &communicate_task_handle);
 
         xTaskCreate(my_test_task, "my_test_task", Small_Stack_Size, NULL, PriorityHigh, &my_test_task_handle);
 }

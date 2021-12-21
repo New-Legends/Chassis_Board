@@ -30,6 +30,10 @@ typedef enum
   CAN_BL_MOTOR_ID = 0x203,
   CAN_BR_MOTOR_ID = 0x204,
   CAN_CHASSIS_ALL_ID = 0x200,
+
+  CAN_RC_BOARM_COM_ID = 0x301,
+  CAN_GIMBAL_BOARD_COM_ID = 302,
+
 } can_msg_id_e;
 
 //rm motor data
@@ -52,10 +56,46 @@ typedef struct
 //   fp32 target_power;
 // } super_cap_measure_t;
 
+//底盘接收数据结构体
+typedef struct
+{
+  //遥控器数据
+  int16_t ch_1;
+  int16_t ch_2;
+  int16_t ch_3;
+  uint16_t v;
+
+  //云台状态
+  uint8_t s1;
+  uint8_t gimbal_behaviour;
+  fp32    gimbal_yaw_angle;
+} chassis_receive_t;
+
+//底盘发送数据结构体
+typedef struct
+{
+
+  //测试热量及ID
+  uint16_t id1_17mm_cooling_limit;//17mm测速热量上限
+  uint16_t id1_17mm_cooling_rate;//17mm测速热量冷却
+  uint16_t id1_17mm_cooling_heat; //17mm测速实时热量
+  uint8_t color;               //判断红蓝方
+  uint8_t robot_id;            //机器人编号
+
+  //测速速度及底盘模式
+  uint16_t id1_17mm_speed_limi;//17mm测速射速上限
+  uint16_t bullet_speed;       //17mm测速实时射速
+
+  uint8_t chassis_behaviour;
+
+} chassis_send_t;
+
 class Can_receive {
 public: 
   //反馈数据结构体
   motor_measure_t chassis_motor[4];
+
+  chassis_receive_t chassis_receive;
 
   //发送数据结构体
   CAN_TxHeaderTypeDef chassis_tx_message;
@@ -63,6 +103,7 @@ public:
 
   void init();
 
+  //电机数据接收
   void get_motor_measure(uint8_t num, uint8_t data[8]);
 
   void can_cmd_chassis(int16_t motor1, int16_t motor2, int16_t motor3, int16_t motor4);
@@ -70,6 +111,9 @@ public:
   void can_cmd_chassis_reset_ID();
 
   const motor_measure_t *get_chassis_motor_measure_point(uint8_t i);
+
+  void get_rc_board_com(uint8_t data[8]);
+  void get_gimbal_board_com(uint8_t data[8]);
 };
 
 

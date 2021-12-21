@@ -297,6 +297,7 @@ public:
     ext_shoot_data_t shoot_data_t;
     ext_bullet_remaining_t bullet_remaining_t;
     ext_student_interactive_data_t student_interactive_data_t;
+    
     uint8_t Judge_Self_ID;        //当前机器人的ID
     uint16_t Judge_SelfClient_ID; //发送者机器人对应的客户端ID
 
