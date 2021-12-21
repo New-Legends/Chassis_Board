@@ -6,12 +6,13 @@
 #define CLASSIS_BOARD_SYSTEM_CONFIG_H
 
 
+
 #ifdef  __cplusplus
 extern "C" {
 #endif
 
-//底盘电机无电流输出
-#define CHASSIS_NO_CURRENT 0
+#include "struct_typedef.h"
+ 
 
 
 

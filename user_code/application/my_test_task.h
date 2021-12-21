@@ -7,18 +7,13 @@
 #include "bsp_led.h"
 #include "pid.h"
 
-//chassis motor speed PID
-//底盘电机速度环PID
-#define MOTIVE_MOTOR_SPEED_PID_MODE PID_SPEED
-#define MOTIVE_MOTOR_SPEED_PID_KP 6000.0f
-#define MOTIVE_MOTOR_SPEED_PID_KI 0.1f
-#define MOTIVE_MOTOR_SPEED_PID_KD 2.0f
-#define MOTIVE_MOTOR_SPEED_PID_MAX_IOUT 2000.0f
-#define MOTIVE_MOTOR_SPEED_PID_MAX_OUT 6000.0f
 
 
+//测试开始空闲一段时间
+#define TEST_TASK_INIT_TIME 30
 
-
+//测试任务控制间隔 2ms
+#define TEST_CONTROL_TIME_MS 2
 
 /**
   * @brief          test_task

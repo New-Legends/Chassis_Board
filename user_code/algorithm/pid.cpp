@@ -57,9 +57,11 @@ fp32 Pid::pid_calc()
     data.Pout = data.Kp * data.error;
     data.Iout += data.Ki * data.error;
     data.Dout = data.Kd * (*data.error_delta);
+
+
     LimitMax(data.Iout, data.max_iout);
 
-    data.out += data.Pout + data.Iout + data.Dout;
+    data.out = data.Pout + data.Iout + data.Dout;
     LimitMax(data.out, data.max_out);
 
     return data.out;

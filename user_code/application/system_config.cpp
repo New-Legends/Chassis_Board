@@ -2,7 +2,7 @@
 // Created by WSJ on 2021/11/2.
 //
 
-#include "System_Config.h"
+#include "system_config.h"
 #include "FreeRTOS.h"
 #include "task.h"
 
@@ -51,7 +51,7 @@ void Task_start(void)
 {
         /* Syetem Service init --------------*/
         /* Applications Init ----------------*/
-        xTaskCreate(chassis_task, "chassis_task", Large_Stack_Size, NULL, PriorityHigh, &chassis_task_handle);
+        //xTaskCreate(chassis_task, "chassis_task", Large_Stack_Size, NULL, PriorityHigh, &chassis_task_handle);
 
         xTaskCreate(communicat_task, "communicat_task", Large_Stack_Size, NULL, PriorityHigh, &communicat_task_handle);
 

@@ -8,7 +8,6 @@
 extern CAN_HandleTypeDef hcan1;
 extern CAN_HandleTypeDef hcan2;
 
-
 #define CHASSIS_CAN hcan1
 
 //底盘电机编号
@@ -43,6 +42,7 @@ typedef struct
     int16_t last_ecd;
 } motor_measure_t;
 
+//TODO 超电还未对接
 // //rm motor data
 // typedef struct
 // {

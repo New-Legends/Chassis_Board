@@ -9,6 +9,8 @@
 //任务开始空闲一段时间
 #define COMMUNICAT_TASK_INIT_TIME 30
 
+//底盘任务控制间隔 2ms
+#define COMMUNICAT_CONTROL_TIME_MS 10
 
 /**
   * @brief          test_task

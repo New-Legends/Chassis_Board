@@ -205,5 +205,4 @@ public:
         int16_t RC_abs(int16_t value); //取正函数
 };
 
-
 #endif

@@ -17,9 +17,13 @@ void communicat_task(void *pvParameters)
 
   while (1)
   {
-    communicat_flag = HAL_GPIO_ReadPin(KEY_GPIO_Port, KEY_Pin);
-    HAL_Delay(20);
+    //communicat_flag = HAL_GPIO_ReadPin(KEY_GPIO_Port, KEY_Pin);
+    
+    communicat.run();
 
+    //系统延时
+    //vTaskDelay(COMMUNICAT_CONTROL_TIME_MS);
+    osDelay(10);
   }
 }
 

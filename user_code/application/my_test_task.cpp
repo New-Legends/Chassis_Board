@@ -12,13 +12,14 @@ uint8_t test_flag = 0;
   */
 void my_test_task(void *pvParameters)
 {
-
+  //空闲一段时间
+  vTaskDelay(TEST_TASK_INIT_TIME);
   while (1)
   {
     test_flag = HAL_GPIO_ReadPin(KEY_GPIO_Port, KEY_Pin);
-    HAL_Delay(20);
 
-
+    //系统延时
+    vTaskDelay(TEST_CONTROL_TIME_MS);
   }
     
 }

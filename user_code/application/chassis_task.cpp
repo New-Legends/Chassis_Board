@@ -1,6 +1,10 @@
 #include "chassis_task.h"
 
+#include "system_config.h" 
+
 #include "chassis.h"
+
+
 
 uint8_t chassis_flag = 0;
 

@@ -14,6 +14,7 @@ class Communicat
 public:
     void init();
 
+    void run();
 
 };
 

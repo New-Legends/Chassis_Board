@@ -141,7 +141,6 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(start, start_task, osPriorityNormal, 0, 128);
   startTaskHandle = osThreadCreate(osThread(start), NULL);
 
-
   // osThreadDef(communicatTask, communicat_task, osPriorityHigh, 0, 512);
   // communicatTaskHandle = osThreadCreate(osThread(communicatTask), NULL);
 

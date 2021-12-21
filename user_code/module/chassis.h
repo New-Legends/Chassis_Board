@@ -125,9 +125,10 @@
 #define MISS_BEGIN 1
 #define MISS_OVER 2
 
-#define SWING_KEY ((chassis_move.chassis_RC->key.v & KEY_PRESSED_OFFSET_C) && !(chassis_move.chassis_last_key_v & KEY_PRESSED_OFFSET_C))
-#define PISA_KEY ((chassis_move.chassis_RC->key.v & KEY_PRESSED_OFFSET_X) && !(chassis_move.chassis_last_key_v & KEY_PRESSED_OFFSET_X))
-#define TOP_KEY ((chassis_move.chassis_RC->key.v & KEY_PRESSED_OFFSET_F) && !(chassis_move.chassis_last_key_v & KEY_PRESSED_OFFSET_F))
+#define SWING_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_C) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_C))
+#define PISA_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_X) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_X))
+#define TOP_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_F) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_F))
+
 
 #define PISA_DELAY_TIME 500
 #define CHASSIS_OPEN_RC_SCALE 10 // in CHASSIS_OPEN mode, multiply the value. 在chassis_open 模型下，遥控器乘以该比例发送到can上
@@ -137,7 +138,7 @@
 //chassis motor speed PID
 //底盘电机速度环PID
 #define MOTIVE_MOTOR_SPEED_PID_KP 6000.0f
-#define MOTIVE_MOTOR_SPEED_PID_KI 0.1f
+#define MOTIVE_MOTOR_SPEED_PID_KI 0.0f
 #define MOTIVE_MOTOR_SPEED_PID_KD 2.0f
 #define MOTIVE_MOTOR_SPEED_PID_MAX_IOUT 2000.0f
 #define MOTIVE_MOTOR_SPEED_PID_MAX_OUT 6000.0f
@@ -206,6 +207,7 @@ struct speed_t
 class Chassis {
 public:
     const RC_ctrl_t *chassis_RC; //底盘使用的遥控器指针
+    uint16_t chassis_last_key_v;  //遥控器上次按键
 
     chassis_behaviour_e chassis_behaviour_mode; //底盘行为状态机
     chassis_behaviour_e last_chassis_behaviour_mode; //底盘上次行为状态机

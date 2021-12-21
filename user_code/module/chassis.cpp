@@ -39,6 +39,7 @@ void Chassis::init()
 {
     //获取遥控器指针
     chassis_RC = remote_control.get_remote_control_point();
+    chassis_last_key_v = 0;
 
     //设置初试状态机
     chassis_behaviour_mode = CHASSIS_ZERO_FORCE;
@@ -92,7 +93,10 @@ void Chassis::set_mode() {
   * @retval         none
   */
 void Chassis::feedback_update()
-{
+{   
+    //记录上一次遥控器值
+    chassis_last_key_v =chassis_RC->key.v;
+
     //切入跟随云台模式
     if ((last_chassis_mode != CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW) && chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
     {
@@ -211,6 +215,8 @@ void Chassis::set_contorl() {
     }
 }
 
+fp32 temp_pid_out;
+
 fp32 wheel_speed[4] = {0.0f, 0.0f, 0.0f, 0.0f}; //动力电机目标速度
 /**
   * @brief          解算数据,并进行pid计算
@@ -254,7 +260,9 @@ void Chassis::solve() {
     for (i = 0; i < 4; i++)
     {
         //计算动力电机的速度
-       chassis_motive_motor[i].give_current = chassis_motive_motor[i].speed_pid.pid_calc();
+        temp_pid_out = chassis_motive_motor[i].speed_pid.pid_calc();
+
+        chassis_motive_motor[i].set_current = temp_pid_out;
     }
 }
 
@@ -274,6 +282,12 @@ void Chassis::power_ctrl() {
   */
 void Chassis::output()
 {
+    //赋值电流值
+    for (int i = 0; i < 4; i++)
+    {
+        chassis_motive_motor[i].give_current = (int16_t)(chassis_motive_motor[i].set_current);
+    }
+
     for (int i = 0; i < 4; i++)
     {
 #ifdef CHASSIS_NO_CURRENT
@@ -441,24 +455,24 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
         return;
     }
 
-    // //遥控器的通道值以及键盘按键 得出 一般情况下的速度设定值
-    // chassis_rc_to_control_vector(vx_set, vy_set, 
+    //遥控器的通道值以及键盘按键 得出 一般情况下的速度设定值
+    chassis_rc_to_control_vector(vx_set, vy_set);
 
-    // /**************************扭腰和自动闪避控制输入*******************************/
-    // //判断是否要摇摆  当键盘单击C            (或者装甲板受到伤害摇摆 这个暂时有问题)
+    /**************************扭腰和自动闪避控制输入*******************************/
+    //判断是否要摇摆  当键盘单击C            (或者装甲板受到伤害摇摆 这个暂时有问题)
 
-    // //摇摆角度是利用sin函数生成，swing_time 是sin函数的输入值
-    // static fp32 swing_time = 0.0f;
+    //摇摆角度是利用sin函数生成，swing_time 是sin函数的输入值
+    static fp32 swing_time = 0.0f;
 
-    // //max_angle是sin函数的幅值
-    // static fp32 max_angle = SWING_NO_MOVE_ANGLE;
-    // //在一个控制周期内，加上 add_time
-    // static fp32 const add_time = 2 * PI * 0.5f * configTICK_RATE_HZ / CHASSIS_CONTROL_TIME_MS;
+    //max_angle是sin函数的幅值
+    static fp32 max_angle = SWING_NO_MOVE_ANGLE;
+    //在一个控制周期内，加上 add_time
+    static fp32 const add_time = 2 * PI * 0.5f * configTICK_RATE_HZ / CHASSIS_CONTROL_TIME_MS;
 
-    // //闪避摇摆时间
-    // static uint16_t miss_swing_time = 700;
-    // //0表示未开始闪避 1表示正在闪避 2表示闪避已结束
-    // static uint8_t miss_flag = MISS_CLOSE;
+    //闪避摇摆时间
+    static uint16_t miss_swing_time = 700;
+    //0表示未开始闪避 1表示正在闪避 2表示闪避已结束
+    static uint8_t miss_flag = MISS_CLOSE;
 
     // //开始自动闪避,扭腰倒计时开始
     // if (if_hit() == TRUE)
@@ -473,80 +487,80 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     //     miss_swing_time = 700;
     // }
 
-    // //开启扭腰
-    // if ((SWING_KEY || miss_flag == MISS_BEGIN) && swing_switch == FALSE)
-    // {
-    //     swing_switch = TRUE;
-    //     swing_time = 0.0f;
-    // }
-    // else if ((SWING_KEY || miss_flag == MISS_OVER) && swing_switch == TRUE) //关闭扭腰
-    // {
-    //     miss_flag = MISS_CLOSE;
-    //     swing_switch = 0;
-    // }
+    //开启扭腰
+    if ((SWING_KEY || miss_flag == MISS_BEGIN) && swing_switch == FALSE)
+    {
+        swing_switch = TRUE;
+        swing_time = 0.0f;
+    }
+    else if ((SWING_KEY || miss_flag == MISS_OVER) && swing_switch == TRUE) //关闭扭腰
+    {
+        miss_flag = MISS_CLOSE;
+        swing_switch = 0;
+    }
 
-    // //判断键盘输入是不是在控制底盘运动，底盘在运动减小摇摆角度
-    // if (chassis_RC->key.v & CHASSIS_FRONT_KEY || chassis_RC->key.v & CHASSIS_BACK_KEY ||
-    //     chassis_RC->key.v & CHASSIS_LEFT_KEY || chassis_RC->key.v & CHASSIS_RIGHT_KEY)
-    // {
-    //     max_angle = SWING_MOVE_ANGLE;
-    // }
-    // else
-    // {
-    //     max_angle = SWING_NO_MOVE_ANGLE;
-    // }
+    //判断键盘输入是不是在控制底盘运动，底盘在运动减小摇摆角度
+    if (chassis_RC->key.v & CHASSIS_FRONT_KEY || chassis_RC->key.v & CHASSIS_BACK_KEY ||
+        chassis_RC->key.v & CHASSIS_LEFT_KEY || chassis_RC->key.v & CHASSIS_RIGHT_KEY)
+    {
+        max_angle = SWING_MOVE_ANGLE;
+    }
+    else
+    {
+        max_angle = SWING_NO_MOVE_ANGLE;
+    }
 
-    // if (swing_switch)
-    // {
-    //     swing_angle = max_angle * arm_sin_f32(swing_time);
-    //     swing_time += add_time;
-    // }
-    // else
-    // {
-    //     swing_angle = 0.0f;
-    // }
-    // //sin函数不超过2pi
-    // if (swing_time > 2 * PI)
-    // {
-    //     swing_time -= 2 * PI;
-    // }
+    if (swing_switch)
+    {
+        swing_angle = max_angle * sin(swing_time);
+        swing_time += add_time;
+    }
+    else
+    {
+        swing_angle = 0.0f;
+    }
+    //sin函数不超过2pi
+    if (swing_time > 2 * PI)
+    {
+        swing_time -= 2 * PI;
+    }
 
-    // /**************************小陀螺控制输入********************************/
-    // //单击F开启和关闭小陀螺
-    // if (TOP_KEY && top_switch == 0) //开启小陀螺
-    // {
-    //     top_switch = 1;
-    // }
-    // else if (TOP_KEY && top_switch == 1) //关闭小陀螺
-    // {
-    //     top_switch = 0;
-    // }
+    /**************************小陀螺控制输入********************************/
+    //单击F开启和关闭小陀螺
+    if (TOP_KEY && top_switch == 0) //开启小陀螺
+    {
+        top_switch = 1;
+    }
+    else if (TOP_KEY && top_switch == 1) //关闭小陀螺
+    {
+        top_switch = 0;
+    }
 
-    // if (top_switch == 1)
-    // {
-    //     if ((fabs(*vx_set) < 0.001) && (fabs(*vy_set) < 0.001))
-    //         top_angle = TOP_WZ_ANGLE_STAND;
-    //     else
-    //         top_angle = TOP_WZ_ANGLE_MOVE;
-    // }
-    // else
-    //     top_angle = 0;
+    if (top_switch == 1)
+    {
+        if ((fabs(*vx_set) < 0.001) && (fabs(*vy_set) < 0.001))
+            top_angle = TOP_WZ_ANGLE_STAND;
+        else
+            top_angle = TOP_WZ_ANGLE_MOVE;
+    }
+    else
+        top_angle = 0;
 
-    // /****************************45度角对敌控制输入*********************************************/
-    // //单击C,开启45度角对敌;重复操作取消45度角对敌
-    // if (PISA_KEY && pisa_switch == 0) //打开45度对敌
-    // {
-    //     pisa_switch = TRUE;
-    // }
-    // else if (PISA_KEY && pisa_switch != 0) //关闭45度对敌
-    // {
-    //     pisa_switch = FALSE;
-    // }
+    /****************************45度角对敌控制输入*********************************************/
+    //单击C,开启45度角对敌;重复操作取消45度角对敌
+    if (PISA_KEY && pisa_switch == 0) //打开45度对敌
+    {
+        pisa_switch = TRUE;
+    }
+    else if (PISA_KEY && pisa_switch != 0) //关闭45度对敌
+    {
+        pisa_switch = FALSE;
+    }
 
-    // //更新上一次键盘值
-    // chassis_last_key_v = chassis_RC->key.v;
+    //更新上一次键盘值
+    chassis_last_key_v = chassis_RC->key.v;
 
-    // *angle_set = swing_angle + top_angle;
+    *angle_set = swing_angle + top_angle;
 }
 
 /**
