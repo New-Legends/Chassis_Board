@@ -9,6 +9,7 @@ extern CAN_HandleTypeDef hcan1;
 extern CAN_HandleTypeDef hcan2;
 
 #define CHASSIS_CAN hcan1
+#define BOARD_COM_CAN hcan1
 
 //底盘电机编号
 enum chassis_motor_id_e
@@ -71,6 +72,21 @@ typedef struct
   fp32    gimbal_yaw_angle;
 } chassis_receive_t;
 
+//云台发送数据结构体
+typedef struct
+{
+  //遥控器数据
+  int16_t ch_1;
+  int16_t ch_2;
+  int16_t ch_3;
+  uint16_t v;
+
+  //云台状态
+  uint8_t s1;
+  uint8_t gimbal_behaviour;
+  fp32 gimbal_yaw_angle;
+} gimbal_receive_t;
+
 //底盘发送数据结构体
 typedef struct
 {
@@ -97,6 +113,9 @@ public:
 
   chassis_receive_t chassis_receive;
 
+  //做测试
+  gimbal_receive_t gimbal_receive;
+
   //发送数据结构体
   CAN_TxHeaderTypeDef chassis_tx_message;
   uint8_t chassis_can_send_data[8];
@@ -114,6 +133,8 @@ public:
 
   void get_rc_board_com(uint8_t data[8]);
   void get_gimbal_board_com(uint8_t data[8]);
+
+  void send_rc_board_com(int16_t ch_1, int16_t ch_2, int16_t ch_3, uint16_t v);
 };
 
 

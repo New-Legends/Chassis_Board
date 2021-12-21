@@ -93,3 +93,28 @@ void Can_receive::get_rc_board_com(uint8_t data[8])
     chassis_receive.ch_3 = (int16_t)(data[5] << 8 | data[6]);
     chassis_receive.v = (uint16_t)(data[6] << 8 | data[7]);
 }
+
+void Can_receive::send_rc_board_com(int16_t ch_1, int16_t ch_2, int16_t ch_3, uint16_t v)
+{
+    //数据填充
+    gimbal_receive.ch_1 = ch_1;
+    gimbal_receive.ch_2 = ch_2;
+    gimbal_receive.ch_3 = ch_3;
+    gimbal_receive.v = v;
+
+    uint32_t send_mail_box;
+    chassis_tx_message.StdId = CAN_RC_BOARM_COM_ID;
+    chassis_tx_message.IDE = CAN_ID_STD;
+    chassis_tx_message.RTR = CAN_RTR_DATA;
+    chassis_tx_message.DLC = 0x08;
+    chassis_can_send_data[0] = ch_1 >> 8;
+    chassis_can_send_data[1] = ch_1;
+    chassis_can_send_data[2] = ch_2 >> 8;
+    chassis_can_send_data[3] = ch_2;
+    chassis_can_send_data[4] = ch_3 >> 8;
+    chassis_can_send_data[5] = ch_3;
+    chassis_can_send_data[6] = v >> 8;
+    chassis_can_send_data[7] = v;
+
+    HAL_CAN_AddTxMessage(&BOARD_COM_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
+}

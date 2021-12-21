@@ -47,6 +47,13 @@ void Communicat::run()
 
     ui.run();
     vTaskDelay(100);
+
+    // can_receive.send_rc_board_com(remote_control.rc_ctrl.rc.ch[1],
+    //                               remote_control.rc_ctrl.rc.ch[2],
+    //                               remote_control.rc_ctrl.rc.ch[3],
+    //                               remote_control.rc_ctrl.key.v
+
+    // );
 }
 
 #ifdef __cplusplus //告诉编译器，这部分代码按C语言的格式进行编译，而不是C++的
@@ -80,7 +87,6 @@ extern "C"
             can_receive.get_motor_measure(3, rx_data);
             //detect_hook(CHASSIS_MOtor_BR_MOTOR_TOE);
             break;
-
         case CAN_RC_BOARM_COM_ID:
             can_receive.get_rc_board_com(rx_data);
             break;
