@@ -8,29 +8,45 @@
 extern CAN_HandleTypeDef hcan1;
 extern CAN_HandleTypeDef hcan2;
 
-#define CHASSIS_CAN hcan1
+#define CHASSIS_CAN hcan2
 #define BOARD_COM_CAN hcan1
 
-//底盘电机编号
-enum chassis_motor_id_e
+//底盘动力电机编号
+enum motive_chassis_motor_id_e
 {
-    //底盘动力电机接收
-    FR_MOTOR = 0,
-    FL_MOTOR,
-    BL_MOTOR,
-    BR_MOTOR,
+  //底盘动力电机接收
+  MOTIVE_FR_MOTOR = 0,
+  MOTIVE_FL_MOTOR,
+  MOTIVE_BL_MOTOR,
+  MOTIVE_BR_MOTOR,
 };
 
+//底盘舵向电机编号
+enum rudde_chassisr_motor_id_e
+{
+  //底盘舵向电机
+  RUDDER_FR_MOTOR = 0,
+  RUDDER_FL_MOTOR,
+  RUDDER_BL_MOTOR,
+  RUDDER_BR_MOTOR,
+};
 
 /* CAN send and receive ID */
 typedef enum
 {
-  //底盘电机接收ID  CAN2
-  CAN_FR_MOTOR_ID = 0x201,
-  CAN_FL_MOTOR_ID = 0x202,
-  CAN_BL_MOTOR_ID = 0x203,
-  CAN_BR_MOTOR_ID = 0x204,
-  CAN_CHASSIS_ALL_ID = 0x200,
+  //底盘动力电机接收ID  CAN2
+  CAN_MOTIVE_FR_MOTOR_ID = 0x201,
+  CAN_MOTIVE_FL_MOTOR_ID = 0x202,
+  CAN_MOTIVE_BL_MOTOR_ID = 0x203,
+  CAN_MOTIVE_BR_MOTOR_ID = 0x204,
+  CAN_CHASSIS_MOTIVE_ALL_ID = 0x200,
+
+  //底盘舵向电机ID CAN2
+  CAN_RUDDER_FR_MOTOR_ID = 0x205,
+  CAN_RUDDER_FL_MOTOR_ID = 0x206,
+  CAN_RUDDER_BL_MOTOR_ID = 0x207,
+  CAN_RUDDER_BR_MOTOR_ID = 0X208,
+  CAN_CHASSIS_RUDDER_ALL_ID = 0x1FF,
 
   CAN_RC_BOARM_COM_ID = 0x301,
   CAN_GIMBAL_BOARD_COM_ID = 302,
@@ -108,9 +124,14 @@ typedef struct
 
 class Can_receive {
 public: 
-  //反馈数据结构体
-  motor_measure_t chassis_motor[4];
+  //动力电机反馈数据结构体
+  motor_measure_t chassis_motive_motor[4];
+  //舵向电机反馈数据结构体
+  motor_measure_t chassis_rudder_motor[4];
 
+
+
+  //底盘接收信息
   chassis_receive_t chassis_receive;
 
   //做测试
@@ -123,14 +144,21 @@ public:
   void init();
 
   //电机数据接收
-  void get_motor_measure(uint8_t num, uint8_t data[8]);
+  void get_motive_motor_measure(uint8_t num, uint8_t data[8]);
 
-  void can_cmd_chassis(int16_t motor1, int16_t motor2, int16_t motor3, int16_t motor4);
+  void can_cmd_chassis_motive_motor(int16_t motor1, int16_t motor2, int16_t motor3, int16_t motor4);      //动力电机数据
 
-  void can_cmd_chassis_reset_ID();
+  void can_cmd_chassis_motive_motor_reset_ID();
 
-  const motor_measure_t *get_chassis_motor_measure_point(uint8_t i);
+  const motor_measure_t *get_chassis_motive_motor_measure_point(uint8_t i);
 
+  void get_rudder_motor_measure(uint8_t num, uint8_t data[8]);
+
+  void can_cmd_chassis_rudder_motor(int16_t motor1, int16_t motor2, int16_t motor3, int16_t motor4);      //舵向电机数据
+
+  const motor_measure_t *get_chassis_rudder_motor_measure_point(uint8_t i);
+
+  //板间通信函数
   void get_rc_board_com(uint8_t data[8]);
   void get_gimbal_board_com(uint8_t data[8]);
 

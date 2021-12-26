@@ -11,8 +11,6 @@
 
 
 
-
-
 #define rc_deadband_limit(input, output, dealine)        \
     {                                                    \
         if ((input) > (dealine) || (input) < -(dealine)) \
@@ -115,6 +113,13 @@
 //限幅 需要自己手动校准
 #define RUDDER_OFFSET 5483 //编码器
 
+//电机反馈码盘值范围
+#define HALF_ECD_RANGE 4096
+#define ECD_RANGE 8191
+
+//电机编码值转化成角度值
+#define MOTOR_ECD_TO_RAD 0.000766990394f //      2*  PI  /8192
+
 #define MIN_RUDDER_ANGLE -PI
 #define MID_RUDDER_ANGLE 0.0f
 #define MAX_RUDDER_ANGLE PI
@@ -215,7 +220,8 @@ public:
     chassis_mode_e chassis_mode; //底盘控制状态机
     chassis_mode_e last_chassis_mode; //底盘上次控制状态机
 
-    M3508_motor chassis_motive_motor[4]; //底盘电机数据
+    M3508_motor chassis_motive_motor[4]; //底盘动力电机数据
+    G6020_motor chassis_rudder_motor[4]; //底盘舵向电机数据
 
     First_order_filter chassis_cmd_slow_set_vx;        //使用一阶低通滤波减缓设定值
     First_order_filter chassis_cmd_slow_set_vy;        //使用一阶低通滤波减缓设定值
@@ -271,7 +277,9 @@ public:
     //功能性函数
     void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set);
 
-    void chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4]);
+    void chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4], fp32 rudder_angle[4]);
+
+    fp32 motor_ecd_to_angle_change(uint16_t ecd, uint16_t offset_ecd);
 };
 
 

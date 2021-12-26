@@ -14,6 +14,7 @@
         "task.h": "c",
         "freertos.h": "c",
         "user_lib.h": "c",
-        "arm_math.h": "c"
+        "arm_math.h": "c",
+        "stm32f4xx_hal_conf.h": "c"
     }
 }
