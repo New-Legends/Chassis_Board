@@ -301,6 +301,7 @@ public:
     uint8_t Judge_Self_ID;        //当前机器人的ID
     uint16_t Judge_SelfClient_ID; //发送者机器人对应的客户端ID
 
+    uint8_t Color;
 
     void init();
 
@@ -312,7 +313,7 @@ public:
 
     //*************************数据查询接口*********************************//
     //返回机器人ID
-    uint8_t get_robot_id(void);
+    void get_robot_id(uint8_t *color);
     //底盘输出功率,底盘功率缓存
     void get_chassis_power_and_buffer(fp32 *power, fp32 *buffer);
     //17mm枪口热量上限, 17mm枪口实时热量 默认ID1
@@ -327,16 +328,16 @@ public:
     void get_shooter_id1_42mm_speed_limit_and_bullet_speed(uint16_t *id1_42mm_speed_limit, uint16_t *bullet_speed);
     //42mm枪口热量冷却
     void get_shooter_id1_42mm_cooling_rate(uint16_t *id1_42mm_cooling_rate);
-    
     //当前血量
-    uint16_t get_remain_hp();
+    void get_remain_hp(uint16_t *remain_HP);
+    //获取当前阵营颜色
+    void get_color(uint8_t *color);
+
     //是否被击打
     bool_t if_hit();
-    bool_t Color;
-    bool_t is_red_or_blue(void);
+ 
 
     void determine_ID(void);
-
 };
 
 

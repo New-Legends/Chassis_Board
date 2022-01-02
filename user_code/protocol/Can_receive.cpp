@@ -122,6 +122,22 @@ void Can_receive::can_cmd_chassis_rudder_motor(int16_t motor1, int16_t motor2, i
     HAL_CAN_AddTxMessage(&CHASSIS_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
 }
 
+void Can_receive::receive_rc_board_com(uint8_t data[8])
+{
+    chassis_receive.ch_1 = (int16_t)(data[0] << 8 | data[1]);
+    chassis_receive.ch_2 = (int16_t)(data[2] << 8 | data[3]);
+    chassis_receive.ch_3 = (int16_t)(data[4] << 8 | data[5]);
+    chassis_receive.v = (uint16_t)(data[6] << 8 | data[7]);
+}
+
+void Can_receive::receive_gimbal_board_com(uint8_t data[8])
+{
+    chassis_receive.s1 = data[0];
+    chassis_receive.gimbal_behaviour = data[1];
+    chassis_receive.gimbal_yaw_angle = (fp32)((uint16_t)data[0] | data[1]);
+}
+
+
 
 /**
   * @brief          返回底盘舵向电机 3508电机数据指针
@@ -133,35 +149,55 @@ const motor_measure_t *Can_receive::get_chassis_rudder_motor_measure_point(uint8
     return &chassis_rudder_motor[i];
 }
 
-void Can_receive::get_rc_board_com(uint8_t data[8])
-{
-    chassis_receive.ch_1 = (int16_t)(data[0] << 8 | data[1]);
-    chassis_receive.ch_2 = (int16_t)(data[2] << 8 | data[3]);
-    chassis_receive.ch_3 = (int16_t)(data[5] << 8 | data[6]);
-    chassis_receive.v = (uint16_t)(data[6] << 8 | data[7]);
-}
 
-void Can_receive::send_rc_board_com(int16_t ch_1, int16_t ch_2, int16_t ch_3, uint16_t v)
+void Can_receive::send_cooling_and_id_board_com(uint16_t id1_17mm_cooling_limit, uint16_t id1_17mm_cooling_rate, uint16_t id1_17mm_cooling_heat, uint8_t color, uint8_t robot_id)
 {
     //数据填充
-    gimbal_receive.ch_1 = ch_1;
-    gimbal_receive.ch_2 = ch_2;
-    gimbal_receive.ch_3 = ch_3;
-    gimbal_receive.v = v;
+    chassis_send.id1_17mm_cooling_limit = id1_17mm_cooling_limit;
+    chassis_send.id1_17mm_cooling_rate = id1_17mm_cooling_rate;
+    chassis_send.id1_17mm_cooling_heat = id1_17mm_cooling_heat;
+    chassis_send.color = color;
+    chassis_send.robot_id = robot_id;
+
 
     uint32_t send_mail_box;
-    chassis_tx_message.StdId = CAN_RC_BOARM_COM_ID;
+    chassis_tx_message.StdId = CAN_COOLING_BOARM_COM_ID;
     chassis_tx_message.IDE = CAN_ID_STD;
     chassis_tx_message.RTR = CAN_RTR_DATA;
     chassis_tx_message.DLC = 0x08;
-    chassis_can_send_data[0] = ch_1 >> 8;
-    chassis_can_send_data[1] = ch_1;
-    chassis_can_send_data[2] = ch_2 >> 8;
-    chassis_can_send_data[3] = ch_2;
-    chassis_can_send_data[4] = ch_3 >> 8;
-    chassis_can_send_data[5] = ch_3;
-    chassis_can_send_data[6] = v >> 8;
-    chassis_can_send_data[7] = v;
+    chassis_can_send_data[0] = id1_17mm_cooling_limit >> 8;
+    chassis_can_send_data[1] = id1_17mm_cooling_limit;
+    chassis_can_send_data[2] = id1_17mm_cooling_rate >> 8;
+    chassis_can_send_data[3] = id1_17mm_cooling_rate;
+    chassis_can_send_data[4] = id1_17mm_cooling_heat >> 8;
+    chassis_can_send_data[5] = id1_17mm_cooling_heat;
+    chassis_can_send_data[6] = color;
+    chassis_can_send_data[7] = robot_id;
+
+    HAL_CAN_AddTxMessage(&BOARD_COM_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
+}
+
+void Can_receive::send_17mm_speed_and_mode_board_com(uint16_t id1_17mm_speed_limit, uint16_t bullet_speed, uint8_t chassis_behaviour)
+{
+    //数据填充
+    chassis_send.id1_17mm_speed_limi = id1_17mm_speed_limit;
+    chassis_send.bullet_speed = bullet_speed;
+    chassis_send.chassis_behaviour = chassis_behaviour;
+
+
+    uint32_t send_mail_box;
+    chassis_tx_message.StdId = CAN_17MM_SPEED_BOARD_COM_ID;
+    chassis_tx_message.IDE = CAN_ID_STD;
+    chassis_tx_message.RTR = CAN_RTR_DATA;
+    chassis_tx_message.DLC = 0x08;
+    chassis_can_send_data[0] = id1_17mm_speed_limit >> 8;
+    chassis_can_send_data[1] = id1_17mm_speed_limit;
+    chassis_can_send_data[2] = bullet_speed >> 8;
+    chassis_can_send_data[3] = bullet_speed;
+    chassis_can_send_data[4] = chassis_behaviour;
+    chassis_can_send_data[5] = 0;
+    chassis_can_send_data[6] = 0;
+    chassis_can_send_data[7] = 0;
 
     HAL_CAN_AddTxMessage(&BOARD_COM_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
 }

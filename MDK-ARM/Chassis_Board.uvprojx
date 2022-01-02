@@ -758,6 +758,11 @@
               <FileType>8</FileType>
               <FilePath>..\user_code\application\communicate_task.cpp</FilePath>
             </File>
+            <File>
+              <FileName>detect_task.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\user_code\application\detect_task.cpp</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

@@ -262,9 +262,9 @@ void Referee::referee_data_solve(uint8_t *frame)
 }
 
 //返回机器人ID
-uint8_t Referee::get_robot_id(void)
+void Referee::get_robot_id(uint8_t *color)
 {
-    return robot_state.robot_id;
+    *color = robot_state.robot_id;
 }
 
 //************************功率控制***********************************
@@ -316,9 +316,9 @@ void Referee::get_shooter_id1_42mm_cooling_rate(uint16_t *id1_42mm_cooling_rate)
 }
 
 //当前血量
-uint16_t Referee::get_remain_hp()
+void Referee::get_remain_hp(uint16_t *remain_HP)
 {
-    return robot_state.remain_HP;
+    *remain_HP = robot_state.remain_HP;
 }
 
 //是否被击打
@@ -350,17 +350,17 @@ bool_t Referee::if_hit()
   * @retval RED   BLUE
   * @attention  数据打包,打包完成后通过串口发送到裁判系统
   */
-bool_t Referee::is_red_or_blue(void)
+void Referee::get_color(uint8_t *color)
 {
     Judge_Self_ID = robot_state.robot_id; //读取当前机器人ID
 
     if (robot_state.robot_id > 10)
     {
-        return BLUE;
+        *color = BLUE;
     }
     else
     {
-        return RED;
+        *color = RED;
     }
 }
 /**
@@ -371,7 +371,7 @@ bool_t Referee::is_red_or_blue(void)
   */
 void Referee::determine_ID(void)
 {
-    Color = is_red_or_blue();
+    get_color(&Color);
     if (Color == BLUE)
     {
         Judge_SelfClient_ID = 0x0110 + (Judge_Self_ID - 0x10); //计算客户端ID

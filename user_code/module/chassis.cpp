@@ -69,9 +69,12 @@ void Chassis::init()
         chassis_rudder_motor[i].mid_angle = MID_RUDDER_ANGLE;
         chassis_rudder_motor[i].min_angle = MIN_RUDDER_ANGLE;
 
-        //设置舵向电机初试编码中值
+        //设置舵向电机初试编码中值 
         chassis_rudder_motor[i].offset_ecd = RUDDER_OFFSET;
     }
+    // 0, 3号舵向电机初试编码值额外设置,应为安装问题
+    chassis_rudder_motor[0].offset_ecd = RUDDER_OFFSET_0;
+    chassis_rudder_motor[3].offset_ecd = RUDDER_OFFSET_3;
 
     const static fp32 chassis_x_order_filter[1] = {CHASSIS_ACCEL_X_NUM};
     const static fp32 chassis_y_order_filter[1] = {CHASSIS_ACCEL_Y_NUM};

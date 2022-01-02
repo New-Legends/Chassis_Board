@@ -110,8 +110,11 @@
 
 #define RUDDER_RADIUS 0.212f //轮中心距
 
-//限幅 需要自己手动校准
+//舵向电机初试位置拨码值 
+//由于机械安装问题,0,3号电机安装方式与另外二者不同,手动校准
+#define RUDDER_OFFSET_0 2733
 #define RUDDER_OFFSET 5483 //编码器
+#define RUDDER_OFFSET_3 4
 
 //电机反馈码盘值范围
 #define HALF_ECD_RANGE 4096
