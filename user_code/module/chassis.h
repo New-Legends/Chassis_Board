@@ -40,6 +40,9 @@
 //在特殊模式下，可以通过遥控器控制旋转
 #define CHASSIS_WZ_CHANNEL 0
 
+//初试yaw轴角度
+#define INIT_YAW_SET 0.0f
+
 //选择底盘状态 开关通道号
 #define CHASSIS_MODE_CHANNEL 0
 
@@ -100,7 +103,7 @@
 //底盘运动过程最大平移速度
 #define NORMAL_MAX_CHASSIS_SPEED_Y 1.5f //1.5
 //底盘运动过程最大旋转速度
-#define NORMAL_MAX_CHASSIS_SPEED_Z 0.2f
+#define NORMAL_MAX_CHASSIS_SPEED_Z 10.0f
 
 //原地旋转小陀螺下Z轴转速
 #define TOP_WZ_ANGLE_STAND 1.5f
@@ -159,11 +162,11 @@
 
 //chassis follow angle PID
 //底盘旋转跟随PID
-#define CHASSIS_FOLLOW_GIMBAL_PID_KP 30.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_KI 0.1f
-#define CHASSIS_FOLLOW_GIMBAL_PID_KD 2.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT 0.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT 6.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_KP 11.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_KI 0.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_KD 0.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT 2.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT 10.0f
 
 
 //底盘舵向电机 速度环 PID参数以及 PID最大输出，积分输出

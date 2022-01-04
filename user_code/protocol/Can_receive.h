@@ -81,7 +81,7 @@ typedef struct
 typedef struct
 {
   //遥控器数据
-  int16_t ch_1;
+  int16_t ch_0;
   int16_t ch_2;
   int16_t ch_3;
   uint16_t v;

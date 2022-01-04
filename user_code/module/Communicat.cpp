@@ -40,8 +40,7 @@ void Communicat::init()
 #if CHASSIS_REMOTE_NO_SIGNAL
     remote_control.init();
 #else
-    //remote_control.rc_ctrl.rc.ch[1] = &can_receive.chassis_receive.ch_1;
-    //remote_control.gimbal_send_rc_ctrl->rc.ch[1] = &can_receive.chassis_receive.ch_1;
+//TODO 这里最好使用指针赋值,减少计算量,后续需修改
 #endif
 
     can_receive.init();
@@ -84,7 +83,7 @@ void Communicat::run()
 #if CHASSIS_REMOTE_NO_SIGNAL
     ;
 #else
-    remote_control.rc_ctrl.rc.ch[1] = can_receive.chassis_receive.ch_1;
+    remote_control.rc_ctrl.rc.ch[0] = can_receive.chassis_receive.ch_0;
     remote_control.rc_ctrl.rc.ch[2] = can_receive.chassis_receive.ch_2;
     remote_control.rc_ctrl.rc.ch[3] = can_receive.chassis_receive.ch_3;
     remote_control.rc_ctrl.key.v = can_receive.chassis_receive.v;
