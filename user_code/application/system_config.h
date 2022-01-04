@@ -12,7 +12,6 @@ extern "C" {
 #endif
 
 #include "struct_typedef.h"
- 
 
 
 

@@ -87,7 +87,7 @@ typedef struct
   uint16_t v;
 
   //云台状态
-  uint8_t s1;
+  uint8_t s0;
   uint8_t gimbal_behaviour;
   fp32    gimbal_yaw_angle;
 } chassis_receive_t;

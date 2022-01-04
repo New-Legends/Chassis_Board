@@ -1,5 +1,15 @@
 #include "pid.h"
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+#include "user_lib.h"
+
+#ifdef __cplusplus
+}
+#endif
 #define LimitMax(input, max)   \
     {                          \
         if (input > max)       \
@@ -53,7 +63,9 @@ fp32 Pid::pid_calc()
     if (mode == PID_SPEED)
         *data.error_delta = data.error - data.last_error;
 
-    
+    if (mode == PID_ANGLE)
+        data.error = rad_format(data.error);
+
     data.Pout = data.Kp * data.error;
     data.Iout += data.Ki * data.error;
     data.Dout = data.Kd * (*data.error_delta);

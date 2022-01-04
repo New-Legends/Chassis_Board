@@ -132,7 +132,7 @@ void Can_receive::receive_rc_board_com(uint8_t data[8])
 
 void Can_receive::receive_gimbal_board_com(uint8_t data[8])
 {
-    chassis_receive.s1 = data[0];
+    chassis_receive.s0 = data[0];
     chassis_receive.gimbal_behaviour = data[1];
     chassis_receive.gimbal_yaw_angle = (fp32)((uint16_t)data[0] | data[1]);
 }

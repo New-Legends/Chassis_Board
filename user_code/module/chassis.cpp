@@ -334,12 +334,12 @@ void Chassis::output()
 
     for (int i = 0; i < 4; i++)
     {
-#ifdef CHASSIS_MOTIVE_MOTOR_NO_CURRENT
-        chassis_motive_motor[i].give_current = 0;
+#if CHASSIS_MOTIVE_MOTOR_NO_CURRENT
+        chassis_motive_motor[i].current_give = 0;
 #endif
 
-#ifdef CHASSIS_RUDDER_MOTOR_NO_CURRENT
-        chassis_rudder_motor[i].give_current = 0;
+#if CHASSIS_RUDDER_MOTOR_NO_CURRENT
+        chassis_rudder_motor[i].current_give = 0;
 #endif
     }
 
