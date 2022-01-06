@@ -1,4 +1,4 @@
-#include "communicat.h"
+#include "communicate.h"
 
 #include "main.h"
 #include "string.h"
@@ -32,9 +32,9 @@ Can_receive can_receive;
 Referee referee;
 Ui      ui;
 
-Communicat communicat;
+Communicate communicate;
 
-void Communicat::init()
+void Communicate::init()
 {
 
 #if CHASSIS_REMOTE_NO_SIGNAL
@@ -50,7 +50,7 @@ void Communicat::init()
     ui.init(&referee.Judge_Self_ID, &referee.Judge_SelfClient_ID);
 }
 
-void Communicat::run()
+void Communicate::run()
 {
     referee.unpack();
     referee.determine_ID();

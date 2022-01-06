@@ -736,7 +736,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>user_code/application</GroupName>
+          <GroupName>application</GroupName>
           <Files>
             <File>
               <FileName>system_config.cpp</FileName>
@@ -766,22 +766,22 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>user_code/module</GroupName>
+          <GroupName>module</GroupName>
           <Files>
-            <File>
-              <FileName>Communicat.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\user_code\module\Communicat.cpp</FilePath>
-            </File>
             <File>
               <FileName>Chassis.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\user_code\module\Chassis.cpp</FilePath>
             </File>
+            <File>
+              <FileName>Communicate.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\user_code\module\Communicate.cpp</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>user_code/algorithm</GroupName>
+          <GroupName>algorithm</GroupName>
           <Files>
             <File>
               <FileName>Pid.cpp</FileName>
@@ -796,7 +796,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>user_code/device</GroupName>
+          <GroupName>device</GroupName>
           <Files>
             <File>
               <FileName>Motor.cpp</FileName>
@@ -806,7 +806,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>user_code/protocol</GroupName>
+          <GroupName>protocol</GroupName>
           <Files>
             <File>
               <FileName>Can_receive.cpp</FileName>
@@ -831,7 +831,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>user_code/componet/support</GroupName>
+          <GroupName>support</GroupName>
           <Files>
             <File>
               <FileName>fifo.c</FileName>
@@ -851,22 +851,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>user_code/componet/include</GroupName>
-          <Files>
-            <File>
-              <FileName>arm_math.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user_code\componet\include\arm_math.h</FilePath>
-            </File>
-            <File>
-              <FileName>struct_typedef.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\user_code\componet\include\struct_typedef.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>user_code/bsp</GroupName>
+          <GroupName>bsp</GroupName>
           <Files>
             <File>
               <FileName>bsp_can.c</FileName>

@@ -1,5 +1,5 @@
 #include "Chassis.h"
-#include "Communicat.h"
+#include "Communicate.h"
 #include "cmsis_os.h"
 
 #include "arm_math.h"
@@ -200,7 +200,6 @@ void Chassis::set_contorl() {
         //设置控制相对云台角度
         chassis_relative_angle_set = rad_format(angle_set);
 
-        chassis_relative_angle
 
             // //计算旋转PID角速度 如果是小陀螺,固定转速 如果是45度角对敌,选择固定角度
             if (top_switch == TRUE)
