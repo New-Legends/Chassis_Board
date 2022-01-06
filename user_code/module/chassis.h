@@ -108,7 +108,7 @@
 //原地旋转小陀螺下Z轴转速
 #define TOP_WZ_ANGLE_STAND 1.5f
 //移动状态下小陀螺转速
-#define TOP_WZ_ANGLE_MOVE 0.2f
+#define TOP_WZ_ANGLE_MOVE 0.4f
 
 
 //摇摆原地不动摇摆最大角度(rad)
