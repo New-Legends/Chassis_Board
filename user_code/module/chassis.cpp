@@ -348,6 +348,7 @@ void Chassis::output()
         chassis_motive_motor[i].current_give = (int16_t)(chassis_motive_motor[i].current_set);
     }
 
+    //电流输出控制,通过调整宏定义控制
     for (int i = 0; i < 4; i++)
     {
 #if CHASSIS_MOTIVE_MOTOR_NO_CURRENT
