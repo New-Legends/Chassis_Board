@@ -57,31 +57,7 @@ void Chassis::init()
         fp32 motive_speed_pid_parm[5] = {MOTIVE_MOTOR_SPEED_PID_KP, MOTIVE_MOTOR_SPEED_PID_KI, MOTIVE_MOTOR_SPEED_PID_KD, MOTIVE_MOTOR_SPEED_PID_MAX_IOUT, MOTIVE_MOTOR_SPEED_PID_MAX_OUT};
         chassis_motive_motor[i].speed_pid.init(PID_SPEED, motive_speed_pid_parm, &chassis_motive_motor[i].speed, &chassis_motive_motor[i].speed_set, NULL);
         chassis_motive_motor[i].speed_pid.pid_clear();
-
-
-
-        //舵向电机数据
-        chassis_rudder_motor[i].init(can_receive.get_chassis_rudder_motor_measure_point(i));
-        //初始化pid
-        fp32 rudder_speed_pid_parm[5] = {RUDDER_MOTOR_SPEED_PID_KP, RUDDER_MOTOR_SPEED_PID_KI, RUDDER_MOTOR_SPEED_PID_KD, RUDDER_MOTOR_SPEED_PID_MAX_IOUT, RUDDER_MOTOR_SPEED_PID_MAX_OUT};
-        chassis_rudder_motor[i].speed_pid.init(PID_SPEED, rudder_speed_pid_parm, &chassis_rudder_motor[i].speed, &chassis_rudder_motor[i].speed_set, NULL);
-        fp32 rudder_angle_pid_parm[5] = {RUDDER_MATOR_ANGLE_PID_KP, RUDDER_MATOR_ANGLE_PID_KI, RUDDER_MATOR_ANGLE_PID_KD, RUDDER_MATOR_ANGLE_PID_MAX_IOUT, RUDDER_MATOR_ANGLE_PID_MAX_OUT};
-        chassis_rudder_motor[i].angle_pid.init(PID_ANGLE, rudder_angle_pid_parm, &chassis_rudder_motor[i].angle, &chassis_rudder_motor[i].angle_set, 0);
-       
-        chassis_rudder_motor[i].speed_pid.pid_clear();
-        chassis_rudder_motor[i].angle_pid.pid_clear();
-
-        //设置舵向电机角度限幅和中值
-        chassis_rudder_motor[i].max_angle = MAX_RUDDER_ANGLE;
-        chassis_rudder_motor[i].mid_angle = MID_RUDDER_ANGLE;
-        chassis_rudder_motor[i].min_angle = MIN_RUDDER_ANGLE;
-
-        //设置舵向电机初试编码中值 
-        chassis_rudder_motor[i].offset_ecd = RUDDER_OFFSET;
     }
-    //TODO     // 0, 3号舵向电机初试编码值额外设置,应为安装问题
-    chassis_rudder_motor[0].offset_ecd = RUDDER_OFFSET_0;
-    chassis_rudder_motor[3].offset_ecd = RUDDER_OFFSET_3;
 
     const static fp32 chassis_x_order_filter[1] = {CHASSIS_ACCEL_X_NUM};
     const static fp32 chassis_y_order_filter[1] = {CHASSIS_ACCEL_Y_NUM};
@@ -150,11 +126,6 @@ void Chassis::feedback_update()
         chassis_motive_motor[i].speed = CHASSIS_MOTOR_RPM_TO_VECTOR_SEN * chassis_motive_motor[i].motor_measure->speed_rpm;
         chassis_motive_motor[i].accel = *chassis_motive_motor[i].speed_pid.data.error_delta * CHASSIS_CONTROL_FREQUENCE;
 
-        //更新舵向电机角度，
-        chassis_rudder_motor[i].angle = -motor_ecd_to_angle_change(chassis_rudder_motor[i].motor_measure->ecd,
-                                                                   chassis_rudder_motor[i].offset_ecd);
-        //更新舵向电机速度
-        chassis_rudder_motor[i].speed = GM6020_MOTOR_RPM_TO_VECTOR * chassis_rudder_motor[i].motor_measure->speed_rpm;
     }
 
     //更新底盘x, y, z速度值,右手坐标系
@@ -163,14 +134,6 @@ void Chassis::feedback_update()
     y.speed = (-chassis_motive_motor[0].speed - chassis_motive_motor[1].speed + chassis_motive_motor[2].speed + chassis_motive_motor[3].speed) * MOTOR_SPEED_TO_CHASSIS_SPEED_VY;
     z.speed = (-chassis_motive_motor[0].speed - chassis_motive_motor[1].speed - chassis_motive_motor[2].speed - chassis_motive_motor[3].speed) * MOTOR_SPEED_TO_CHASSIS_SPEED_WZ / MOTOR_DISTANCE_TO_CENTER;
 
-    //修订版本的速度更新
-    x.speed = (chassis_motive_motor[0].speed * cos(chassis_rudder_motor[0].angle) + chassis_motive_motor[1].speed * cos(chassis_rudder_motor[1].angle)
-            + chassis_motive_motor[2].speed * cos(chassis_rudder_motor[2].angle) + chassis_motive_motor[3].speed * cos(chassis_rudder_motor[3].angle));
-
-    y.speed = (chassis_motive_motor[0].speed * sin(chassis_rudder_motor[0].angle) + chassis_motive_motor[1].speed * sin(chassis_rudder_motor[1].angle)
-            + chassis_motive_motor[2].speed * sin(chassis_rudder_motor[2].angle) + chassis_motive_motor[3].speed * sin(chassis_rudder_motor[3].angle));
-
-    
         
     //TODO 还未完善
     //底盘相对于云台的角度,由云台发送过来
@@ -265,8 +228,6 @@ void Chassis::set_contorl() {
     }
 }
 
-fp32 wheel_speed[4] = {0.0f, 0.0f, 0.0f, 0.0f};  //动力电机目标速度
-fp32 rudder_angle[4] = {0.0f, 0.0f, 0.0f, 0.0f}; //舵向电机目标角度
 
 /**
   * @brief          解算数据,并进行pid计算
@@ -276,19 +237,18 @@ fp32 rudder_angle[4] = {0.0f, 0.0f, 0.0f, 0.0f}; //舵向电机目标角度
 void Chassis::solve() {
     fp32 max_vector = 0.0f, vector_rate = 0.0f;
     fp32 temp = 0.0f;
-
+    fp32 wheel_speed[4] = {0.0f, 0.0f, 0.0f, 0.0f}; //动力电机目标速度
 
     uint8_t i = 0;
 
     //舵轮运动分解
-    chassis_vector_to_mecanum_wheel_speed(wheel_speed, rudder_angle);
+    chassis_vector_to_mecanum_wheel_speed(wheel_speed);
 
     if (chassis_mode == CHASSIS_VECTOR_RAW)
     {
         for (i = 0; i < 4; i++)
         {
             chassis_motive_motor[i].current_give = (int16_t)(wheel_speed[i]);
-            chassis_rudder_motor[i].current_give = (int16_t)(rudder_angle[i]);
         }
         //raw控制直接返回
         return;
@@ -303,19 +263,6 @@ void Chassis::solve() {
         {
             max_vector = temp;
         }
-
-        //舵向电机角度限幅
-        chassis_rudder_motor[i].angle_set = rudder_angle[i];
-
-        if (chassis_rudder_motor[i].angle_set > chassis_rudder_motor[i].max_angle)
-        {
-            chassis_rudder_motor[i].angle_set = chassis_rudder_motor[i].max_angle;
-        }
-
-        if (chassis_rudder_motor[i].angle_set < chassis_rudder_motor[i].min_angle)
-        {
-            chassis_rudder_motor[i].angle_set = chassis_rudder_motor[i].min_angle;
-        }
     }
 
 
@@ -324,10 +271,6 @@ void Chassis::solve() {
     {
         //计算动力电机的输出电流
         chassis_motive_motor[i].current_set = chassis_motive_motor[i].speed_pid.pid_calc();
-
-        //计算舵向电机的输出电流
-        chassis_rudder_motor[i].speed_set = chassis_rudder_motor[i].angle_pid.pid_calc();
-        chassis_rudder_motor[i].current_set = chassis_rudder_motor[i].speed_pid.pid_calc();
     }
 }
 
@@ -350,7 +293,6 @@ void Chassis::output()
     //赋值电流值
     for (int i = 0; i < 4; i++)
     {
-        chassis_rudder_motor[i].current_give = -(int16_t)(chassis_rudder_motor[i].current_set);
         chassis_motive_motor[i].current_give = (int16_t)(chassis_motive_motor[i].current_set);
     }
 
@@ -361,16 +303,10 @@ void Chassis::output()
         chassis_motive_motor[i].current_give = 0;
 #endif
 
-#if CHASSIS_RUDDER_MOTOR_NO_CURRENT
-        chassis_rudder_motor[i].current_give = 0;
-#endif
     }
 
     can_receive.can_cmd_chassis_motive_motor(chassis_motive_motor[0].current_give, chassis_motive_motor[1].current_give,
                                              chassis_motive_motor[2].current_give, chassis_motive_motor[3].current_give);
-
-    can_receive.can_cmd_chassis_rudder_motor(chassis_rudder_motor[0].current_give, chassis_rudder_motor[1].current_give,
-                                             chassis_rudder_motor[2].current_give, chassis_rudder_motor[3].current_give);
 }
 
 /**
@@ -764,28 +700,15 @@ void Chassis::chassis_rc_to_control_vector(fp32 * vx_set, fp32 * vy_set) {
   * @param[out]     wheel_speed: 四个麦轮速度
   * @retval         none
   */
-void Chassis::chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4], fp32 rudder_angle[4])
+void Chassis::chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4])
 {
-    /*
-    算法来源：华南理工
-    */
-    float theta = atan(1.0 / 1.0);
-    static float last_rudder_angle[4] = {0};
 
-    /*-------------------------------舵轮解算-来源华南理工------------------------------------*/
-    //动力电机角度解算
-    wheel_speed[0] = sqrt(pow(y.speed_set - z.speed_set * RUDDER_RADIUS * sin(theta), 2) + pow(x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta), 2));
-    wheel_speed[1] = sqrt(pow(y.speed_set - z.speed_set * RUDDER_RADIUS * sin(theta), 2) + pow(x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta), 2));
-    wheel_speed[2] = sqrt(pow(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), 2) + pow(x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta), 2));
-    wheel_speed[3] = sqrt(pow(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), 2) + pow(x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta), 2));
-
-    //舵向电机角度解算
-    rudder_angle[0] = atan2(y.speed_set - z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta));
-    rudder_angle[1] = atan2(y.speed_set - z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta));
-    rudder_angle[2] = atan2(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta));
-    rudder_angle[3] = atan2(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta));
-
-
+    //normal
+    //旋转的时候， 由于云台靠前，所以是前面两轮 0 ，1 旋转的速度变慢， 后面两轮 2,3 旋转的速度变快
+    wheel_speed[0] = -x.speed_set - y.speed_set + (CHASSIS_WZ_SET_SCALE - 1.0f) * MOTOR_DISTANCE_TO_CENTER * z.speed_set;
+    wheel_speed[1] = x.speed_set - y.speed_set + (CHASSIS_WZ_SET_SCALE - 1.0f) * MOTOR_DISTANCE_TO_CENTER * z.speed_set;
+    wheel_speed[2] = x.speed_set + y.speed_set + (-CHASSIS_WZ_SET_SCALE - 1.0f) * MOTOR_DISTANCE_TO_CENTER * z.speed_set;
+    wheel_speed[3] = -x.speed_set + y.speed_set + (-CHASSIS_WZ_SET_SCALE - 1.0f) * MOTOR_DISTANCE_TO_CENTER * z.speed_set;
 }
 
 /**

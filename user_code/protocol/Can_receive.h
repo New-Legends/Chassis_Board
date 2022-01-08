@@ -21,16 +21,6 @@ enum motive_chassis_motor_id_e
   MOTIVE_BR_MOTOR,
 };
 
-//底盘舵向电机编号
-enum rudde_chassisr_motor_id_e
-{
-  //底盘舵向电机
-  RUDDER_FR_MOTOR = 0,
-  RUDDER_FL_MOTOR,
-  RUDDER_BL_MOTOR,
-  RUDDER_BR_MOTOR,
-};
-
 /* CAN send and receive ID */
 typedef enum
 {
@@ -40,13 +30,6 @@ typedef enum
   CAN_MOTIVE_BL_MOTOR_ID = 0x203,
   CAN_MOTIVE_BR_MOTOR_ID = 0x204,
   CAN_CHASSIS_MOTIVE_ALL_ID = 0x200,
-
-  //底盘舵向电机ID CAN2
-  CAN_RUDDER_FR_MOTOR_ID = 0x205,
-  CAN_RUDDER_FL_MOTOR_ID = 0x206,
-  CAN_RUDDER_BL_MOTOR_ID = 0x207,
-  CAN_RUDDER_BR_MOTOR_ID = 0X208,
-  CAN_CHASSIS_RUDDER_ALL_ID = 0x1FF,
 
   //板间通信ID
   CAN_RC_BOARM_COM_ID = 0x301,
@@ -116,8 +99,6 @@ class Can_receive {
 public: 
   //动力电机反馈数据结构体
   motor_measure_t chassis_motive_motor[4];
-  //舵向电机反馈数据结构体
-  motor_measure_t chassis_rudder_motor[4];
 
   //发送数据结构体
   CAN_TxHeaderTypeDef chassis_tx_message;
@@ -139,12 +120,6 @@ public:
   void can_cmd_chassis_motive_motor_reset_ID();
 
   const motor_measure_t *get_chassis_motive_motor_measure_point(uint8_t i);
-
-  void get_rudder_motor_measure(uint8_t num, uint8_t data[8]);
-
-  void can_cmd_chassis_rudder_motor(int16_t motor1, int16_t motor2, int16_t motor3, int16_t motor4);      //舵向电机数据
-
-  const motor_measure_t *get_chassis_rudder_motor_measure_point(uint8_t i);
 
   //板间通信函数
   void receive_rc_board_com(uint8_t data[8]);

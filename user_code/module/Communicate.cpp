@@ -40,6 +40,7 @@ void Communicate::init()
 #if CHASSIS_REMOTE_NO_SIGNAL
     remote_control.init();
 #else
+    ;
 //TODO 这里最好使用指针赋值,减少计算量,后续需修改
 #endif
 
@@ -123,24 +124,6 @@ extern "C"
         case CAN_MOTIVE_BR_MOTOR_ID:
             can_receive.get_motive_motor_measure(MOTIVE_BR_MOTOR, rx_data);
             //detect_hook(CHASSIS_MOTIVE_BR_MOTOR_TOE);
-            break;
-
-        //底盘舵向电机
-        case CAN_RUDDER_FR_MOTOR_ID:
-            can_receive.get_rudder_motor_measure(RUDDER_FR_MOTOR, rx_data);
-            //detect_hook(CHASSIS_RUDDER_FR_MOTOR_TOE);
-            break;
-        case CAN_RUDDER_FL_MOTOR_ID:
-            can_receive.get_rudder_motor_measure(RUDDER_FL_MOTOR, rx_data);
-            //detect_hook(CHASSIS_RUDDER_FL_MOTOR_TOE);
-            break;
-        case CAN_RUDDER_BL_MOTOR_ID:
-            can_receive.get_rudder_motor_measure(RUDDER_BL_MOTOR, rx_data);
-            //detect_hook(CHASSIS_RUDDER_BL_MOTOR_TOE);
-            break;
-        case CAN_RUDDER_BR_MOTOR_ID:
-            can_receive.get_rudder_motor_measure(RUDDER_BR_MOTOR, rx_data);
-            //detect_hook(CHASSIS_RUDDER_BR_MOTOR_TOE);
             break;
 
         default:

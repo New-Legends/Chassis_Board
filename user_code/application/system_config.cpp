@@ -51,9 +51,9 @@ void Task_start(void)
 {
         /* Syetem Service init --------------*/
         /* Applications Init ----------------*/
-        xTaskCreate(chassis_task, "chassis_task", Large_Stack_Size, NULL, PriorityHigh, &chassis_task_handle);
+        xTaskCreate(chassis_task, "chassis_task", Large_Stack_Size, NULL, PriorityAboveNormal, &chassis_task_handle);
 
         xTaskCreate(communicate_task, "communicate_task", Large_Stack_Size, NULL, PriorityHigh, &communicate_task_handle);
 
-        xTaskCreate(my_test_task, "my_test_task", Small_Stack_Size, NULL, PriorityHigh, &my_test_task_handle);
+        xTaskCreate(my_test_task, "my_test_task", Small_Stack_Size, NULL, PriorityNormal, &my_test_task_handle);
 }

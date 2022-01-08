@@ -86,41 +86,6 @@ const motor_measure_t *Can_receive::get_chassis_motive_motor_measure_point(uint8
     return &chassis_motive_motor[i];
 }
 
-void Can_receive::get_rudder_motor_measure(uint8_t num, uint8_t data[8])
-{
-    chassis_rudder_motor[num].last_ecd = chassis_rudder_motor[num].ecd;
-    chassis_rudder_motor[num].ecd = (uint16_t)(data[0] << 8 | data[1]);
-    chassis_rudder_motor[num].speed_rpm = (uint16_t)(data[2] << 8 | data[3]);
-    chassis_rudder_motor[num].given_current = (uint16_t)(data[4] << 8 | data[5]);
-    chassis_rudder_motor[num].temperate = data[6];
-}
-
-/**
-* @brief          发送电机控制电流(0x201,0x202,0x203,0x204)
-* @param[in]      motor1: (0x201) 3508电机控制电流, 范围 [-16384,16384]
-* @param[in]      motor2: (0x202) 3508电机控制电流, 范围 [-16384,16384]
-* @param[in]      motor3: (0x203) 3508电机控制电流, 范围 [-16384,16384]
-* @param[in]      motor4: (0x204) 3508电机控制电流, 范围 [-16384,16384]
-* @retval         none
-*/
-void Can_receive::can_cmd_chassis_rudder_motor(int16_t motor1, int16_t motor2, int16_t motor3, int16_t motor4)
-{
-    uint32_t send_mail_box;
-    chassis_tx_message.StdId = CAN_CHASSIS_RUDDER_ALL_ID;
-    chassis_tx_message.IDE = CAN_ID_STD;
-    chassis_tx_message.RTR = CAN_RTR_DATA;
-    chassis_tx_message.DLC = 0x08;
-    chassis_can_send_data[0] = motor1 >> 8;
-    chassis_can_send_data[1] = motor1;
-    chassis_can_send_data[2] = motor2 >> 8;
-    chassis_can_send_data[3] = motor2;
-    chassis_can_send_data[4] = motor3 >> 8;
-    chassis_can_send_data[5] = motor3;
-    chassis_can_send_data[6] = motor4 >> 8;
-    chassis_can_send_data[7] = motor4;
-
-    HAL_CAN_AddTxMessage(&CHASSIS_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
-}
 
 void Can_receive::receive_rc_board_com(uint8_t data[8])
 {
@@ -135,18 +100,6 @@ void Can_receive::receive_gimbal_board_com(uint8_t data[8])
     chassis_receive.s0 = data[0];
     chassis_receive.gimbal_behaviour = data[1];
     chassis_receive.gimbal_yaw_angle = (fp32)(int32_t)(data[2] << 24 | data[3] << 16 | data[4] << 8 | data[5]) / 1000;
-}
-
-
-
-/**
-  * @brief          返回底盘舵向电机 3508电机数据指针
-  * @param[in]      i: 电机编号,范围[0,3]
-  * @retval         电机数据指针
-  */
-const motor_measure_t *Can_receive::get_chassis_rudder_motor_measure_point(uint8_t i)
-{
-    return &chassis_rudder_motor[i];
 }
 
 
