@@ -143,7 +143,10 @@
 
 #define SWING_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_C) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_C))
 #define PISA_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_X) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_X))
-#define TOP_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_F) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_F))
+#define SWING_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_C) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_C))
+#define PISA_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_X) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_X))
+
+// #define TOP_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_F) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_F))
 
 
 #define PISA_DELAY_TIME 500
@@ -155,10 +158,17 @@
 //底盘电机速度环PID
 #define MOTIVE_MOTOR_SPEED_PID_KP 6000.0f
 #define MOTIVE_MOTOR_SPEED_PID_KI 0.0f
-#define MOTIVE_MOTOR_SPEED_PID_KD 2.0f
+#define MOTIVE_MOTOR_SPEED_PID_KD 0.0f
 #define MOTIVE_MOTOR_SPEED_PID_MAX_IOUT 2000.0f
 #define MOTIVE_MOTOR_SPEED_PID_MAX_OUT 6000.0f
 
+// //chassis motor speed PID
+// //底盘电机速度环PID
+// #define MOTIVE_MOTOR_SPEED_PID_KP 6000.0f
+// #define MOTIVE_MOTOR_SPEED_PID_KI 0.0f
+// #define MOTIVE_MOTOR_SPEED_PID_KD 2.0f
+// #define MOTIVE_MOTOR_SPEED_PID_MAX_IOUT 2000.0f
+// #define MOTIVE_MOTOR_SPEED_PID_MAX_OUT 6000.0f
 
 //chassis follow angle PID
 //底盘旋转跟随PID

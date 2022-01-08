@@ -56,6 +56,9 @@ void Chassis::init()
         //初始化pid
         fp32 motive_speed_pid_parm[5] = {MOTIVE_MOTOR_SPEED_PID_KP, MOTIVE_MOTOR_SPEED_PID_KI, MOTIVE_MOTOR_SPEED_PID_KD, MOTIVE_MOTOR_SPEED_PID_MAX_IOUT, MOTIVE_MOTOR_SPEED_PID_MAX_OUT};
         chassis_motive_motor[i].speed_pid.init(PID_SPEED, motive_speed_pid_parm, &chassis_motive_motor[i].speed, &chassis_motive_motor[i].speed_set, NULL);
+        chassis_motive_motor[i].speed_pid.pid_clear();
+
+
 
         //舵向电机数据
         chassis_rudder_motor[i].init(can_receive.get_chassis_rudder_motor_measure_point(i));
@@ -64,6 +67,10 @@ void Chassis::init()
         chassis_rudder_motor[i].speed_pid.init(PID_SPEED, rudder_speed_pid_parm, &chassis_rudder_motor[i].speed, &chassis_rudder_motor[i].speed_set, NULL);
         fp32 rudder_angle_pid_parm[5] = {RUDDER_MATOR_ANGLE_PID_KP, RUDDER_MATOR_ANGLE_PID_KI, RUDDER_MATOR_ANGLE_PID_KD, RUDDER_MATOR_ANGLE_PID_MAX_IOUT, RUDDER_MATOR_ANGLE_PID_MAX_OUT};
         chassis_rudder_motor[i].angle_pid.init(PID_ANGLE, rudder_angle_pid_parm, &chassis_rudder_motor[i].angle, &chassis_rudder_motor[i].angle_set, 0);
+       
+        chassis_rudder_motor[i].speed_pid.pid_clear();
+        chassis_rudder_motor[i].angle_pid.pid_clear();
+
         //设置舵向电机角度限幅和中值
         chassis_rudder_motor[i].max_angle = MAX_RUDDER_ANGLE;
         chassis_rudder_motor[i].mid_angle = MID_RUDDER_ANGLE;
@@ -86,7 +93,7 @@ void Chassis::init()
     //初始化角度Z轴PID
     fp32 z_angle_pid_parm[5] = {CHASSIS_FOLLOW_GIMBAL_PID_KP, CHASSIS_FOLLOW_GIMBAL_PID_KI, CHASSIS_FOLLOW_GIMBAL_PID_KD, CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT, CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT};
     chassis_wz_angle_pid.init(PID_ANGLE, z_angle_pid_parm, &chassis_relative_angle, &chassis_relative_angle_set, NULL);
-
+    chassis_wz_angle_pid.pid_clear();
     //速度限幅设置
     x.min_speed = -NORMAL_MAX_CHASSIS_SPEED_X;
     x.max_speed = NORMAL_MAX_CHASSIS_SPEED_X;
@@ -310,7 +317,6 @@ void Chassis::solve() {
             chassis_rudder_motor[i].angle_set = chassis_rudder_motor[i].min_angle;
         }
     }
-
 
 
     //计算pid

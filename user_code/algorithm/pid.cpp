@@ -86,16 +86,6 @@ fp32 Pid::pid_calc()
   */
 void Pid::pid_clear()
 {
-    mode = 0;
-    data.Kp = 0;
-    data.Ki = 0;
-    data.Kd = 0;
-    data.max_out = 0;
-    data.max_iout = 0;
-
-    data.set = 0;
-    data.ref = 0;
-    data.error = 0;
-
-    data.error_delta = 0;
+    data.last_error = data.error = *data.set = *data.ref = 0;
+    data.out = data.Pout = data.Iout = data.Dout = 0;
 }
