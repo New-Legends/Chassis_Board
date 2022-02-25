@@ -16,7 +16,6 @@ public:
     void init();
 
     void run();
-
 };
 
 extern Remote_control remote_control;
