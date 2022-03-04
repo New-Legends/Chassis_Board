@@ -9,7 +9,7 @@
 #include "Motor.h"
 #include "Pid.h"
 
-
+#include "Config.h"
 
 #define rc_deadband_limit(input, output, dealine)        \
     {                                                    \
@@ -23,10 +23,7 @@
         }                                                \
     }
 
-//底盘动力电机无电流输出
-#define CHASSIS_MOTIVE_MOTOR_NO_CURRENT 0
-//底盘舵向电机无电流输出
-#define CHASSIS_RUDDER_MOTOR_NO_CURRENT 0
+
 
 //任务开始空闲一段时间
 #define CHASSIS_TASK_INIT_TIME 357
@@ -78,16 +75,20 @@
 #define CHASSIS_CONTROL_FREQUENCE 500.0f
 //底盘3508最大can发送电流值
 #define MAX_MOTOR_CAN_CURRENT 16000.0f
-//底盘摇摆按键
-#define SWING_KEY KEY_PRESSED_OFFSET_CTRL
-//底盘小陀螺按键
-#define TOP_KEY KEY_PRESSED_OFFSET_F
+
+
 
 //底盘前后左右控制按键
-#define CHASSIS_FRONT_KEY KEY_PRESSED_OFFSET_W
-#define CHASSIS_BACK_KEY KEY_PRESSED_OFFSET_S
-#define CHASSIS_LEFT_KEY KEY_PRESSED_OFFSET_A
-#define CHASSIS_RIGHT_KEY KEY_PRESSED_OFFSET_D
+#define KEY_CHASSIS_FRONT KEY_PRESSED_CHASSIS_FRONT
+#define KEY_CHASSIS_BACK  KEY_PRESSED_CHASSIS_BACK
+#define KEY_CHASSIS_LEFT  KEY_PRESSED_CHASSIS_LEFT
+#define KEY_CHASSIS_RIGHT KEY_PRESSED_CHASSIS_RIGHT
+
+#define KEY_CHASSIS_TOP ((chassis.chassis_RC->key.v & KEY_PRESSED_CHASSIS_TOP) && !(chassis.chassis_last_key_v & KEY_PRESSED_CHASSIS_TOP))
+#define KEY_CHASSIS_SWING ((chassis.chassis_RC->key.v & KEY_PRESSED_CHASSIS_SWING) && !(chassis.chassis_last_key_v & KEY_PRESSED_CHASSIS_SWING))
+#define KEY_CHASSIS_PISA ((chassis.chassis_RC->key.v & KEY_PRESSED_CHASSIS_PISA) && !(chassis.chassis_last_key_v & KEY_PRESSED_CHASSIS_PISA))
+
+
 
 //m3508转化成底盘速度(m/s)的比例，
 #define M3508_MOTOR_RPM_TO_VECTOR 0.000415809748903494517209f
@@ -141,9 +142,6 @@
 #define MISS_BEGIN 1
 #define MISS_OVER 2
 
-#define SWING_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_C) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_C))
-#define PISA_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_X) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_X))
-#define TOP_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_F) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_F))
 
 
 #define PISA_DELAY_TIME 500

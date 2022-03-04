@@ -7,8 +7,7 @@
 #include "Remote_control.h"
 #include "Can_receive.h"
 
-//底盘遥控器是否开启 正常上下板通信是关闭状态的
-#define CHASSIS_REMOTE_OPEN 0
+#include "Config.h"
 
 class Communicate
 {
