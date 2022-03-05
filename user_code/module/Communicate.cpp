@@ -37,11 +37,11 @@ Communicate communicate;
 void Communicate::init()
 {
 
-#if CHASSIS_REMOTE_NO_SIGNAL
-    remote_control.init();
-#else
-    ;
 //TODO 这里最好使用指针赋值,减少计算量,后续需修改
+#if CHASSIS_REMOTE_OPEN
+    ;
+#else
+    remote_control.init();
 #endif
 
     can_receive.init();
@@ -81,15 +81,14 @@ void Communicate::run()
 
 
 //TODO 这里最好使用指针赋值,减少计算量,后续需修改
-#if CHASSIS_REMOTE_NO_SIGNAL
-    ;
-#else
+#if CHASSIS_REMOTE_OPEN
     remote_control.rc_ctrl.rc.ch[0] = can_receive.chassis_receive.ch_0;
     remote_control.rc_ctrl.rc.ch[2] = can_receive.chassis_receive.ch_2;
     remote_control.rc_ctrl.rc.ch[3] = can_receive.chassis_receive.ch_3;
     remote_control.rc_ctrl.key.v = can_receive.chassis_receive.v;
     remote_control.rc_ctrl.rc.s[0] = can_receive.chassis_receive.s0;
-
+#else
+   ;
 #endif
 }
 

@@ -39,6 +39,8 @@ void Chassis::init()
 {
     //获取遥控器指针
     chassis_RC = remote_control.get_remote_control_point();
+    last_chassis_RC = remote_control.get_last_remote_control_point();
+
     chassis_last_key_v = 0;
 
     //设置初试状态机
@@ -101,6 +103,7 @@ void Chassis::set_mode() {
 void Chassis::feedback_update()
 {   
     //记录上一次遥控器值
+    last_chassis_RC->key.v = chassis_RC->key.v;
     chassis_last_key_v =chassis_RC->key.v;
 
     //切入跟随云台模式
@@ -497,20 +500,20 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     // }
 
     //开启扭腰
-    if ((SWING_KEY || miss_flag == MISS_BEGIN) && swing_switch == FALSE)
+    if ((KEY_CHASSIS_SWING || miss_flag == MISS_BEGIN) && swing_switch == FALSE)
     {
         swing_switch = TRUE;
         swing_time = 0.0f;
     }
-    else if ((SWING_KEY || miss_flag == MISS_OVER) && swing_switch == TRUE) //关闭扭腰
+    else if ((KEY_CHASSIS_SWING || miss_flag == MISS_OVER) && swing_switch == TRUE) //关闭扭腰
     {
         miss_flag = MISS_CLOSE;
         swing_switch = 0;
     }
 
     //判断键盘输入是不是在控制底盘运动，底盘在运动减小摇摆角度
-    if (chassis_RC->key.v & CHASSIS_FRONT_KEY || chassis_RC->key.v & CHASSIS_BACK_KEY ||
-        chassis_RC->key.v & CHASSIS_LEFT_KEY || chassis_RC->key.v & CHASSIS_RIGHT_KEY)
+    if (KEY_CHASSIS_FRONT || KEY_CHASSIS_BACK ||
+        KEY_CHASSIS_LEFT || KEY_CHASSIS_RIGHT)
     {
         max_angle = SWING_MOVE_ANGLE;
     }
@@ -536,11 +539,11 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
 
     /**************************小陀螺控制输入********************************/
     //单击F开启和关闭小陀螺
-    if (TOP_KEY && top_switch == 0) //开启小陀螺
+    if (KEY_CHASSIS_TOP && top_switch == 0) //开启小陀螺
     {
         top_switch = 1;
     }
-    else if (TOP_KEY && top_switch == 1) //关闭小陀螺
+    else if (KEY_CHASSIS_TOP && top_switch == 1) //关闭小陀螺
     {
         top_switch = 0;
     }
@@ -557,17 +560,14 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
 
     /****************************45度角对敌控制输入*********************************************/
     //单击C,开启45度角对敌;重复操作取消45度角对敌
-    if (PISA_KEY && pisa_switch == 0) //打开45度对敌
+    if (KEY_CHASSIS_PISA && pisa_switch == 0) //打开45度对敌
     {
         pisa_switch = TRUE;
     }
-    else if (PISA_KEY && pisa_switch != 0) //关闭45度对敌
+    else if (KEY_CHASSIS_PISA && pisa_switch != 0) //关闭45度对敌
     {
         pisa_switch = FALSE;
     }
-
-    //更新上一次键盘值
-    chassis_last_key_v = chassis_RC->key.v;
 
     *angle_set = swing_angle + top_angle;
 }
@@ -655,20 +655,20 @@ void Chassis::chassis_rc_to_control_vector(fp32 * vx_set, fp32 * vy_set) {
     vy_set_channel = vy_channel * -CHASSIS_VY_RC_SEN;
 
     //键盘控制
-    if (chassis_RC->key.v & CHASSIS_FRONT_KEY)
+    if (KEY_CHASSIS_FRONT)
     {
         vx_set_channel = x.max_speed;
     }
-    else if (chassis_RC->key.v & CHASSIS_BACK_KEY)
+    else if (KEY_CHASSIS_BACK)
     {
         vx_set_channel = x.min_speed;
     }
 
-    if (chassis_RC->key.v & CHASSIS_LEFT_KEY)
+    if (KEY_CHASSIS_LEFT)
     {
         vy_set_channel = y.max_speed;
     }
-    else if (chassis_RC->key.v & CHASSIS_RIGHT_KEY)
+    else if (KEY_CHASSIS_RIGHT)
     {
         vy_set_channel = y.min_speed;
     }

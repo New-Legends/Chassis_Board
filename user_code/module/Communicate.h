@@ -7,8 +7,7 @@
 #include "Remote_control.h"
 #include "Can_receive.h"
 
-//底盘遥控器无信号 正常上下板通信是开启模式
-#define CHASSIS_REMOTE_NO_SIGNAL 1
+#include "Config.h"
 
 class Communicate
 {

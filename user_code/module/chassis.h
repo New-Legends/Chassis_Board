@@ -9,7 +9,7 @@
 #include "Motor.h"
 #include "Pid.h"
 
-
+#include "Config.h"
 
 #define rc_deadband_limit(input, output, dealine)        \
     {                                                    \
@@ -22,11 +22,6 @@
             (output) = 0;                                \
         }                                                \
     }
-
-//底盘动力电机无电流输出
-#define CHASSIS_MOTIVE_MOTOR_NO_CURRENT 0
-//底盘舵向电机无电流输出
-#define CHASSIS_RUDDER_MOTOR_NO_CURRENT 0
 
 //任务开始空闲一段时间
 #define CHASSIS_TASK_INIT_TIME 357
@@ -78,16 +73,18 @@
 #define CHASSIS_CONTROL_FREQUENCE 500.0f
 //底盘3508最大can发送电流值
 #define MAX_MOTOR_CAN_CURRENT 16000.0f
-//底盘摇摆按键
-#define SWING_KEY KEY_PRESSED_OFFSET_CTRL
-//底盘小陀螺按键
-#define TOP_KEY KEY_PRESSED_OFFSET_F
+
+/*----------------按键-------------------------*/
 
 //底盘前后左右控制按键
-#define CHASSIS_FRONT_KEY KEY_PRESSED_OFFSET_W
-#define CHASSIS_BACK_KEY KEY_PRESSED_OFFSET_S
-#define CHASSIS_LEFT_KEY KEY_PRESSED_OFFSET_A
-#define CHASSIS_RIGHT_KEY KEY_PRESSED_OFFSET_D
+#define KEY_CHASSIS_FRONT if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_FRONT)
+#define KEY_CHASSIS_BACK if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_BACK)
+#define KEY_CHASSIS_LEFT if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_LEFT)
+#define KEY_CHASSIS_RIGHT if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_RIGHT)
+
+#define KEY_CHASSIS_TOP if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_TOP)
+#define KEY_CHASSIS_SWING if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_SWING)
+#define KEY_CHASSIS_PISA if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_PISA)
 
 //m3508转化成底盘速度(m/s)的比例，
 #define M3508_MOTOR_RPM_TO_VECTOR 0.000415809748903494517209f
@@ -141,12 +138,6 @@
 #define MISS_BEGIN 1
 #define MISS_OVER 2
 
-#define SWING_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_C) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_C))
-#define PISA_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_X) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_X))
-#define SWING_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_C) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_C))
-#define PISA_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_X) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_X))
-
-// #define TOP_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_F) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_F))
 
 
 #define PISA_DELAY_TIME 500
@@ -212,6 +203,8 @@ struct speed_t
 class Chassis {
 public:
     const RC_ctrl_t *chassis_RC; //底盘使用的遥控器指针
+    RC_ctrl_t *last_chassis_RC; //底盘使用的遥控器指针
+
     uint16_t chassis_last_key_v;  //遥控器上次按键
 
     chassis_behaviour_e chassis_behaviour_mode; //底盘行为状态机

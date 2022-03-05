@@ -18,7 +18,7 @@ const RC_ctrl_t * Remote_control::get_remote_control_point()
     return &rc_ctrl;
 }
 
-const RC_ctrl_t *Remote_control::get_last_remote_control_point()
+RC_ctrl_t *Remote_control::get_last_remote_control_point()
 {
     return &last_rc_ctrl;
 }
