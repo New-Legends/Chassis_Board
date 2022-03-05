@@ -23,8 +23,6 @@
         }                                                \
     }
 
-
-
 //任务开始空闲一段时间
 #define CHASSIS_TASK_INIT_TIME 357
 
@@ -76,19 +74,17 @@
 //底盘3508最大can发送电流值
 #define MAX_MOTOR_CAN_CURRENT 16000.0f
 
-
+/*----------------按键-------------------------*/
 
 //底盘前后左右控制按键
-#define KEY_CHASSIS_FRONT KEY_PRESSED_CHASSIS_FRONT
-#define KEY_CHASSIS_BACK  KEY_PRESSED_CHASSIS_BACK
-#define KEY_CHASSIS_LEFT  KEY_PRESSED_CHASSIS_LEFT
-#define KEY_CHASSIS_RIGHT KEY_PRESSED_CHASSIS_RIGHT
+#define KEY_CHASSIS_FRONT if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_FRONT)
+#define KEY_CHASSIS_BACK if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_BACK)
+#define KEY_CHASSIS_LEFT if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_LEFT)
+#define KEY_CHASSIS_RIGHT if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_RIGHT)
 
-#define KEY_CHASSIS_TOP ((chassis.chassis_RC->key.v & KEY_PRESSED_CHASSIS_TOP) && !(chassis.chassis_last_key_v & KEY_PRESSED_CHASSIS_TOP))
-#define KEY_CHASSIS_SWING ((chassis.chassis_RC->key.v & KEY_PRESSED_CHASSIS_SWING) && !(chassis.chassis_last_key_v & KEY_PRESSED_CHASSIS_SWING))
-#define KEY_CHASSIS_PISA ((chassis.chassis_RC->key.v & KEY_PRESSED_CHASSIS_PISA) && !(chassis.chassis_last_key_v & KEY_PRESSED_CHASSIS_PISA))
-
-
+#define KEY_CHASSIS_TOP if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_TOP)
+#define KEY_CHASSIS_SWING if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_SWING)
+#define KEY_CHASSIS_PISA if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_PISA)
 
 //m3508转化成底盘速度(m/s)的比例，
 #define M3508_MOTOR_RPM_TO_VECTOR 0.000415809748903494517209f
@@ -228,6 +224,8 @@ struct speed_t
 class Chassis {
 public:
     const RC_ctrl_t *chassis_RC; //底盘使用的遥控器指针
+    RC_ctrl_t *last_chassis_RC; //底盘使用的遥控器指针
+
     uint16_t chassis_last_key_v;  //遥控器上次按键
 
     chassis_behaviour_e chassis_behaviour_mode; //底盘行为状态机
