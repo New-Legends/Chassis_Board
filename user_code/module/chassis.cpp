@@ -360,15 +360,18 @@ void Chassis::output()
     //电流输出控制,通过调整宏定义控制
     for (int i = 0; i < 4; i++)
     {
-#if CHASSIS_MOTIVE_MOTOR_NO_CURRENT
+#if CHASSIS_MOTIVE_MOTOR_HAVE_CURRENT
+    ;
+#else
         chassis_motive_motor[i].current_give = 0;
 #endif
 
 #if CHASSIS_RUDDER_MOTOR_NO_CURRENT
+    ;
+#else                                            
         chassis_rudder_motor[i].current_give = 0;
 #endif
     }
-
     can_receive.can_cmd_chassis_motive_motor(chassis_motive_motor[0].current_give, chassis_motive_motor[1].current_give,
                                              chassis_motive_motor[2].current_give, chassis_motive_motor[3].current_give);
 

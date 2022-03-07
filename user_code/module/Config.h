@@ -2,11 +2,11 @@
 #define CONFIG_H
 
 /*----------------------底盘---------------------------*/
-//底盘动力电机无电流输出
-#define CHASSIS_MOTIVE_MOTOR_NO_CURRENT 0
+//底盘动力电机有电流输出
+#define CHASSIS_MOTIVE_MOTOR_HAVE_CURRENT 0
 
-//底盘舵向电机无电流输出
-#define CHASSIS_RUDDER_MOTOR_NO_CURRENT 0
+//底盘舵向电机有电流输出
+#define CHASSIS_RUDDER_MOTOR_HAVE_CURRENT 0
 
 
 /*---------------------通信-----------------------------*/
