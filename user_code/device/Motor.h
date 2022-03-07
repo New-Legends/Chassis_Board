@@ -24,7 +24,7 @@ public:
     void init(const motor_measure_t *motor_measure_);
 } ;
 
-//m3508电机
+//m6020电机
 class G6020_motor
 {
 public:
