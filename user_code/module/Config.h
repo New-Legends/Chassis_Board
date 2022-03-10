@@ -14,8 +14,6 @@
 #define CHASSIS_REMOTE_OPEN 1
 
 
-
-
 /*---------------------按键---------------------------*/
 //底盘小陀螺 单击F
 #define KEY_PRESSED_CHASSIS_TOP     'F'

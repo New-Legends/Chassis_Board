@@ -2,6 +2,8 @@
 #include "Communicate.h"
 #include "cmsis_os.h"
 
+#include "detect_task.h"
+
 #include "arm_math.h"
 
 #ifdef __cplusplus //告诉编译器，这部分代码按C语言的格式进行编译，而不是C++的
@@ -59,7 +61,6 @@ void Chassis::init()
         fp32 motive_speed_pid_parm[5] = {MOTIVE_MOTOR_SPEED_PID_KP, MOTIVE_MOTOR_SPEED_PID_KI, MOTIVE_MOTOR_SPEED_PID_KD, MOTIVE_MOTOR_SPEED_PID_MAX_IOUT, MOTIVE_MOTOR_SPEED_PID_MAX_OUT};
         chassis_motive_motor[i].speed_pid.init(PID_SPEED, motive_speed_pid_parm, &chassis_motive_motor[i].speed, &chassis_motive_motor[i].speed_set, NULL);
         chassis_motive_motor[i].speed_pid.pid_clear();
-
 
 
         //舵向电机数据
@@ -229,7 +230,6 @@ void Chassis::set_contorl() {
         }
         z.speed_set = chassis_wz_angle_pid.pid_calc();
 
-
         //速度限幅
         x.speed_set = fp32_constrain(vx_set, x.min_speed, x.max_speed);
         y.speed_set = fp32_constrain(vy_set, y.min_speed, y.max_speed);
@@ -280,7 +280,6 @@ fp32 rudder_angle[4] = {0.0f, 0.0f, 0.0f, 0.0f}; //舵向电机目标角度
 void Chassis::solve() {
     fp32 max_vector = 0.0f, vector_rate = 0.0f;
     fp32 temp = 0.0f;
-
 
     uint8_t i = 0;
 
@@ -335,13 +334,105 @@ void Chassis::solve() {
     }
 }
 
+
+
 /**
   * @brief          底盘功率控制
   * @param[in]     
   * @retval         none
   */
 void Chassis::power_ctrl() {
-    //TODO暂时未完成
+    fp32 chassis_power = 0.0f;
+    fp32 chassis_power_buffer = 0.0f;
+    fp32 chassis_power_limit = 0.0f;
+
+    fp32 total_current_limit = 0.0f;
+    fp32 total_current = 0.0f;
+    uint8_t robot_id = 0;
+    referee.get_robot_id(&robot_id);
+
+
+    if (toe_is_error(REFEREE_TOE))
+    {
+        total_current_limit = NO_JUDGE_TOTAL_CURRENT_LIMIT;
+    }
+    else if (robot_id == RED_ENGINEER || robot_id == BLUE_ENGINEER || robot_id == 0)
+    {
+        total_current_limit = NO_JUDGE_TOTAL_CURRENT_LIMIT;
+    }
+    else
+    {
+        referee.get_chassis_power_and_buffer(&chassis_power, &chassis_power_buffer);
+        referee.get_chassis_power_limit(&chassis_power_limit);
+
+        //功率超过上限 和缓冲能量小于50j,因为缓冲能量小于50意味着功率超过上限
+        if (chassis_power_buffer < WARNING_POWER_BUFF)
+        {
+            fp32 power_scale;
+            if (chassis_power_buffer > 5.0f)
+            {
+                //缩小WARNING_POWER_BUFF
+                power_scale = chassis_power_buffer / WARNING_POWER_BUFF;
+            }
+            else
+            {
+                // only left 10% of WARNING_POWER_BUFF
+                power_scale = 5.0f / WARNING_POWER_BUFF;
+            }
+            //缩小
+            total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT * power_scale;
+        }
+        else
+        {
+            //功率大于WARNING_POWER
+            if (chassis_power > chassis_power_limit - WARNING_POWER_DISTANCE)
+            {
+                fp32 power_scale;
+                //功率小于上限
+                if (chassis_power < chassis_power_limit)
+                {
+                    //缩小
+                    power_scale = (chassis_power_limit - chassis_power) / (chassis_power_limit - (chassis_power_limit - WARNING_POWER_DISTANCE));
+                }
+                //功率大于上限
+                else
+                {
+                    power_scale = 0.0f;
+                }
+
+                total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT + POWER_TOTAL_CURRENT_LIMIT * power_scale;
+            }
+            //功率小于WARNING_POWER
+            else
+            {
+                total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT + POWER_TOTAL_CURRENT_LIMIT;
+            }
+        }
+    }
+
+    total_current = 0.0f;
+    //计算原本电机电流设定
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        total_current += fabs(chassis_motive_motor[i].current_set);
+        total_current += fabs(chassis_rudder_motor[i].current_set);
+    }
+
+    if (total_current > total_current_limit)
+    {
+        fp32 current_scale = total_current_limit / total_current;
+        //对动力电机进行功率控制
+        chassis_motive_motor[0].current_set *= current_scale;
+        chassis_motive_motor[1].current_set *= current_scale;
+        chassis_motive_motor[2].current_set *= current_scale;
+        chassis_motive_motor[3].current_set *= current_scale;
+
+        //对舵向电机进行功率控制
+        chassis_rudder_motor[0].current_set *= current_scale;
+        chassis_rudder_motor[1].current_set *= current_scale;
+        chassis_rudder_motor[2].current_set *= current_scale;
+        chassis_rudder_motor[3].current_set *= current_scale;
+    }
 }
 
 /**
@@ -744,7 +835,7 @@ void Chassis::chassis_rc_to_control_vector(fp32 * vx_set, fp32 * vy_set) {
     //一阶低通滤波代替斜波作为底盘速度输入
     chassis_cmd_slow_set_vx.first_order_filter_cali(vx_set_channel);
     chassis_cmd_slow_set_vy.first_order_filter_cali(vy_set_channel);
-    
+
     //停止信号，不需要缓慢加速，直接减速到零
     if (vx_set_channel < CHASSIS_RC_DEADLINE * CHASSIS_VX_RC_SEN && vx_set_channel > -CHASSIS_RC_DEADLINE * CHASSIS_VX_RC_SEN)
     {
@@ -758,6 +849,7 @@ void Chassis::chassis_rc_to_control_vector(fp32 * vx_set, fp32 * vy_set) {
 
     *vx_set = chassis_cmd_slow_set_vx.out;
     *vy_set = chassis_cmd_slow_set_vy.out;
+
 }
 
 fp32 last_rudder_angle[4] = {0};
@@ -790,12 +882,6 @@ void Chassis::chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4], fp32 ru
         (y.speed_set >= -stop_set_num && y.speed_set <= stop_set_num) && 
         (z.speed_set >= -stop_set_num*10 && z.speed_set <= stop_set_num*10))
     {
-        // //做测试,电机刹车,舵向归中
-        // rudder_angle[0] = 0;
-        // rudder_angle[1] = 0;
-        // rudder_angle[2] = 0;
-        // rudder_angle[3] = 0;
-
         rudder_angle[0] = last_rudder_angle[0];
         rudder_angle[1] = last_rudder_angle[1];
         rudder_angle[2] = last_rudder_angle[2];
