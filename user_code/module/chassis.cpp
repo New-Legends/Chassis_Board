@@ -83,6 +83,7 @@ void Chassis::init()
     }
     //TODO     // 0, 3号舵向电机初试编码值额外设置,应为安装问题
     chassis_rudder_motor[0].offset_ecd = RUDDER_OFFSET_0;
+    chassis_rudder_motor[1].offset_ecd = RUDDER_OFFSET_1;
     chassis_rudder_motor[3].offset_ecd = RUDDER_OFFSET_3;
 
     const static fp32 chassis_x_order_filter[1] = {CHASSIS_ACCEL_X_NUM};
@@ -366,7 +367,7 @@ void Chassis::output()
         chassis_motive_motor[i].current_give = 0;
 #endif
 
-#if CHASSIS_RUDDER_MOTOR_NO_CURRENT
+#if CHASSIS_RUDDER_MOTOR_HAVE_CURRENT
     ;
 #else                                            
         chassis_rudder_motor[i].current_give = 0;
@@ -759,6 +760,8 @@ void Chassis::chassis_rc_to_control_vector(fp32 * vx_set, fp32 * vy_set) {
     *vy_set = chassis_cmd_slow_set_vy.out;
 }
 
+fp32 last_rudder_angle[4] = {0};
+int stop_flag = 0;
 /**
   * @brief          四个麦轮速度是通过三个参数计算出来的
   * @param[in]      vx_set: 纵向速度
@@ -773,7 +776,6 @@ void Chassis::chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4], fp32 ru
     算法来源：华南理工
     */
     float theta = atan(1.0 / 1.0);
-    static float last_rudder_angle[4] = {0};
 
     /*-------------------------------舵轮解算-来源华南理工------------------------------------*/
     //动力电机角度解算
@@ -783,12 +785,38 @@ void Chassis::chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4], fp32 ru
     wheel_speed[3] = sqrt(pow(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), 2) + pow(x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta), 2));
 
     //舵向电机角度解算
-    rudder_angle[0] = atan2(y.speed_set - z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta));
-    rudder_angle[1] = atan2(y.speed_set - z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta));
-    rudder_angle[2] = atan2(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta));
-    rudder_angle[3] = atan2(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta));
+    fp32 stop_set_num = 0.1 ;
+    if ((x.speed_set >= -stop_set_num && x.speed_set <= stop_set_num) &&
+        (y.speed_set >= -stop_set_num && y.speed_set <= stop_set_num) && 
+        (z.speed_set >= -stop_set_num*10 && z.speed_set <= stop_set_num*10))
+    {
+        // //做测试,电机刹车,舵向归中
+        // rudder_angle[0] = 0;
+        // rudder_angle[1] = 0;
+        // rudder_angle[2] = 0;
+        // rudder_angle[3] = 0;
 
+        rudder_angle[0] = last_rudder_angle[0];
+        rudder_angle[1] = last_rudder_angle[1];
+        rudder_angle[2] = last_rudder_angle[2];
+        rudder_angle[3] = last_rudder_angle[3];
 
+        stop_flag = 1;
+    } 
+    else 
+    {
+        rudder_angle[0] = atan2(y.speed_set - z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta));
+        rudder_angle[1] = atan2(y.speed_set - z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta));
+        rudder_angle[2] = atan2(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta));
+        rudder_angle[3] = atan2(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta));
+
+        stop_flag = 0;
+    }
+
+    last_rudder_angle[0] = rudder_angle[0];
+    last_rudder_angle[1] = rudder_angle[1];
+    last_rudder_angle[2] = rudder_angle[2];
+    last_rudder_angle[3] = rudder_angle[3];
 }
 
 /**

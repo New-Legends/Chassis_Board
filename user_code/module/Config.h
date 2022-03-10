@@ -3,10 +3,10 @@
 
 /*----------------------底盘---------------------------*/
 //底盘动力电机有电流输出
-#define CHASSIS_MOTIVE_MOTOR_HAVE_CURRENT 0
+#define CHASSIS_MOTIVE_MOTOR_HAVE_CURRENT 1
 
 //底盘舵向电机有电流输出
-#define CHASSIS_RUDDER_MOTOR_HAVE_CURRENT 0
+#define CHASSIS_RUDDER_MOTOR_HAVE_CURRENT 1
 
 
 /*---------------------通信-----------------------------*/
