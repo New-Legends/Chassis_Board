@@ -99,29 +99,12 @@ void Chassis::feedback_update()
 {   
     //记录上一次遥控器值
     chassis_last_key_v =chassis_RC->key.v;
-
-    //切入跟随云台模式
-    if ((last_chassis_mode != CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW) && chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
-    {
-        chassis_relative_angle_set = INIT_YAW_SET;
-    }
-    //切入跟随底盘角度模式
-    else if ((last_chassis_mode != CHASSIS_VECTOR_FOLLOW_CHASSIS_YAW) && chassis_mode == CHASSIS_VECTOR_FOLLOW_CHASSIS_YAW)
-    {
-        chassis_yaw_set = chassis_yaw;
-    }
-    //切入不跟随云台模式
-    else if ((last_chassis_mode != CHASSIS_VECTOR_NO_FOLLOW_YAW) && chassis_mode == CHASSIS_VECTOR_NO_FOLLOW_YAW)
-    {
-        chassis_yaw_set = chassis_yaw;
-    }
-
+    chassis_yaw_set = chassis_yaw;
 
     //更新电机数据
         //更新动力电机速度，加速度是速度的PID微分
-        chassis_motive_motor.speed = CHASSIS_MOTOR_RPM_TO_VECTOR_SEN * chassis_motive_motor.motor_measure->speed_rpm;
-        chassis_motive_motor.accel = *chassis_motive_motor.speed_pid.data.error_delta * CHASSIS_CONTROL_FREQUENCE;
-
+    chassis_motive_motor.speed = CHASSIS_MOTOR_RPM_TO_VECTOR_SEN * chassis_motive_motor.motor_measure->speed_rpm;
+    chassis_motive_motor.accel = *chassis_motive_motor.speed_pid.data.error_delta * CHASSIS_CONTROL_FREQUENCE;
 
     //更新底盘 y 速度值,右手坐标系
     //TODO 速度的更新可能要进行修改
@@ -231,7 +214,7 @@ void Chassis::output()
 
     //电流输出控制,通过调整宏定义控制    
 #if CHASSIS_MOTIVE_MOTOR_NO_CURRENT
-        chassis_motive_motor[i].current_give = 0;
+        chassis_motive_motor.current_give = 0;
 #endif
 
     
@@ -432,16 +415,6 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
     rc_deadband_limit(chassis_RC->rc.ch[CHASSIS_Y_CHANNEL], vy_channel, CHASSIS_RC_DEADLINE);
 
     vy_set_channel = vy_channel * -CHASSIS_VY_RC_SEN;
-
-    //键盘控制
-    if (chassis_RC->key.v & CHASSIS_LEFT_KEY)
-    {
-        vy_set_channel = y.max_speed;
-    }
-    else if (chassis_RC->key.v & CHASSIS_RIGHT_KEY)
-    {
-        vy_set_channel = y.min_speed;
-    }
 
     //一阶低通滤波代替斜波作为底盘速度输入
     chassis_cmd_slow_set_vy.first_order_filter_cali(vy_set_channel);
