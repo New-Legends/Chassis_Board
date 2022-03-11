@@ -471,6 +471,7 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
             else if(left_light_sensor == FALSE && right_light_sensor == FALSE)
             {
                 direction = direction;  
+                //不规则运动
             }
         }
 
@@ -482,7 +483,7 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
              *vy_set = -*vy_set;
         else if(direction == NO_MOVE)
              *vy_set = 0;
-             
+
         //受击打加速
         if(if_hit())
         {
