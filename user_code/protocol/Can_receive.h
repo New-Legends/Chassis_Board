@@ -15,10 +15,7 @@ extern CAN_HandleTypeDef hcan2;
 enum motive_chassis_motor_id_e
 {
   //底盘动力电机接收
-  MOTIVE_FR_MOTOR = 0,
-  MOTIVE_FL_MOTOR,
-  MOTIVE_BL_MOTOR,
-  MOTIVE_BR_MOTOR,
+  MOTIVE_MOTOR = 0,
 };
 
 

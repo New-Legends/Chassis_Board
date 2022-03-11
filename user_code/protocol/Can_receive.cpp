@@ -40,12 +40,12 @@ void Can_receive::can_cmd_chassis_motive_motor( int16_t motor)
     chassis_tx_message.IDE = CAN_ID_STD;
     chassis_tx_message.RTR = CAN_RTR_DATA;
     chassis_tx_message.DLC = 0x08;
-    chassis_can_send_data[0] = motor>>8;
-    chassis_can_send_data[1] = motor;
-    chassis_can_send_data[2] = motor>>8;
-    chassis_can_send_data[3] = motor;
-    chassis_can_send_data[4] = motor>>8;
-    chassis_can_send_data[5] = motor;
+    chassis_can_send_data[0] = 0;
+    chassis_can_send_data[1] = 0;
+    chassis_can_send_data[2] = 0;
+    chassis_can_send_data[3] = 0;
+    chassis_can_send_data[4] = 0;
+    chassis_can_send_data[5] = 0;
     chassis_can_send_data[6] = motor>>8;
     chassis_can_send_data[7] = motor;
 

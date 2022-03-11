@@ -237,6 +237,7 @@ void Chassis::chassis_behaviour_mode_set()
     {
         //chassis_behaviour_mode = CHASSIS_ENGINEER_FOLLOW_CHASSIS_YAW;
         chassis_behaviour_mode = CHASSIS_NO_FOLLOW_YAW;
+        chassis_control_way = AUTO;
     }
     else if (switch_is_mid(chassis_RC->rc.s[CHASSIS_MODE_CHANNEL]))
     {
@@ -408,24 +409,29 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
     {
         return;
     }
+    if (chassis_control_way=RC){
+        int16_t  vy_channel;
+        fp32  vy_set_channel;
+        //死区限制，因为遥控器可能存在差异 摇杆在中间，其值不为0
+        rc_deadband_limit(chassis_RC->rc.ch[CHASSIS_Y_CHANNEL], vy_channel, CHASSIS_RC_DEADLINE);
 
-    int16_t  vy_channel;
-    fp32  vy_set_channel;
-    //死区限制，因为遥控器可能存在差异 摇杆在中间，其值不为0
-    rc_deadband_limit(chassis_RC->rc.ch[CHASSIS_Y_CHANNEL], vy_channel, CHASSIS_RC_DEADLINE);
+        vy_set_channel = vy_channel * -CHASSIS_VY_RC_SEN;
 
-    vy_set_channel = vy_channel * -CHASSIS_VY_RC_SEN;
+        //一阶低通滤波代替斜波作为底盘速度输入
+        chassis_cmd_slow_set_vy.first_order_filter_cali(vy_set_channel);
+        
+        //停止信号，不需要缓慢加速，直接减速到零
+        if (vy_set_channel < CHASSIS_RC_DEADLINE * CHASSIS_VY_RC_SEN && vy_set_channel > -CHASSIS_RC_DEADLINE * CHASSIS_VY_RC_SEN)
+        {
+            chassis_cmd_slow_set_vy.out = 0.0f;
+        }
 
-    //一阶低通滤波代替斜波作为底盘速度输入
-    chassis_cmd_slow_set_vy.first_order_filter_cali(vy_set_channel);
-    
-    //停止信号，不需要缓慢加速，直接减速到零
-    if (vy_set_channel < CHASSIS_RC_DEADLINE * CHASSIS_VY_RC_SEN && vy_set_channel > -CHASSIS_RC_DEADLINE * CHASSIS_VY_RC_SEN)
-    {
-        chassis_cmd_slow_set_vy.out = 0.0f;
+        *vy_set = chassis_cmd_slow_set_vy.out;
     }
-
-    *vy_set = chassis_cmd_slow_set_vy.out;
+    else if(chassis_control_way=AUTO){
+        if
+    }
+    
 }
 
 
