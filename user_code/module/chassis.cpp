@@ -429,7 +429,69 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
         *vy_set = chassis_cmd_slow_set_vy.out;
     }
     else if(chassis_control_way=AUTO){
-        if
+        output_state();
+        if(field_event_outpost == 1){//前哨站存活,停在右边
+            if(left_light_sensor == TRUE && right_light_sensor == TRUE)
+            {
+                direction = NO_MOVE;
+            }
+            else if(left_light_sensor == FALSE && right_light_sensor == TRUE)
+            {
+                direction = NO_MOVE;
+            }
+            else if(left_light_sensor == TRUE && right_light_sensor == FALSE)
+            {
+                direction = RIGHT;
+            }
+            else if(left_light_sensor == FALSE && right_light_sensor == FALSE)
+            {
+                direction =direction ;
+            }
+        }
+        if(field_event_outpost == 0){//前哨站被击毁，开始巡逻
+            //底盘基础巡逻轨迹
+            /*
+            左边识别 右边识别    静止不动
+            左边未识别 右边识别  方向向左
+            左边识别 右边未识别  方向向右
+            左边未识别 右边未识别 保持原状态
+            */
+            if(left_light_sensor == TRUE && right_light_sensor == TRUE)
+            {
+                direction = NO_MOVE;
+            }
+            else if(left_light_sensor == FALSE && right_light_sensor == TRUE)
+            {
+                direction = LEFT;
+            }
+            else if(left_light_sensor == TRUE && right_light_sensor == FALSE)
+            {
+                direction = RIGHT;
+            }
+            else if(left_light_sensor == FALSE && right_light_sensor == FALSE)
+            {
+                direction = direction;  
+            }
+        }
+
+
+        //根据方向设置输出
+        if(direction == LEFT)
+             *vy_set = *vy_set;
+        else if(direction == RIGHT)
+             *vy_set = -*vy_set;
+        else if(direction == NO_MOVE)
+             *vy_set = 0;
+             
+        //受击打加速
+        if(if_hit())
+        {
+            *vy_set = CHASSIS_HIGH_SPEED;
+        }
+        else
+        {
+            *vy_set = CHASSIS_MID_SPEED;
+        }
     }
     
 }

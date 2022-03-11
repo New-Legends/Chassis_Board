@@ -30,6 +30,7 @@
 //底盘运动方向
 #define LEFT 0
 #define RIGHT 1
+#define NO_MOVE 2
 
 //底盘动力电机无电流输出
 #define CHASSIS_MOTIVE_MOTOR_NO_CURRENT 0
@@ -104,17 +105,13 @@
 
 //单个底盘电机最大速度
 #define MAX_WHEEL_SPEED 4.0f //4
-//底盘运动过程最大前进速度
-#define NORMAL_MAX_CHASSIS_SPEED_X 2.5f //2.0
 //底盘运动过程最大平移速度
 #define NORMAL_MAX_CHASSIS_SPEED_Y 1.5f //1.5
-//底盘运动过程最大旋转速度
-#define NORMAL_MAX_CHASSIS_SPEED_Z 10.0f
+//底盘巡逻速度等级
+#define CHASSIS_LOW_SPEED 0.5*NORMAL_MAX_CHASSIS_SPEED_Y
+#define CHASSIS_MID_SPEED 0.8*NORMAL_MAX_CHASSIS_SPEED_Y
+#define CHASSIS_HIGH_SPEED 1.0*NORMAL_MAX_CHASSIS_SPEED_Y
 
-//原地旋转小陀螺下Z轴转速
-#define TOP_WZ_ANGLE_STAND 1.5f
-//移动状态下小陀螺转速
-#define TOP_WZ_ANGLE_MOVE 0.4f
 
 #define right_light_sensor_Pin GPIO_PIN_9
 #define right_light_sensor_GPIO_Port GPIOE

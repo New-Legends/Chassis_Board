@@ -302,6 +302,7 @@ public:
     uint16_t Judge_SelfClient_ID; //发送者机器人对应的客户端ID
 
     uint8_t Color;
+    int field_event_outpost;
 
     void init();
 
@@ -338,6 +339,7 @@ public:
  
 
     void determine_ID(void);
+    void output_state(void);
 };
 
 

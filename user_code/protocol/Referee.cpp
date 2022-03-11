@@ -381,3 +381,27 @@ void Referee::determine_ID(void)
         Judge_SelfClient_ID = 0x0100 + Judge_Self_ID; //计算客户端ID
     }
 }
+
+//获取前哨站情况，转换哨兵模式
+void Referee::output_state(void){
+    get_color(&Color);
+    if(Color==BLUE){
+        if(blue_base_HP>0){
+            field_event_outpost=1;       //前哨站被摧毁，哨兵转换模式
+        }
+        else 
+        {
+            field_event_outpost=0;
+        }
+    }
+    else if(Color=RED){
+        if(red_base_HP>0){
+            field_event_outpost=1;      //前哨站被摧毁，哨兵转换模式
+        }
+        else
+        {
+            field_event_outpost=0;
+        }
+    }
+    
+}
