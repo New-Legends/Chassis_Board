@@ -31,6 +31,7 @@ extern "C"
 #define REF_HEADER_CRC_CMDID_LEN (REF_PROTOCOL_HEADER_SIZE + REF_PROTOCOL_CRC16_SIZE + sizeof(uint16_t))
 #define REF_HEADER_CMDID_LEN (REF_PROTOCOL_HEADER_SIZE + sizeof(uint16_t))
 
+
 #pragma pack(push, 1)
 
 typedef enum
@@ -302,7 +303,7 @@ public:
     uint16_t Judge_SelfClient_ID; //发送者机器人对应的客户端ID
 
     uint8_t Color;
-    int field_event_outpost;
+    uint8_t field_event_outpost;
 
     void init();
 
@@ -343,7 +344,7 @@ public:
 };
 
 
-
+extern Referee referee;
 
 
 

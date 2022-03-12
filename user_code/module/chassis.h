@@ -8,7 +8,7 @@
 #include "Remote_control.h"
 #include "Motor.h"
 #include "Pid.h"
-
+#include "Referee.h"
 
 
 #define rc_deadband_limit(input, output, dealine)        \
@@ -258,6 +258,7 @@ public:
     uint8_t direction;          //底盘移动方向 分为NO_MOVE LEFT RIGHT 
 
 
+
     //任务流程
     void init();
 
@@ -291,6 +292,7 @@ public:
     void chassis_rc_to_control_vector(fp32 *vy_set);
 
     fp32 motor_ecd_to_angle_change(uint16_t ecd, uint16_t offset_ecd);
+
 };
 
 

@@ -3,7 +3,7 @@
 #include "cmsis_os.h"
 
 #include "arm_math.h"
-
+#include "Referee.h"
 #ifdef __cplusplus //告诉编译器，这部分代码按C语言的格式进行编译，而不是C++的
 extern "C"
 {
@@ -14,6 +14,8 @@ extern "C"
 
 //底盘模块 对象
 Chassis chassis;
+
+Referee referee;
 
 //扭腰控制数据
 fp32 swing_angle = 0.0f;
@@ -27,7 +29,6 @@ bool_t top_switch = 0;
 //45度角对敌数据
 fp32 pisa_angle = 0; //保留45度对敌前的云台相对底盘角度
 bool_t pisa_switch = 0;
-
 
 
 /**
@@ -69,8 +70,6 @@ void Chassis::init()
     y.min_speed = -NORMAL_MAX_CHASSIS_SPEED_Y;
     y.max_speed = NORMAL_MAX_CHASSIS_SPEED_Y;
 
-    z.min_speed = -NORMAL_MAX_CHASSIS_SPEED_Z;
-    z.max_speed = NORMAL_MAX_CHASSIS_SPEED_Z;
 
     chassis_control_way = RC ;
     left_light_sensor = 0 ;
@@ -409,7 +408,7 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
     {
         return;
     }
-    if (chassis_control_way=RC){
+    if (chassis_control_way==RC){
         int16_t  vy_channel;
         fp32  vy_set_channel;
         //死区限制，因为遥控器可能存在差异 摇杆在中间，其值不为0
@@ -428,9 +427,9 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
 
         *vy_set = chassis_cmd_slow_set_vy.out;
     }
-    else if(chassis_control_way=AUTO){
-        output_state();
-        if(field_event_outpost == 1){//前哨站存活,停在右边
+    else if(chassis_control_way==AUTO){
+        referee.output_state();
+        if(referee.field_event_outpost == 1){//前哨站存活,停在右边
             if(left_light_sensor == TRUE && right_light_sensor == TRUE)
             {
                 direction = NO_MOVE;
@@ -445,10 +444,10 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
             }
             else if(left_light_sensor == FALSE && right_light_sensor == FALSE)
             {
-                direction =direction ;
+                direction = direction ;
             }
         }
-        if(field_event_outpost == 0){//前哨站被击毁，开始巡逻
+        if(referee.field_event_outpost == 0){//前哨站被击毁，开始巡逻
             //底盘基础巡逻轨迹
             /*
             左边识别 右边识别    静止不动
@@ -472,6 +471,15 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
             {
                 direction = direction;  
                 //不规则运动
+                if(referee.if_hit()){
+                    if(direction == LEFT){
+                        direction = RIGHT;
+                    }
+                    if(direction == RIGHT){
+                        direction = LEFT;
+                    }
+                }
+
             }
         }
 
@@ -485,7 +493,7 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
              *vy_set = 0;
 
         //受击打加速
-        if(if_hit())
+        if(referee.if_hit())
         {
             *vy_set = CHASSIS_HIGH_SPEED;
         }

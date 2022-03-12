@@ -386,7 +386,7 @@ void Referee::determine_ID(void)
 void Referee::output_state(void){
     get_color(&Color);
     if(Color==BLUE){
-        if(blue_base_HP>0){
+        if(game_robot_HP_t.blue_base_HP>0){
             field_event_outpost=1;       //前哨站被摧毁，哨兵转换模式
         }
         else 
@@ -395,7 +395,7 @@ void Referee::output_state(void){
         }
     }
     else if(Color=RED){
-        if(red_base_HP>0){
+        if(game_robot_HP_t.red_base_HP>0){
             field_event_outpost=1;      //前哨站被摧毁，哨兵转换模式
         }
         else

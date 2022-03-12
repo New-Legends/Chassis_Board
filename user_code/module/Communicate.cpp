@@ -29,7 +29,6 @@ extern "C"
 
 Remote_control remote_control;
 Can_receive can_receive;
-Referee referee;
 Ui      ui;
 
 Communicate communicate;
