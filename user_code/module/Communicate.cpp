@@ -30,7 +30,6 @@ extern "C"
 Remote_control remote_control;
 Can_receive can_receive;
 Ui      ui;
-
 Communicate communicate;
 
 void Communicate::init()
@@ -64,6 +63,8 @@ void Communicate::run()
     uint16_t temp_id1_17mm_speed_limit;
     fp32 temp_bullet_speed;
     uint8_t temp_chassis_behaviour_mode;
+    uint16_t  temp_red_base_HP;
+    uint16_t  temp_blue_base_HP;
 
     referee.get_shooter_id1_17mm_cooling_limit_and_heat(&temp_id1_17mm_cooling_limit, &temp_id1_17mm_cooling_heat);
     referee.get_shooter_id1_17mm_cooling_rate(&temp_id1_17mm_cooling_rate);
@@ -71,12 +72,19 @@ void Communicate::run()
     referee.get_robot_id(&temp_robot_id);
     referee.get_shooter_id1_17mm_speed_limit_and_bullet_speed(&temp_id1_17mm_speed_limit, &temp_bullet_speed);
     temp_chassis_behaviour_mode = chassis.chassis_behaviour_mode;
+    temp_red_base_HP = referee.game_robot_HP_t.red_base_HP;
+    temp_blue_base_HP = referee.game_robot_HP_t.blue_base_HP;
 
 
     can_receive.send_cooling_and_id_board_com(temp_id1_17mm_cooling_limit, temp_id1_17mm_cooling_rate, temp_id1_17mm_cooling_heat,
                                               temp_color, temp_robot_id);
-
-    can_receive.send_17mm_speed_and_mode_board_com(temp_id1_17mm_speed_limit, temp_bullet_speed, temp_chassis_behaviour_mode);
+    if(temp_color == RED){
+        can_receive.send_17mm_speed_and_mode_board_com(temp_id1_17mm_speed_limit, temp_bullet_speed, temp_chassis_behaviour_mode,temp_red_base_HP);
+    }
+    else if(temp_color == BLUE){
+        can_receive.send_17mm_speed_and_mode_board_com(temp_id1_17mm_speed_limit, temp_bullet_speed, temp_chassis_behaviour_mode,temp_blue_base_HP);
+    }
+    
 
 
 //TODO 这里最好使用指针赋值,减少计算量,后续需修改
