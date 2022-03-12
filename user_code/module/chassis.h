@@ -53,6 +53,7 @@
 //不跟随云台的时候 遥控器的yaw遥杆（max 660）转化成车体旋转速度的比例
 #define CHASSIS_WZ_RC_SEN 0.01f
 
+//一阶低通滤波参数
 #define CHASSIS_ACCEL_X_NUM 0.1666666667f
 #define CHASSIS_ACCEL_Y_NUM 0.3333333333f
 
@@ -118,6 +119,7 @@
 //舵向电机初试位置拨码值 
 //由于机械安装问题,0,3号电机安装方式与另外二者不同,手动校准
 #define RUDDER_OFFSET_0 2733
+#define RUDDER_OFFSET_1 2733
 #define RUDDER_OFFSET 5483 //编码器
 #define RUDDER_OFFSET_3 4
 
@@ -147,7 +149,7 @@
 
 //chassis motor speed PID
 //底盘电机速度环PID
-#define MOTIVE_MOTOR_SPEED_PID_KP 6000.0f
+#define MOTIVE_MOTOR_SPEED_PID_KP 2000.0f
 #define MOTIVE_MOTOR_SPEED_PID_KI 0.0f
 #define MOTIVE_MOTOR_SPEED_PID_KD 2.0f
 #define MOTIVE_MOTOR_SPEED_PID_MAX_IOUT 2000.0f
@@ -162,6 +164,15 @@
 #define CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT 10.0f
 
 
+
+//功率控制参数
+#define POWER_DEFAULT_LIMIT 50.0f  //默认功率限制
+#define WARNING_POWER_DISTANCE 10.0f //距离超过率的距离
+#define WARNING_POWER_BUFF 30.0f    //警告缓存
+
+#define NO_JUDGE_TOTAL_CURRENT_LIMIT 64000.0f // 16000 * 4,
+#define BUFFER_TOTAL_CURRENT_LIMIT 16000.0f
+#define POWER_TOTAL_CURRENT_LIMIT 20000.0f
 
 typedef enum
 {

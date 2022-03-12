@@ -45,7 +45,7 @@ void Pid::init(pid_mode_e mode_, const fp32 *pid_parm, fp32 *ref_, fp32 *set_, f
     data.ref = ref_;
     data.error = *set_ - *ref_;
 
-    if (data.mode == PID_ANGLE)
+    if (mode == PID_ANGLE)
         data.error_delta = erro_delta_;
 }
 
