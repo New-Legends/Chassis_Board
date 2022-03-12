@@ -1,7 +1,7 @@
 #include "Chassis.h"
 #include "Communicate.h"
 #include "cmsis_os.h"
-
+#include "detect_task.h"
 #include "arm_math.h"
 #include "Referee.h"
 #ifdef __cplusplus //告诉编译器，这部分代码按C语言的格式进行编译，而不是C++的
@@ -75,6 +75,7 @@ void Chassis::init()
     left_light_sensor = 0 ;
     right_light_sensor = 0;
     direction = LEFT ;
+    referee.field_event_outpost=0;
 
     //更新一下数据
     feedback_update();
@@ -87,6 +88,21 @@ void Chassis::init()
   */
 void Chassis::set_mode() {
     chassis_behaviour_mode_set();
+}
+
+/**
+  * @brief          底盘模式改变，有些参数需要改变，例如底盘控制yaw角度设定值应该变成当前底盘yaw角度
+  * @param[out]     
+  * @retval         none
+  */
+void Chassis::mode_change_control_transit()
+{
+    if (last_chassis_mode == chassis_mode)
+    {
+        return;
+    }
+
+    last_chassis_mode = chassis_mode;
 }
 
 /**
@@ -196,7 +212,85 @@ void Chassis::solve() {
   * @retval         none
   */
 void Chassis::power_ctrl() {
-    //TODO暂时未完成
+    fp32 chassis_power = 0.0f;
+    fp32 chassis_power_buffer = 0.0f;
+    fp32 chassis_power_limit = 0.0f;
+
+    fp32 total_current_limit = 0.0f;
+    fp32 total_current = 0.0f;
+    uint8_t robot_id = 0;
+    referee.get_robot_id(&robot_id);
+
+
+    if (toe_is_error(REFEREE_TOE))
+    {
+        total_current_limit = NO_JUDGE_TOTAL_CURRENT_LIMIT;
+    }
+    else if (robot_id == RED_ENGINEER || robot_id == BLUE_ENGINEER || robot_id == 0)
+    {
+        total_current_limit = NO_JUDGE_TOTAL_CURRENT_LIMIT;
+    }
+    else
+    {
+        referee.get_chassis_power_and_buffer(&chassis_power, &chassis_power_buffer);
+        referee.get_chassis_power_limit(&chassis_power_limit);
+
+        //功率超过上限 和缓冲能量小于50j,因为缓冲能量小于50意味着功率超过上限
+        if (chassis_power_buffer < WARNING_POWER_BUFF)
+        {
+            fp32 power_scale;
+            if (chassis_power_buffer > 5.0f)
+            {
+                //缩小WARNING_POWER_BUFF
+                power_scale = chassis_power_buffer / WARNING_POWER_BUFF;
+            }
+            else
+            {
+                // only left 10% of WARNING_POWER_BUFF
+                power_scale = 5.0f / WARNING_POWER_BUFF;
+            }
+            //缩小
+            total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT * power_scale;
+        }
+        else
+        {
+            //功率大于WARNING_POWER
+            if (chassis_power > chassis_power_limit - WARNING_POWER_DISTANCE)
+            {
+                fp32 power_scale;
+                //功率小于上限
+                if (chassis_power < chassis_power_limit)
+                {
+                    //缩小
+                    power_scale = (chassis_power_limit - chassis_power) / (chassis_power_limit - (chassis_power_limit - WARNING_POWER_DISTANCE));
+                }
+                //功率大于上限
+                else
+                {
+                    power_scale = 0.0f;
+                }
+
+                total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT + POWER_TOTAL_CURRENT_LIMIT * power_scale;
+            }
+            //功率小于WARNING_POWER
+            else
+            {
+                total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT + POWER_TOTAL_CURRENT_LIMIT;
+            }
+        }
+    }
+
+    total_current = 0.0f;
+    //计算原本电机电流设定
+    total_current += fabs(chassis_motive_motor.current_set);
+
+    if (total_current > total_current_limit)
+    {
+        fp32 current_scale = total_current_limit / total_current;
+        //对动力电机进行功率控制
+        chassis_motive_motor.current_set *= current_scale;
+
+    }
 }
 
 /**
@@ -241,19 +335,12 @@ void Chassis::chassis_behaviour_mode_set()
     else if (switch_is_mid(chassis_RC->rc.s[CHASSIS_MODE_CHANNEL]))
     {
         chassis_behaviour_mode = CHASSIS_NO_FOLLOW_YAW;
+        chassis_control_way = RC;
     }
     else if (switch_is_down(chassis_RC->rc.s[CHASSIS_MODE_CHANNEL]))
     {
         chassis_behaviour_mode = CHASSIS_ZERO_FORCE;
     }
-
-
-    //TODO 待对接
-    //当云台在某些模式下或者弹仓打开，像初始化， 底盘不动
-    // if (gimbal_cmd_to_chassis_stop())
-    // {
-    //     chassis_behaviour_mode = CHASSIS_NO_MOVE;
-    // }
 
     //添加自己的逻辑判断进入新模式
 
@@ -285,7 +372,7 @@ void Chassis::chassis_behaviour_mode_set()
 }
 
 /**
-  * @brief          设置控制量.根据不同底盘控制模式，三个参数会控制不同运动.在这个函数里面，会调用不同的控制函数.
+  * @brief          设置控制量.根据不同底盘控制模式，参数会控制不同运动.在这个函数里面，会调用不同的控制函数.
   * @param[out]     vy_set, 通常控制横向移动.
   * @param[in]       包括底盘所有信息.
   * @retval         none

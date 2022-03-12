@@ -180,7 +180,14 @@
 #define CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT 2.0f
 #define CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT 10.0f
 
+//功率控制参数
+#define POWER_DEFAULT_LIMIT 30.0f  //默认功率限制
+#define WARNING_POWER_DISTANCE 10.0f //距离超过率的距离
+#define WARNING_POWER_BUFF 30.0f    //警告缓存
 
+#define NO_JUDGE_TOTAL_CURRENT_LIMIT 64000.0f // 16000 * 4,
+#define BUFFER_TOTAL_CURRENT_LIMIT 16000.0f
+#define POWER_TOTAL_CURRENT_LIMIT 20000.0f
 
 typedef enum
 {
@@ -263,6 +270,8 @@ public:
     void init();
 
     void set_mode();
+
+    void mode_change_control_transit();
 
     void feedback_update();
 
