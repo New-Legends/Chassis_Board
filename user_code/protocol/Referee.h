@@ -316,8 +316,6 @@ public:
     void get_robot_id(uint8_t *color);
     //底盘输出功率,底盘功率缓存
     void get_chassis_power_and_buffer(fp32 *power, fp32 *buffer);
-    //底盘输出功率上限
-    void get_chassis_power_limit(fp32 *power_limit);
     //17mm枪口热量上限, 17mm枪口实时热量 默认ID1
     void get_shooter_id1_17mm_cooling_limit_and_heat(uint16_t *id1_17mm_cooling_limit, uint16_t *id1_17mm_cooling_heat);
     //17mm枪口枪口射速上限,17mm实时射速 默认ID1

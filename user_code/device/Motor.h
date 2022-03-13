@@ -19,11 +19,10 @@ public:
     fp32 speed_set;
 
     fp32 current_set;
-
     int16_t current_give;
 
     void init(const motor_measure_t *motor_measure_);
-};
+} ;
 
 //m3508电机
 class G6020_motor
