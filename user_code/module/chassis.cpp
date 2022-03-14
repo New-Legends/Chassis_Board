@@ -570,15 +570,6 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
             }
         }
 
-
-        //根据方向设置输出
-        if(direction == LEFT)
-            *vy_set = *vy_set;
-        else if(direction == RIGHT)
-            *vy_set = -*vy_set;
-        else if(direction == NO_MOVE)
-            *vy_set = 0;
-
         //受击打加速
         if(referee.if_hit())
         {
@@ -588,6 +579,15 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
         {
             *vy_set = CHASSIS_MID_SPEED;
         }
+        //根据方向设置输出
+        if(direction == LEFT)
+            *vy_set = *vy_set;
+        else if(direction == RIGHT)
+            *vy_set = -*vy_set;
+        else if(direction == NO_MOVE)
+            *vy_set = 0;
+
+        
     }
     
 }
