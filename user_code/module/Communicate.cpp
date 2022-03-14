@@ -39,9 +39,9 @@ void Communicate::init()
 
 //TODO 这里最好使用指针赋值,减少计算量,后续需修改
 #if CHASSIS_REMOTE_OPEN
-    ;
-#else
     remote_control.init();
+#else
+    ;
 #endif
 
     can_receive.init();
@@ -78,17 +78,23 @@ void Communicate::run()
                                               temp_color, temp_robot_id);
 
     can_receive.send_17mm_speed_and_mode_board_com(temp_id1_17mm_speed_limit, temp_bullet_speed, temp_chassis_behaviour_mode);
+    
+
 
     cap.cap_read_data(can_receive.cap_receive.input_vot, can_receive.cap_receive.cap_vot, can_receive.cap_receive.input_current,can_receive.cap_receive.target_power);
 //TODO _data这里最好使用指针赋值,减少计算量,后续需修改
 #if CHASSIS_REMOTE_OPEN
+    ;
+#else
+    //保留上一次遥控器值
+    remote_control.last_rc_ctrl = remote_control.rc_ctrl;
+
     remote_control.rc_ctrl.rc.ch[0] = can_receive.chassis_receive.ch_0;
     remote_control.rc_ctrl.rc.ch[2] = can_receive.chassis_receive.ch_2;
     remote_control.rc_ctrl.rc.ch[3] = can_receive.chassis_receive.ch_3;
     remote_control.rc_ctrl.key.v = can_receive.chassis_receive.v;
     remote_control.rc_ctrl.rc.s[0] = can_receive.chassis_receive.s0;
-#else
-   ;
+
 #endif
 }
 
