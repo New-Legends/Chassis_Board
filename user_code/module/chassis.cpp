@@ -515,6 +515,11 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
         *vy_set = chassis_cmd_slow_set_vy.out;
     }
     else if(chassis_control_way==AUTO){
+        int flag = 0;           //被击打开关
+        int up_time = 0;        //加速时间
+        if(referee.if_hit()){
+            flag = 1;
+        }
         referee.output_state();
         if(referee.field_event_outpost == 1){//前哨站存活,停在右边
             if(left_light_sensor == TRUE && right_light_sensor == TRUE)
@@ -558,7 +563,9 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
             {
                 direction = direction;  
                 //不规则运动
-                if(referee.if_hit()){
+
+                if(flag){
+                    flag = 1;
                     if(direction == LEFT){
                         direction = RIGHT;
                     }
@@ -571,13 +578,21 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
         }
 
         //受击打加速
-        if(referee.if_hit())
+        if(flag)
         {
             *vy_set = CHASSIS_HIGH_SPEED;
         }
         else
         {
             *vy_set = CHASSIS_MID_SPEED;
+        }
+        if(!referee.if_hit()){
+            if(flag){
+                up_time++;
+            }
+            if(up_time>500){
+                flag = 0;
+            }
         }
         //根据方向设置输出
         if(direction == LEFT)
