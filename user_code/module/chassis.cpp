@@ -33,6 +33,17 @@ bool_t top_switch = 0;
 fp32 pisa_angle = 0; //保留45度对敌前的云台相对底盘角度
 bool_t pisa_switch = 0;
 
+//未受击打的不规则运动初始
+int16_t Irregular_motion[20];
+int8_t Irregular_motion_num;
+
+srand((unsigned int)time(0));   //初始化种子为随机值
+    
+for(Irregular_motion_num=0;Irregular_motion_num<20;Irregular_motion_num++)
+{
+    Irregular_motion[Irregular_motion_num] = rand()%25+5;
+}
+Irregular_motion_num = 19;
 
 /**
   * @brief          初始化变量，包括pid初始化， 遥控器指针初始化，3508底盘电机指针初始化，云台电机初始化，陀螺仪角度指针初始化
@@ -79,7 +90,7 @@ void Chassis::init()
     right_light_sensor = 0;
     direction = LEFT ;
     referee.field_event_outpost=0;
-
+  
     //更新一下数据
     feedback_update();
 }
@@ -561,6 +572,30 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
             {
                 direction = direction;  
                 //不规则运动
+                if(!referee.if_hit() && Irregular_motion[Irregular_motion_num] > 0)
+                {
+                    Irregular_motion[Irregular_motion_num]--;
+                }
+                if(!referee.if_hit() && Irregular_motion[Irregular_motion_num] == 0)
+                {
+                    if(direction == LEFT)
+                    {
+                        direction = RIGHT;
+                    }
+                    if(direction == RIGHT)
+                    {
+                        direction = LEFT;
+                    }
+                    if(Irregular_motion_num >= 0)
+                    {
+                        Irregular_motion_num--;
+                    }
+                    else
+                    {
+                        Irregular_motion_num = 19
+                    }
+
+                }
                 if(referee.if_hit()){
                     if(direction == LEFT){
                         direction = RIGHT;
