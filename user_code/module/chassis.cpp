@@ -568,6 +568,7 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
                 //不规则运动
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                 if(!referee.if_hit() && Irregular_motion[Irregular_motion_num] > 0)
                 {
                     Irregular_motion[Irregular_motion_num]--;
@@ -592,6 +593,8 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
                     }
 
                 }
+=======
+>>>>>>> parent of eca6c85 (不规则运动测试)
 =======
 >>>>>>> parent of eca6c85 (不规则运动测试)
                 if(referee.if_hit()){
