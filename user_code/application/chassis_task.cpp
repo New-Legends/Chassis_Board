@@ -18,6 +18,13 @@ void chassis_task(void *pvParameters) {
     //空闲一段时间
     vTaskDelay(CHASSIS_TASK_INIT_TIME);
     chassis.init();
+    //超级电容初始化
+  
+
+    // for (uint8_t i=0; i<10; i++){
+    //     vTaskDelay(2);
+       cap.init();;
+    // }
 
     while(true) {
 
