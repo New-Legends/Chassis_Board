@@ -37,6 +37,8 @@ typedef enum
   CAN_COOLING_BOARM_COM_ID = 0x303,
   CAN_17MM_SPEED_BOARD_COM_ID = 0x304,
 
+  //超级电容接收ID
+  CAN_SUPER_CAP_ID = 0x211
 
 } can_msg_id_e;
 
@@ -94,6 +96,15 @@ typedef struct
 
 } chassis_send_t;
 
+typedef struct 
+{
+  float input_vot;      //输入电压
+  float cap_vot;        //超级电容电压
+  float input_current;  //输入电流
+  float target_power;   //目标功率
+} cap_receive_t;
+
+
 
 class Can_receive {
 public: 
@@ -109,6 +120,9 @@ public:
   chassis_receive_t chassis_receive;
 
   chassis_send_t chassis_send;
+
+  //超电数据
+  cap_receive_t cap_receive;
 
   void init();
 
@@ -131,8 +145,11 @@ public:
   //发送枪口速度及底盘模式
   void send_17mm_speed_and_mode_board_com(uint16_t id1_17mm_speed_limi, uint16_t bullet_speed, uint8_t chassis_behaviour);
 
+  //发送超级电容设定功率
+  void can_cmd_super_cap_power(uint16_t set_power);
 
-
+  // 获取超电输入电压、电容电压、输入电流、设定功率
+  void get_super_cap_data(uint8_t data[8]);
 };
 
 

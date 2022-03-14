@@ -11,6 +11,7 @@
 extern CAN_HandleTypeDef hcan1;
 extern CAN_HandleTypeDef hcan2;
 
+
 void Can_receive::init()
 {
     can_filter_init();
@@ -153,4 +154,34 @@ void Can_receive::send_17mm_speed_and_mode_board_com(uint16_t id1_17mm_speed_lim
     chassis_can_send_data[7] = 0;
 
     HAL_CAN_AddTxMessage(&BOARD_COM_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
+}
+
+void Can_receive::get_super_cap_data(uint8_t data[8])
+{
+    cap_receive.input_vot     = ((float) ((int16_t) (data[1] << 8 | data[0])) / 100.0f);  //输入电压
+    cap_receive.cap_vot       = ((float) ((int16_t) (data[3] << 8 | data[2])) / 100.0f);  //电容电压
+    cap_receive.input_current = ((float) ((int16_t) (data[5] << 8 | data[4])) / 100.0f);  //输入电流
+    cap_receive.target_power  = ((float) ((int16_t) (data[7] << 8 | data[6])) / 100.0f);  //输入功率
+}
+
+  void Can_receive::can_cmd_super_cap_power(uint16_t set_power)
+  {
+    uint32_t send_mail_box;
+    chassis_tx_message.StdId = 0x210;
+    chassis_tx_message.IDE = CAN_ID_STD; //0x0000
+    chassis_tx_message.RTR = CAN_RTR_DATA; //0x0000
+    chassis_tx_message.DLC = 0x08;
+
+    chassis_can_send_data[0] = (set_power >> 8);
+    chassis_can_send_data[1] = (set_power);
+    chassis_can_send_data[2] = 0;
+    chassis_can_send_data[3] = 0;    
+    chassis_can_send_data[4] = 0;
+    chassis_can_send_data[5] = 0;
+    chassis_can_send_data[6] = 0;
+    chassis_can_send_data[7] = 0;
+
+
+
+    HAL_CAN_AddTxMessage(&CHASSIS_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
 }

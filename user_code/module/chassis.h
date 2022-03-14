@@ -8,6 +8,7 @@
 #include "Remote_control.h"
 #include "Motor.h"
 #include "Pid.h"
+#include "Super_cap.h"
 
 #include "Config.h"
 
@@ -77,14 +78,16 @@
 /*----------------按键-------------------------*/
 
 //底盘前后左右控制按键
-#define KEY_CHASSIS_FRONT if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_FRONT)
-#define KEY_CHASSIS_BACK if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_BACK)
-#define KEY_CHASSIS_LEFT if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_LEFT)
-#define KEY_CHASSIS_RIGHT if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_RIGHT)
+#define KEY_CHASSIS_FRONT           if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_FRONT)
+#define KEY_CHASSIS_BACK            if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_BACK)
+#define KEY_CHASSIS_LEFT            if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_LEFT)
+#define KEY_CHASSIS_RIGHT           if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_RIGHT)
 
-#define KEY_CHASSIS_TOP if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_TOP)
-#define KEY_CHASSIS_SWING if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_SWING)
-#define KEY_CHASSIS_PISA if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_PISA)
+#define KEY_CHASSIS_TOP             if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_TOP)
+#define KEY_CHASSIS_SWING           if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_SWING)
+#define KEY_CHASSIS_PISA            if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_PISA)
+#define KEY_CHASSIS_SUPER_CAP       if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_SUPER_CAP)
+
 
 //m3508转化成底盘速度(m/s)的比例，
 #define M3508_MOTOR_RPM_TO_VECTOR 0.000415809748903494517209f
@@ -162,6 +165,29 @@
 #define CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT 10.0f
 
 
+//底盘舵向电机 速度环 PID参数以及 PID最大输出，积分输出
+#define RUDDER_MOTOR_SPEED_PID_KP 2000.0f //2900
+#define RUDDER_MOTOR_SPEED_PID_KI 0.0f
+#define RUDDER_MOTOR_SPEED_PID_KD 0.0f
+#define RUDDER_MOTOR_SPEED_PID_MAX_IOUT 10000.0f
+#define RUDDER_MOTOR_SPEED_PID_MAX_OUT 30000.0f
+
+//底盘舵向电机 角度环 角度由编码器解算 PID参数以及 PID最大输出，积分输出
+#define RUDDER_MATOR_ANGLE_PID_KP 10.0f //15
+#define RUDDER_MATOR_ANGLE_PID_KI 0.0f
+#define RUDDER_MATOR_ANGLE_PID_KD 0.0f
+#define RUDDER_MATOR_ANGLE_PID_MAX_IOUT 0.0f
+#define RUDDER_MATOR_ANGLE_PID_MAX_OUT 6.0f
+
+//功率控制参数
+#define POWER_DEFAULT_LIMIT 50.0f  //默认功率限制
+#define WARNING_POWER_DISTANCE 10.0f //距离超过率的距离
+#define WARNING_POWER_BUFF 30.0f   
+ //警告能量缓冲  通过计算超级电容 电压低于12v得到的值
+
+#define NO_JUDGE_TOTAL_CURRENT_LIMIT 64000.0f // 16000 * 4,
+#define BUFFER_TOTAL_CURRENT_LIMIT 16000.0f
+#define POWER_TOTAL_CURRENT_LIMIT 20000.0f
 
 typedef enum
 {
@@ -278,5 +304,7 @@ public:
 extern Chassis chassis;
 
 
+//超电模块
+extern Super_Cap cap;
 
 #endif

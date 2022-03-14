@@ -26,6 +26,9 @@
 //底盘45度角 单击V
 #define KEY_PRESSED_CHASSIS_PISA    'V'
 
+//底盘超级电容加速 单击SHIFT !代表shift
+#define KEY_PRESSED_CHASSIS_SUPER_CAP    '!'
+
 //底盘前后左右控制按键
 #define KEY_PRESSED_CHASSIS_FRONT  'W'
 #define KEY_PRESSED_CHASSIS_BACK   'S'

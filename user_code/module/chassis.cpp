@@ -4,6 +4,7 @@
 
 #include "arm_math.h"
 
+
 #ifdef __cplusplus //告诉编译器，这部分代码按C语言的格式进行编译，而不是C++的
 extern "C"
 {
@@ -14,6 +15,9 @@ extern "C"
 
 //底盘模块 对象
 Chassis chassis;
+
+//超电模块
+Super_Cap cap;
 
 //扭腰控制数据
 fp32 swing_angle = 0.0f;
@@ -28,6 +32,8 @@ bool_t top_switch = 0;
 fp32 pisa_angle = 0; //保留45度对敌前的云台相对底盘角度
 bool_t pisa_switch = 0;
 
+//超电控制数据
+bool_t super_cap_switch = 0;
 
 
 /**
@@ -175,7 +181,7 @@ void Chassis::set_contorl() {
 
 
             // //计算旋转PID角速度 如果是小陀螺,固定转速 如果是45度角对敌,选择固定角度
-            if (top_switch == TRUE)
+        if (top_switch == TRUE)
         {
             chassis_wz_angle_pid.data.ref = NULL;
             chassis_wz_angle_pid.data.set = &chassis_relative_angle_set;
@@ -188,7 +194,21 @@ void Chassis::set_contorl() {
         else {
             chassis_wz_angle_pid.data.ref = &chassis_relative_angle;
             chassis_wz_angle_pid.data.set = &chassis_relative_angle_set;
+        } 
+
+        if(super_cap_switch == TRUE && top_switch == FALSE)
+        {
+                x.min_speed = 1.5 * NORMAL_MAX_CHASSIS_SPEED_X;
+                x.max_speed = 1.5 * NORMAL_MAX_CHASSIS_SPEED_X;
+                y.min_speed = 1.5 * NORMAL_MAX_CHASSIS_SPEED_Y;
+                y.max_speed = 1.5 * NORMAL_MAX_CHASSIS_SPEED_Y;
+        } else {
+                x.min_speed = NORMAL_MAX_CHASSIS_SPEED_X;
+                x.max_speed = NORMAL_MAX_CHASSIS_SPEED_X;
+                y.min_speed = NORMAL_MAX_CHASSIS_SPEED_Y;
+                y.max_speed = NORMAL_MAX_CHASSIS_SPEED_Y;
         }
+
         z.speed_set = chassis_wz_angle_pid.pid_calc();
 
 
@@ -277,13 +297,124 @@ void Chassis::solve() {
     }
 }
 
+fp32 chassis_power = 0.0f;
+fp32 chassis_power_limit = 0.0f;
+//缓冲能量 单位为J
+fp32 chassis_power_buffer = 0.0f;  //裁判剩余缓冲能量
+fp32 chassis_power_cap_buffer = 0.0f; //电容剩余能量
 /**
   * @brief          底盘功率控制
   * @param[in]     
   * @retval         none
   */
 void Chassis::power_ctrl() {
-    //TODO暂时未完成
+    
+    
+
+    fp32 total_current_limit = 0.0f;
+    fp32 total_current = 0.0f;
+    uint8_t robot_id = 0;
+    referee.get_robot_id(&robot_id);
+
+
+
+//    if (toe_is_error(REFEREE_TOE))
+//    {
+//        total_current_limit = NO_JUDGE_TOTAL_CURRENT_LIMIT;
+//    }
+//    else if (robot_id == RED_ENGINEER || robot_id == BLUE_ENGINEER || robot_id == 0)
+//    {
+//        total_current_limit = NO_JUDGE_TOTAL_CURRENT_LIMIT;
+//    }
+//    else
+    {   
+        referee.get_chassis_power_and_buffer(&chassis_power, &chassis_power_buffer);
+        cap.read_cap_buff(&chassis_power_cap_buffer);
+
+        referee.get_chassis_power_limit(&chassis_power_limit);
+
+        //当超电能量低于阈值700 将超电关闭
+        if (chassis_power_cap_buffer < 700)
+        {
+            super_cap_switch = FALSE;
+        }
+        
+        //开启超电后 对超电设置功率进行修改
+        if (super_cap_switch == TRUE)
+        {
+            can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit)*100 + 1500);
+        } else if (super_cap_switch == FALSE){
+            can_receive.can_cmd_super_cap_power(10000);
+        }
+
+
+
+
+        //功率超过上限 和缓冲能量小于50j,因为缓冲能量小于50意味着功率超过上限
+        if (chassis_power_buffer < WARNING_POWER_BUFF)
+        {
+            fp32 power_scale;
+            if (chassis_power_buffer > 5.0f)
+            {
+                //缩小WARNING_POWER_BUFF
+                power_scale = chassis_power_buffer / WARNING_POWER_BUFF;
+            }
+            else
+            {
+                // only left 10% of WARNING_POWER_BUFF
+                power_scale = 5.0f / WARNING_POWER_BUFF;
+            }
+
+
+            //缩小
+            total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT * power_scale;
+        }
+        else
+        {
+            //功率大于WARNING_POWER
+            if (chassis_power > chassis_power_limit - WARNING_POWER_DISTANCE)
+            {
+                fp32 power_scale;
+                //功率小于上限
+                if (chassis_power < chassis_power_limit)
+                {
+                    //缩小
+                    power_scale = (chassis_power_limit - chassis_power) / (chassis_power_limit - (chassis_power_limit - WARNING_POWER_DISTANCE));
+                }
+                //功率大于上限
+                else
+                {
+                    power_scale = 0.0f;
+                }
+
+                total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT + POWER_TOTAL_CURRENT_LIMIT * power_scale;
+            }
+            //功率小于WARNING_POWER
+            else
+            {
+                total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT + POWER_TOTAL_CURRENT_LIMIT;
+            }
+        }
+    }
+
+    total_current = 0.0f;
+    //计算原本电机电流设定
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        total_current += fabs(chassis_motive_motor[i].current_set);
+    }
+
+    if (total_current > total_current_limit)
+    {
+        fp32 current_scale = total_current_limit / total_current;
+        //对动力电机进行功率控制
+        chassis_motive_motor[0].current_set *= current_scale;
+        chassis_motive_motor[1].current_set *= current_scale;
+        chassis_motive_motor[2].current_set *= current_scale;
+        chassis_motive_motor[3].current_set *= current_scale;
+
+
+    }
 }
 
 /**
@@ -567,6 +698,16 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     else if (KEY_CHASSIS_PISA && pisa_switch != 0) //关闭45度对敌
     {
         pisa_switch = FALSE;
+    }
+
+    //开启超电
+    if (KEY_CHASSIS_SUPER_CAP && super_cap_switch == 0) //打开超电
+    {
+        super_cap_switch = TRUE;
+    }
+    else if (KEY_CHASSIS_SUPER_CAP && super_cap_switch != 0) //关闭超电
+    {
+        super_cap_switch = FALSE;
     }
 
     *angle_set = swing_angle + top_angle;
