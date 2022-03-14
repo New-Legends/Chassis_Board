@@ -12,6 +12,7 @@ typedef enum
 
 typedef struct
 {
+    uint8_t mode;
     //PID 三参数
     fp32 Kp;
     fp32 Ki;
