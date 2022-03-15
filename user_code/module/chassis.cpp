@@ -34,10 +34,10 @@ fp32 pisa_angle = 0; //保留45度对敌前的云台相对底盘角度
 bool_t pisa_switch = 0;
 
 //未受击打的不规则运动初始
-int16_t Irregular_motion[20];
-int8_t Irregular_motion_num;
-
-
+int16_t Irregular_motion[10];
+int8_t Irregular_motion_num = 0;
+int16_t Irregular_motion_sign[10];
+int16_t tim = 1;
 
 /**
   * @brief          初始化变量，包括pid初始化， 遥控器指针初始化，3508底盘电机指针初始化，云台电机初始化，陀螺仪角度指针初始化
@@ -84,14 +84,15 @@ void Chassis::init()
     right_light_sensor = 0;
     direction = LEFT ;
     referee.field_event_outpost=0;
-  
-		srand((unsigned int)time(0));   //初始化种子为随机值
     
-		for(Irregular_motion_num=0;Irregular_motion_num<20;Irregular_motion_num++)
-		{
-				Irregular_motion[Irregular_motion_num] = rand()%2500+500;
-		}
-		Irregular_motion_num = 19;
+    //不规则运动初始化
+    srand(tim);   //初始化种子为随机值
+	for(Irregular_motion_num=0;Irregular_motion_num<10;Irregular_motion_num++)
+	{
+			Irregular_motion[Irregular_motion_num] = rand()%2500+500;
+            Irregular_motion_sign[Irregular_motion_num] = Irregular_motion[Irregular_motion_num];
+	}
+	Irregular_motion_num = 9;
     //更新一下数据
     feedback_update();
 }
@@ -530,6 +531,11 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
         *vy_set = chassis_cmd_slow_set_vy.out;
     }
     else if(chassis_control_way==AUTO){
+        int flag = 0;           //被击打开关
+        int up_time = 0;        //加速时间
+        if(referee.if_hit()){
+            flag = 1;
+        }
         referee.output_state();
         if(referee.field_event_outpost == 1){//前哨站存活,停在右边
             if(left_light_sensor == TRUE && right_light_sensor == TRUE)
@@ -571,7 +577,7 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
             }
             else if(left_light_sensor == FALSE && right_light_sensor == FALSE)
             {
-                direction = direction;  
+                  
                 //不规则运动
                 if(!referee.if_hit() && Irregular_motion[Irregular_motion_num] > 0)
                 {
@@ -583,7 +589,7 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
                     {
                         direction = RIGHT;
                     }
-                    if(direction == RIGHT)
+                    else
                     {
                         direction = LEFT;
                     }
@@ -593,30 +599,46 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
                     }
                     else
                     {
-                        Irregular_motion_num = 19;
+                        srand(tim++);
+                        for(Irregular_motion_num=0;Irregular_motion_num<10;Irregular_motion_num++){
+			                    Irregular_motion[Irregular_motion_num] = rand()%2500+500;  //随机数生成
+                                Irregular_motion_sign[Irregular_motion_num] = Irregular_motion[Irregular_motion_num];
+	                    }
+	                    Irregular_motion_num = 9;
                     }
-
                 }
                 if(referee.if_hit()){
-                    if(direction == LEFT){
-                        direction = RIGHT;
-                    }
-                    if(direction == RIGHT){
-                        direction = LEFT;
+                    if(flag){
+                        flag = 1;
+                    
+                        if(direction == LEFT){
+                            direction = RIGHT;
+                        }
+                        if(direction == RIGHT){
+                            direction = LEFT;
+                        }
                     }
                 }
-
+                direction = direction;
             }
         }
 
         //受击打加速
-        if(referee.if_hit())
+        if(flag)
         {
             *vy_set = CHASSIS_HIGH_SPEED;
         }
         else
         {
             *vy_set = CHASSIS_MID_SPEED;
+        }
+        if(!referee.if_hit()){
+            if(flag){
+                up_time++;
+            }
+            if(up_time>500){
+                flag = 0;
+            }
         }
         //根据方向设置输出
         if(direction == LEFT)
