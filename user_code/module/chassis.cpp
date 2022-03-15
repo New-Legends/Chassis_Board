@@ -89,7 +89,7 @@ void Chassis::init()
     srand(tim);   //初始化种子为随机值
 	for(Irregular_motion_num=0;Irregular_motion_num<10;Irregular_motion_num++)
 	{
-			Irregular_motion[Irregular_motion_num] = rand()%2500+500;
+			Irregular_motion[Irregular_motion_num] = rand()%2000+500;
             Irregular_motion_sign[Irregular_motion_num] = Irregular_motion[Irregular_motion_num];
 	}
 	Irregular_motion_num = 9;
@@ -601,7 +601,7 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
                     {
                         srand(tim++);
                         for(Irregular_motion_num=0;Irregular_motion_num<10;Irregular_motion_num++){
-			                    Irregular_motion[Irregular_motion_num] = rand()%2500+500;  //随机数生成
+			                    Irregular_motion[Irregular_motion_num] = rand()%2000+500;  //随机数生成
                                 Irregular_motion_sign[Irregular_motion_num] = Irregular_motion[Irregular_motion_num];
 	                    }
 	                    Irregular_motion_num = 9;
