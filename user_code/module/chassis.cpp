@@ -83,7 +83,7 @@ void Chassis::init()
     left_light_sensor = 0 ;
     right_light_sensor = 0;
     direction = LEFT ;
-    referee.field_event_outpost=0;
+    referee.field_event_outpost = 0;
     
     //不规则运动初始化
     srand(tim);   //初始化种子为随机值
@@ -531,10 +531,25 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
         *vy_set = chassis_cmd_slow_set_vy.out;
     }
     else if(chassis_control_way==AUTO){
-        int flag = 0;           //被击打开关
+        int speed_flag = 0;           //被击打开关
         int up_time = 0;        //加速时间
+        int change_time = 0;    //变向时间
+        int change_flag = 0;    //变向开关
         if(referee.if_hit()){
-            flag = 1;
+            speed_flag = 1;
+        }
+        if(referee.if_hit()){
+            if(change_flag = 0){
+                change_flag = 1;
+                change_time ++;
+            } 
+            else if(change_flag = 1){
+                change_flag = 0;
+                change_time = 0;
+            } 
+            if(change_time>300){
+                change_time = 300;
+            }          
         }
         referee.output_state();
         if(referee.field_event_outpost == 1){//前哨站存活,停在右边
@@ -607,24 +622,22 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
 	                    Irregular_motion_num = 9;
                     }
                 }
-                if(referee.if_hit()){
-                    if(flag){
-                        flag = 1;
-                    
-                        if(direction == LEFT){
-                            direction = RIGHT;
-                        }
-                        if(direction == RIGHT){
-                            direction = LEFT;
-                        }
+                if(change_flag)
+                {                   
+                    if(direction == LEFT){
+                        direction = RIGHT;
+                    }
+                    if(direction == RIGHT){
+                        direction = LEFT;
                     }
                 }
                 direction = direction;
             }
         }
+        
 
         //受击打加速
-        if(flag)
+        if(speed_flag)
         {
             *vy_set = CHASSIS_HIGH_SPEED;
         }
@@ -633,11 +646,11 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
             *vy_set = CHASSIS_MID_SPEED;
         }
         if(!referee.if_hit()){
-            if(flag){
+            if(speed_flag){
                 up_time++;
             }
-            if(up_time>500){
-                flag = 0;
+            if(up_time>300){
+                speed_flag = 0;
             }
         }
         //根据方向设置输出
@@ -648,8 +661,8 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
         else if(direction == NO_MOVE)
             *vy_set = 0;
 
-        
-    }
+    }    
+    
     
 }
 
