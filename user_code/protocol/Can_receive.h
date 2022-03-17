@@ -116,11 +116,6 @@ public:
 
   const motor_measure_t *get_chassis_motive_motor_measure_point();
 
-
-  void can_cmd_chassis_rudder_motor(int16_t motor1, int16_t motor2, int16_t motor3, int16_t motor4);      //舵向电机数据
-
-  const motor_measure_t *get_chassis_rudder_motor_measure_point(uint8_t i);
-
   //板间通信函数
   void receive_rc_board_com(uint8_t data[8]);
 

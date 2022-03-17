@@ -103,12 +103,6 @@ void Can_receive::receive_gimbal_board_com(uint8_t data[8])
 
 
 
-/**
-  * @brief          返回底盘舵向电机 3508电机数据指针
-  * @param[in]      i: 电机编号,范围[0,3]
-  * @retval         电机数据指针
-  */
-
 
 
 void Can_receive::send_cooling_and_id_board_com(uint16_t id1_17mm_cooling_limit, uint16_t id1_17mm_cooling_rate, uint16_t id1_17mm_cooling_heat, uint8_t color, uint8_t robot_id)
