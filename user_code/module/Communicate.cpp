@@ -117,19 +117,6 @@ extern "C"
                     can_receive.get_motive_motor_measure(rx_data);
                     //detect_hook(CHASSIS_MOTIVE_FR_MOTOR_TOE);
                     break;
-
-                default:
-                {
-                    break;
-                }
-            }
-        }
-        else if (hcan == &BOARD_COM_CAN) //接底盘CAN 信息
-        {
-            HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rx_header, rx_data);
-            switch (rx_header.StdId)
-            {
-
                 case CAN_RC_BOARM_COM_ID:
                     can_receive.receive_rc_board_com(rx_data);
                     //detect_hook(BOARD_COM);
@@ -139,6 +126,7 @@ extern "C"
                     can_receive.receive_gimbal_board_com(rx_data);
                     //detect_hook(BOARD_COM);
                     break;
+
                 default:
                 {
                     break;
