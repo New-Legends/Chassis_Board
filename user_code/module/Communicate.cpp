@@ -109,23 +109,20 @@ extern "C"
         uint8_t rx_data[8];
         if (hcan == &CHASSIS_CAN) //接底盘CAN 信息
         {
+            HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rx_header, rx_data);
+            switch (rx_header.StdId)
+            {
+                //底盘动力电机
+                case CAN_MOTIVE:
+                    can_receive.get_motive_motor_measure(rx_data);
+                    //detect_hook(CHASSIS_MOTIVE_FR_MOTOR_TOE);
+                    break;
 
-        HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rx_header, rx_data);
-        switch (rx_header.StdId)
-        {
-        //底盘动力电机
-        case CAN_MOTIVE:
-            can_receive.get_motive_motor_measure(rx_data);
-            //detect_hook(CHASSIS_MOTIVE_FR_MOTOR_TOE);
-            break;
-
-        default:
-        {
-            break;
-        }
-        }
-
-
+                default:
+                {
+                    break;
+                }
+            }
         }
         else if (hcan == &BOARD_COM_CAN) //接底盘CAN 信息
         {
@@ -133,27 +130,22 @@ extern "C"
             switch (rx_header.StdId)
             {
 
-            case CAN_RC_BOARM_COM_ID:
-                can_receive.receive_rc_board_com(rx_data);
-                //detect_hook(BOARD_COM);
-                break;
+                case CAN_RC_BOARM_COM_ID:
+                    can_receive.receive_rc_board_com(rx_data);
+                    //detect_hook(BOARD_COM);
+                    break;
 
-            case CAN_GIMBAL_BOARD_COM_ID:
-                can_receive.receive_gimbal_board_com(rx_data);
-                //detect_hook(BOARD_COM);
-                break;
-
-            default:
-            {
-                break;
+                case CAN_GIMBAL_BOARD_COM_ID:
+                    can_receive.receive_gimbal_board_com(rx_data);
+                    //detect_hook(BOARD_COM);
+                    break;
+                default:
+                {
+                    break;
+                }
             }
-
-
-            }
-
-
         }
-        }
+    }
     // TODO 设备检查未更新
     //遥控器串口
     void USART3_IRQHandler(void)

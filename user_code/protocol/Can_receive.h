@@ -22,7 +22,7 @@ enum motive_chassis_motor_id_e
 /* CAN send and receive ID */
 typedef enum
 {
-  //底盘动力电机接收ID  CAN2
+  //底盘动力电机接收ID  CAN1
   CAN_MOTIVE = 0x204,
   CAN_CHASSIS_MOTIVE_ALL_ID = 0x200,
 
