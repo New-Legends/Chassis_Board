@@ -222,8 +222,7 @@ void Chassis::feedback_update()
 
 }
 
-fp32 sink,cosk;
-fp32 vk[4];
+
 /**
   * @brief          设置底盘控制设置值, 三运动控制值是通过chassis_behaviour_control_set函数设置的
   * @param[out]     
@@ -243,15 +242,8 @@ void Chassis::set_contorl() {
         sin_yaw = sin(chassis_relative_angle);
         cos_yaw = cos(chassis_relative_angle);
 
-        sink = sin_yaw;
-        cosk = cos_yaw;
-        vk[0] = cos_yaw * vy_set;
-        vk[1] =  sin_yaw * vx_set;
-        vk[2] = -sin_yaw * vy_set;
-        vk[3] = cos_yaw * vx_set;
-
-        vx_set = cos_yaw * vx_set - sin_yaw * vy_set;
-        vy_set = sin_yaw * vx_set + cos_yaw * vy_set;
+        x.speed_set = cos_yaw * vx_set - sin_yaw * vy_set;
+        y.speed_set = sin_yaw * vx_set + cos_yaw * vy_set;
         
         //设置控制相对云台角度
         chassis_relative_angle_set = rad_format(angle_set);
@@ -289,8 +281,8 @@ void Chassis::set_contorl() {
         z.speed_set = -chassis_wz_angle_pid.pid_calc();
 
         //速度限幅
-        x.speed_set = fp32_constrain(vx_set, x.min_speed, x.max_speed);
-        y.speed_set = fp32_constrain(vy_set, y.min_speed, y.max_speed);
+        x.speed_set = fp32_constrain(x.speed_set, x.min_speed, x.max_speed);
+        y.speed_set = fp32_constrain(y.speed_set, y.min_speed, y.max_speed);
         z.speed_set = fp32_constrain(z.speed_set, z.min_speed, z.max_speed);
     }
     else if (chassis_mode == CHASSIS_VECTOR_FOLLOW_CHASSIS_YAW)
@@ -990,7 +982,6 @@ void Chassis::chassis_rc_to_control_vector(fp32 * vx_set, fp32 * vy_set) {
 }
 
 fp32 last_rudder_angle[4] = {0};
-int stop_flag = 0;
 /**
  * @brief          四个舵向电机角度和四个动力电机速度是通过三个参数计算出来的
  * @param[in]      wheel_speed: 动力电机速度
@@ -1011,12 +1002,6 @@ void Chassis::chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4], fp32 ru
     wheel_speed[2] = sqrt(pow(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), 2) + pow(x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta), 2));
     wheel_speed[3] = sqrt(pow(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), 2) + pow(x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta), 2));
 
-    // wheel_speed[0] = sqrt(pow(y.speed_set - z.speed_set * RUDDER_RADIUS * sin(theta), 2) + pow(x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta), 2));
-    // wheel_speed[1] = sqrt(pow(y.speed_set - z.speed_set * RUDDER_RADIUS * sin(theta), 2) + pow(x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta), 2));
-    // wheel_speed[2] = sqrt(pow(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), 2) + pow(x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta), 2));
-    // wheel_speed[3] = sqrt(pow(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), 2) + pow(x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta), 2));
-
-
     //舵向电机角度解算
 
     fp32 stop_set_num = 0.1 ;
@@ -1029,7 +1014,6 @@ void Chassis::chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4], fp32 ru
         rudder_angle[2] = last_rudder_angle[2];
         rudder_angle[3] = last_rudder_angle[3];
 
-        stop_flag = 1;
     } 
     else 
     {
@@ -1037,13 +1021,6 @@ void Chassis::chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4], fp32 ru
         rudder_angle[1] = atan2(y.speed_set - z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta));
         rudder_angle[2] = atan2(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta));
         rudder_angle[3] = atan2(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta));
-
-        // rudder_angle[0] = atan2(y.speed_set - z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta));
-        // rudder_angle[1] = atan2(y.speed_set - z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta));
-        // rudder_angle[2] = atan2(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta));
-        // rudder_angle[3] = atan2(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta));
-
-        stop_flag = 0;
     }
 
     last_rudder_angle[0] = rudder_angle[0];

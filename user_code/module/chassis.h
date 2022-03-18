@@ -2,7 +2,6 @@
 #define CHASSIS_H
 
 #include "system_config.h"
-
 #include "struct_typedef.h"
 #include "First_order_filter.h"
 #include "Remote_control.h"
