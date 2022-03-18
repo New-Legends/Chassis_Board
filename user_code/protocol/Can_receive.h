@@ -164,17 +164,20 @@ public:
   void receive_rc_board_com(uint8_t data[8]);
 
   void receive_gimbal_board_com(uint8_t data[8]);
-
+  
   // 发送枪口热量及ID
   void send_cooling_and_id_board_com(uint16_t id1_17mm_cooling_limit, uint16_t id1_17mm_cooling_rate, uint16_t id1_17mm_cooling_heat, uint8_t color, uint8_t robot_id);
   //发送枪口速度及底盘模式
   void send_17mm_speed_and_mode_board_com(uint16_t id1_17mm_speed_limi, uint16_t bullet_speed, uint8_t chassis_behaviour);
 
-  //发送超级电容设定功率
-  void can_cmd_super_cap_power(uint16_t set_power);
+
 
   // 获取超电输入电压、电容电压、输入电流、设定功率
   void get_super_cap_data(uint8_t data[8]);
+
+  //发送超级电容设定功率
+  void can_cmd_super_cap_power(uint16_t set_power);
+
 };
 
 

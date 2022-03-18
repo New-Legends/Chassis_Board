@@ -27,11 +27,11 @@
 //任务开始空闲一段时间
 #define CHASSIS_TASK_INIT_TIME 357
 
-//前后的遥控器通道号码
-#define CHASSIS_X_CHANNEL 3
-
 //左右的遥控器通道号码
-#define CHASSIS_Y_CHANNEL 2
+#define CHASSIS_X_CHANNEL 2
+
+//前后的遥控器通道号码
+#define CHASSIS_Y_CHANNEL 3
 
 //在特殊模式下，可以通过遥控器控制旋转
 #define CHASSIS_WZ_CHANNEL 0
@@ -101,16 +101,16 @@
 //单个底盘电机最大速度
 #define MAX_WHEEL_SPEED 4.0f //4
 //底盘运动过程最大前进速度
-#define NORMAL_MAX_CHASSIS_SPEED_X 2.5f //2.0
+#define NORMAL_MAX_CHASSIS_SPEED_Y 2.5f 
 //底盘运动过程最大平移速度
-#define NORMAL_MAX_CHASSIS_SPEED_Y 1.5f //1.5
+#define NORMAL_MAX_CHASSIS_SPEED_X 2.5f 
 //底盘运动过程最大旋转速度
 #define NORMAL_MAX_CHASSIS_SPEED_Z 10.0f
 
 //原地旋转小陀螺下Z轴转速
 #define TOP_WZ_ANGLE_STAND 1.5f
 //移动状态下小陀螺转速
-#define TOP_WZ_ANGLE_MOVE 0.4f
+#define TOP_WZ_ANGLE_MOVE 0.7f
 
 
 //摇摆原地不动摇摆最大角度(rad)
@@ -118,14 +118,14 @@
 //摇摆过程底盘运动最大角度(rad)
 #define SWING_MOVE_ANGLE 0.31415926535897932384626433832795f
 
-#define RUDDER_RADIUS 0.212f //轮中心距
+#define RUDDER_RADIUS 0.2f //轮中心距
 
 //舵向电机初试位置拨码值 
 //由于机械安装问题,0,3号电机安装方式与另外二者不同,手动校准
-#define RUDDER_OFFSET_0 2733
-#define RUDDER_OFFSET_1 2733
-#define RUDDER_OFFSET 5483 //编码器
-#define RUDDER_OFFSET_3 4
+#define RUDDER_OFFSET_0 4759
+#define RUDDER_OFFSET_1 7544 //编码器
+#define RUDDER_OFFSET_2 2061
+#define RUDDER_OFFSET_3 4759
 
 //电机反馈码盘值范围
 #define HALF_ECD_RANGE 4096
@@ -134,9 +134,9 @@
 //电机编码值转化成角度值
 #define MOTOR_ECD_TO_RAD 0.000766990394f //      2*  PI  /8192
 
-#define MIN_RUDDER_ANGLE -PI
+#define MIN_RUDDER_ANGLE -2*PI
 #define MID_RUDDER_ANGLE 0.0f
-#define MAX_RUDDER_ANGLE PI
+#define MAX_RUDDER_ANGLE 2*PI
 
 #define ACCEL_RUDDER_NUM 0.002f
 
@@ -144,12 +144,8 @@
 #define MISS_BEGIN 1
 #define MISS_OVER 2
 
-
-
 #define PISA_DELAY_TIME 500
 #define CHASSIS_OPEN_RC_SCALE 10 // in CHASSIS_OPEN mode, multiply the value. 在chassis_open 模型下，遥控器乘以该比例发送到can上
-
-
 
 //chassis motor speed PID
 //底盘电机速度环PID
@@ -159,19 +155,11 @@
 #define MOTIVE_MOTOR_SPEED_PID_MAX_IOUT 2000.0f
 #define MOTIVE_MOTOR_SPEED_PID_MAX_OUT 6000.0f
 
-// // chassis motor speed PID
-// //底盘电机速度环PID
-// #define MOTIVE_MOTOR_SPEED_PID_KP 6000.0f
-// #define MOTIVE_MOTOR_SPEED_PID_KI 0.0f
-// #define MOTIVE_MOTOR_SPEED_PID_KD 0.0f
-// #define MOTIVE_MOTOR_SPEED_PID_MAX_IOUT 2000.0f
-// #define MOTIVE_MOTOR_SPEED_PID_MAX_OUT 6000.0f
-
 //chassis follow angle PID
 //底盘旋转跟随PID
-#define CHASSIS_FOLLOW_GIMBAL_PID_KP 11.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_KP 7.0f
 #define CHASSIS_FOLLOW_GIMBAL_PID_KI 0.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_KD 0.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_KD 4.0f
 #define CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT 2.0f
 #define CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT 10.0f
 
@@ -184,9 +172,9 @@
 #define RUDDER_MOTOR_SPEED_PID_MAX_OUT 30000.0f
 
 //底盘舵向电机 角度环 角度由编码器解算 PID参数以及 PID最大输出，积分输出
-#define RUDDER_MATOR_ANGLE_PID_KP 10.0f //15
+#define RUDDER_MATOR_ANGLE_PID_KP 20.0f //15
 #define RUDDER_MATOR_ANGLE_PID_KI 0.0f
-#define RUDDER_MATOR_ANGLE_PID_KD 0.0f
+#define RUDDER_MATOR_ANGLE_PID_KD 1.0f
 #define RUDDER_MATOR_ANGLE_PID_MAX_IOUT 0.0f
 #define RUDDER_MATOR_ANGLE_PID_MAX_OUT 6.0f
 
@@ -309,6 +297,8 @@ public:
     void chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4], fp32 rudder_angle[4]);
 
     fp32 motor_ecd_to_angle_change(uint16_t ecd, uint16_t offset_ecd);
+
+
 };
 
 

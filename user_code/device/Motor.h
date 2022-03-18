@@ -35,6 +35,7 @@ public:
     Pid angle_pid;
 
     uint16_t offset_ecd;  //用户定义的初始中值
+    uint16_t if_turn_falg;   //电机是否过圈
 
     fp32 max_angle; //rad   角度限幅
     fp32 mid_angle; //rad

@@ -4,6 +4,7 @@
 #include "main.h"
 
 #include "bsp_can.h"
+#include "bsp_delay.h"
 #include "can.h"
 
 #include "struct_typedef.h"
@@ -51,6 +52,7 @@ void Can_receive::can_cmd_chassis_motive_motor(int16_t motor1, int16_t motor2, i
     chassis_can_send_data[7] = motor4;
 
     HAL_CAN_AddTxMessage(&CHASSIS_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
+
 }
 
 /**
@@ -123,6 +125,17 @@ void Can_receive::can_cmd_chassis_rudder_motor(int16_t motor1, int16_t motor2, i
     HAL_CAN_AddTxMessage(&CHASSIS_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
 }
 
+
+/**
+  * @brief          返回底盘舵向电机 3508电机数据指针
+  * @param[in]      i: 电机编号,范围[0,3]
+  * @retval         电机数据指针
+  */
+const motor_measure_t *Can_receive::get_chassis_rudder_motor_measure_point(uint8_t i)
+{
+    return &chassis_rudder_motor[i];
+}
+
 void Can_receive::receive_rc_board_com(uint8_t data[8])
 {
     chassis_receive.ch_0 = (int16_t)(data[0] << 8 | data[1]);
@@ -137,19 +150,6 @@ void Can_receive::receive_gimbal_board_com(uint8_t data[8])
     chassis_receive.gimbal_behaviour = data[1];
     chassis_receive.gimbal_yaw_angle = (fp32)(int32_t)(data[2] << 24 | data[3] << 16 | data[4] << 8 | data[5]) / 1000;
 }
-
-
-
-/**
-  * @brief          返回底盘舵向电机 3508电机数据指针
-  * @param[in]      i: 电机编号,范围[0,3]
-  * @retval         电机数据指针
-  */
-const motor_measure_t *Can_receive::get_chassis_rudder_motor_measure_point(uint8_t i)
-{
-    return &chassis_rudder_motor[i];
-}
-
 
 void Can_receive::send_cooling_and_id_board_com(uint16_t id1_17mm_cooling_limit, uint16_t id1_17mm_cooling_rate, uint16_t id1_17mm_cooling_heat, uint8_t color, uint8_t robot_id)
 {
@@ -184,7 +184,6 @@ void Can_receive::send_17mm_speed_and_mode_board_com(uint16_t id1_17mm_speed_lim
     chassis_send.id1_17mm_speed_limi = id1_17mm_speed_limit;
     chassis_send.bullet_speed = bullet_speed;
     chassis_send.chassis_behaviour = chassis_behaviour;
-
 
     uint32_t send_mail_box;
     chassis_tx_message.StdId = CAN_17MM_SPEED_BOARD_COM_ID;
@@ -227,8 +226,6 @@ void Can_receive::get_super_cap_data(uint8_t data[8])
     chassis_can_send_data[5] = 0;
     chassis_can_send_data[6] = 0;
     chassis_can_send_data[7] = 0;
-
-
 
     HAL_CAN_AddTxMessage(&CHASSIS_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
 }

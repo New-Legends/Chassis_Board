@@ -78,7 +78,6 @@ void Communicate::run()
                                               temp_color, temp_robot_id);
 
     can_receive.send_17mm_speed_and_mode_board_com(temp_id1_17mm_speed_limit, temp_bullet_speed, temp_chassis_behaviour_mode);
-    
 
 
     cap.cap_read_data(can_receive.cap_receive.input_vot, can_receive.cap_receive.cap_vot, can_receive.cap_receive.input_current,can_receive.cap_receive.target_power);

@@ -5,9 +5,6 @@
 #include "chassis.h"
 
 
-
-uint8_t chassis_flag = 0;
-
 /**
   * @brief          chassis_task
   * @param[in]      pvParameters: NULL
@@ -28,8 +25,6 @@ void chassis_task(void *pvParameters) {
 
     while(true) {
 
-      chassis_flag = HAL_GPIO_ReadPin(KEY_GPIO_Port, KEY_Pin);
-
       //设置模式
       chassis.set_mode();
       //反馈数据
@@ -39,7 +34,7 @@ void chassis_task(void *pvParameters) {
       //解算
       chassis.solve();
       //功率控制
-      chassis.power_ctrl();
+      //chassis.power_ctrl();
       //电流输出
       chassis.output();
 
