@@ -57,24 +57,24 @@ void Can_receive::can_cmd_chassis_motive_motor( int16_t motor)
   * @param[in]      none
   * @retval         none
   */
-void Can_receive::can_cmd_chassis_motive_motor_reset_ID(void)
-{
-    uint32_t send_mail_box;
-    chassis_tx_message.StdId = 0x700;
-    chassis_tx_message.IDE = CAN_ID_STD;
-    chassis_tx_message.RTR = CAN_RTR_DATA;
-    chassis_tx_message.DLC = 0x08;
-    chassis_can_send_data[0] = 0;
-    chassis_can_send_data[1] = 0;
-    chassis_can_send_data[2] = 0;
-    chassis_can_send_data[3] = 0;
-    chassis_can_send_data[4] = 0;
-    chassis_can_send_data[5] = 0;
-    chassis_can_send_data[6] = 0;
-    chassis_can_send_data[7] = 0;
+// void Can_receive::can_cmd_chassis_motive_motor_reset_ID(void)
+// {
+//     uint32_t send_mail_box;
+//     chassis_tx_message.StdId = 0x700;
+//     chassis_tx_message.IDE = CAN_ID_STD;
+//     chassis_tx_message.RTR = CAN_RTR_DATA;
+//     chassis_tx_message.DLC = 0x08;
+//     chassis_can_send_data[0] = 0;
+//     chassis_can_send_data[1] = 0;
+//     chassis_can_send_data[2] = 0;
+//     chassis_can_send_data[3] = 0;
+//     chassis_can_send_data[4] = 0;
+//     chassis_can_send_data[5] = 0;
+//     chassis_can_send_data[6] = 0;
+//     chassis_can_send_data[7] = 0;
 
-    HAL_CAN_AddTxMessage(&CHASSIS_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
-}
+//     HAL_CAN_AddTxMessage(&CHASSIS_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
+// }
 
 /**
   * @brief          返回底盘动力电机 3508电机数据指针
