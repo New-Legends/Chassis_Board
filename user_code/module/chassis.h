@@ -119,10 +119,10 @@
 
 #define RUDDER_RADIUS 0.2f //轮中心距
 
-//舵向电机初试位置拨码值 
+//舵向电机初试位置拨码值
 #define RUDDER_OFFSET_0 4780
-#define RUDDER_OFFSET_1 2082 //编码器
-#define RUDDER_OFFSET_2 4780
+#define RUDDER_OFFSET_1 4780
+#define RUDDER_OFFSET_2 2082 //编码器
 #define RUDDER_OFFSET_3 4780
 
 //电机反馈码盘值范围
