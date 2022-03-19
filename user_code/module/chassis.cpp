@@ -193,7 +193,7 @@ void Chassis::feedback_update()
     }
 
     //更新底盘x, y, z速度值,右手坐标系
-    //TODO 速度的更新可能要进行修改
+    //TODO  对于舵轮 这个整车速度的反推是有问题的
     x.speed = (-chassis_motive_motor[0].speed + chassis_motive_motor[1].speed + chassis_motive_motor[2].speed - chassis_motive_motor[3].speed) * MOTOR_SPEED_TO_CHASSIS_SPEED_VX;
     y.speed = (-chassis_motive_motor[0].speed - chassis_motive_motor[1].speed + chassis_motive_motor[2].speed + chassis_motive_motor[3].speed) * MOTOR_SPEED_TO_CHASSIS_SPEED_VY;
     z.speed = (-chassis_motive_motor[0].speed - chassis_motive_motor[1].speed - chassis_motive_motor[2].speed - chassis_motive_motor[3].speed) * MOTOR_SPEED_TO_CHASSIS_SPEED_WZ / MOTOR_DISTANCE_TO_CENTER;
@@ -205,10 +205,8 @@ void Chassis::feedback_update()
 
     // y.speed = (chassis_motive_motor[0].speed * sin(chassis_rudder_motor[0].angle) + chassis_motive_motor[1].speed * sin(chassis_rudder_motor[1].angle)
     //         + chassis_motive_motor[2].speed * sin(chassis_rudder_motor[2].angle) + chassis_motive_motor[3].speed * sin(chassis_rudder_motor[3].angle));
-
     
         
-    //TODO 还未完善
     //底盘相对于云台的角度,由云台发送过来
     chassis_relative_angle = can_receive.chassis_receive.gimbal_yaw_angle;
 
@@ -216,10 +214,6 @@ void Chassis::feedback_update()
     // chassis_yaw = rad_format(*(chassis_INS_angle + INS_YAW_ADDRESS_OFFSET) - chassis_yaw_motor->relative_angle);
     // chassis_pitch = rad_format(*(chassis_INS_angle + INS_PITCH_ADDRESS_OFFSET) - chassis_pitch_motor->relative_angle);
     // chassis_roll = *(chassis_INS_angle + INS_ROLL_ADDRESS_OFFSET);
-
-
-
-
 }
 
 
@@ -577,7 +571,6 @@ void Chassis::chassis_behaviour_mode_set()
     //遥控器设置模式
     if (switch_is_up(chassis_RC->rc.s[CHASSIS_MODE_CHANNEL]))
     {
-        //chassis_behaviour_mode = CHASSIS_ENGINEER_FOLLOW_CHASSIS_YAW;
         chassis_behaviour_mode = CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW;
     }
     else if (switch_is_mid(chassis_RC->rc.s[CHASSIS_MODE_CHANNEL]))
@@ -997,13 +990,12 @@ void Chassis::chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4], fp32 ru
 
     /*-------------------------------舵轮解算-来源华南理工------------------------------------*/
     //动力电机角度解算
-    wheel_speed[0] = sqrt(pow(y.speed_set - z.speed_set * RUDDER_RADIUS * sin(theta), 2) + pow(x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta), 2));
-    wheel_speed[1] = sqrt(pow(y.speed_set - z.speed_set * RUDDER_RADIUS * sin(theta), 2) + pow(x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta), 2));
-    wheel_speed[2] = sqrt(pow(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), 2) + pow(x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta), 2));
-    wheel_speed[3] = sqrt(pow(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), 2) + pow(x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta), 2));
+    wheel_speed[0] = sqrt(pow(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), 2) + pow(x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta), 2));
+    wheel_speed[1] = sqrt(pow(y.speed_set - z.speed_set * RUDDER_RADIUS * sin(theta), 2) + pow(x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta), 2));
+    wheel_speed[2] = sqrt(pow(y.speed_set - z.speed_set * RUDDER_RADIUS * sin(theta), 2) + pow(x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta), 2));
+    wheel_speed[3] = sqrt(pow(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), 2) + pow(x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta), 2));
 
     //舵向电机角度解算
-
     fp32 stop_set_num = 0.1 ;
     if ((x.speed_set >= -stop_set_num && x.speed_set <= stop_set_num) &&
         (y.speed_set >= -stop_set_num && y.speed_set <= stop_set_num) && 
@@ -1013,14 +1005,13 @@ void Chassis::chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4], fp32 ru
         rudder_angle[1] = last_rudder_angle[1];
         rudder_angle[2] = last_rudder_angle[2];
         rudder_angle[3] = last_rudder_angle[3];
-
     } 
     else 
     {
+        rudder_angle[3] = atan2(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta));
         rudder_angle[0] = atan2(y.speed_set - z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta));
         rudder_angle[1] = atan2(y.speed_set - z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta));
         rudder_angle[2] = atan2(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta));
-        rudder_angle[3] = atan2(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta));
     }
 
     last_rudder_angle[0] = rudder_angle[0];

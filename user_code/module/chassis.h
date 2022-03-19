@@ -121,10 +121,10 @@
 
 //舵向电机初试位置拨码值 
 //由于机械安装问题,0,3号电机安装方式与另外二者不同,手动校准
-#define RUDDER_OFFSET_0 4759
-#define RUDDER_OFFSET_1 7544 //编码器
-#define RUDDER_OFFSET_2 2061
-#define RUDDER_OFFSET_3 4759
+#define RUDDER_OFFSET_0 4780
+#define RUDDER_OFFSET_1 4780
+#define RUDDER_OFFSET_2 2082 //编码器
+#define RUDDER_OFFSET_3 4780
 
 //电机反馈码盘值范围
 #define HALF_ECD_RANGE 4096

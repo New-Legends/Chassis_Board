@@ -37,7 +37,6 @@ Communicate communicate;
 void Communicate::init()
 {
 
-//TODO 这里最好使用指针赋值,减少计算量,后续需修改
 #if CHASSIS_REMOTE_OPEN
     remote_control.init();
 #else
@@ -101,7 +100,6 @@ void Communicate::run()
 extern "C"
 {
 
-    //TODO 设备检测未更新
     void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     {
         CAN_RxHeaderTypeDef rx_header;
@@ -187,7 +185,7 @@ extern "C"
 
         }
         }
-    // TODO 设备检查未更新
+
     //遥控器串口
     void USART3_IRQHandler(void)
     {
@@ -268,7 +266,6 @@ extern "C"
         }
     }
 
-    // TODO 设备检查未更新
     //裁判串口数据
     void USART6_IRQHandler(void)
     {
