@@ -98,7 +98,7 @@
 #define GM6020_MOTOR_RPM_TO_VECTOR 0.000415809748903494517209f * 187 / 3591
 
 //单个底盘电机最大速度
-#define MAX_WHEEL_SPEED 4.0f //4
+#define MAX_WHEEL_SPEED 4.0f 
 //底盘运动过程最大前进速度
 #define NORMAL_MAX_CHASSIS_SPEED_Y 2.5f 
 //底盘运动过程最大平移速度
@@ -120,10 +120,9 @@
 #define RUDDER_RADIUS 0.2f //轮中心距
 
 //舵向电机初试位置拨码值 
-//由于机械安装问题,0,3号电机安装方式与另外二者不同,手动校准
 #define RUDDER_OFFSET_0 4780
-#define RUDDER_OFFSET_1 4780
-#define RUDDER_OFFSET_2 2082 //编码器
+#define RUDDER_OFFSET_1 2082 //编码器
+#define RUDDER_OFFSET_2 4780
 #define RUDDER_OFFSET_3 4780
 
 //电机反馈码盘值范围
