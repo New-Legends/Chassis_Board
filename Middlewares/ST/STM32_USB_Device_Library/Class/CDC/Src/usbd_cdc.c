@@ -58,7 +58,7 @@ EndBSPDependencies */
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_cdc.h"
 #include "usbd_ctlreq.h"
-
+#include "stdint.h"
 
 /** @addtogroup STM32_USB_DEVICE_LIBRARY
   * @{
