@@ -21,7 +21,7 @@ void communicate_task(void *pvParameters)
     
     communicate.run();
 
-    //系统延时
+    // //系统延时
     vTaskDelay(COMMUNICATE_CONTROL_TIME_MS);
   }
 }
