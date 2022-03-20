@@ -8,7 +8,7 @@
 extern CAN_HandleTypeDef hcan1;
 extern CAN_HandleTypeDef hcan2;
 
-#define CHASSIS_CAN hcan2
+#define CHASSIS_CAN hcan1
 #define BOARD_COM_CAN hcan1
 
 //底盘动力电机编号
