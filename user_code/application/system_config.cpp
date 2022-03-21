@@ -55,5 +55,5 @@ void Task_start(void)
 
         xTaskCreate(communicate_task, "communicate_task", Large_Stack_Size, NULL, PriorityHigh, &communicate_task_handle);
 
-        xTaskCreate(my_test_task, "my_test_task", Small_Stack_Size, NULL, PriorityHigh, &my_test_task_handle);
+        xTaskCreate(my_test_task, "my_test_task", Small_Stack_Size, NULL, PriorityNormal, &my_test_task_handle);
 }

@@ -79,8 +79,8 @@ void Communicate::run()
 
     can_receive.send_17mm_speed_and_mode_board_com(temp_id1_17mm_speed_limit, temp_bullet_speed, temp_chassis_behaviour_mode);
 
-
-//TODO 这里最好使用指针赋值,减少计算量,后续需修改
+    cap.cap_read_data(can_receive.cap_receive.input_vot, can_receive.cap_receive.cap_vot, can_receive.cap_receive.input_current,can_receive.cap_receive.target_power);
+//TODO _data这里最好使用指针赋值,减少计算量,后续需修改
 #if CHASSIS_REMOTE_OPEN
     remote_control.rc_ctrl.rc.ch[0] = can_receive.chassis_receive.ch_0;
     remote_control.rc_ctrl.rc.ch[2] = can_receive.chassis_receive.ch_2;
@@ -123,24 +123,6 @@ extern "C"
         case CAN_MOTIVE_BR_MOTOR_ID:
             can_receive.get_motive_motor_measure(MOTIVE_BR_MOTOR, rx_data);
             //detect_hook(CHASSIS_MOTIVE_BR_MOTOR_TOE);
-            break;
-
-        //底盘舵向电机
-        case CAN_RUDDER_FR_MOTOR_ID:
-            can_receive.get_rudder_motor_measure(RUDDER_FR_MOTOR, rx_data);
-            //detect_hook(CHASSIS_RUDDER_FR_MOTOR_TOE);
-            break;
-        case CAN_RUDDER_FL_MOTOR_ID:
-            can_receive.get_rudder_motor_measure(RUDDER_FL_MOTOR, rx_data);
-            //detect_hook(CHASSIS_RUDDER_FL_MOTOR_TOE);
-            break;
-        case CAN_RUDDER_BL_MOTOR_ID:
-            can_receive.get_rudder_motor_measure(RUDDER_BL_MOTOR, rx_data);
-            //detect_hook(CHASSIS_RUDDER_BL_MOTOR_TOE);
-            break;
-        case CAN_RUDDER_BR_MOTOR_ID:
-            can_receive.get_rudder_motor_measure(RUDDER_BR_MOTOR, rx_data);
-            //detect_hook(CHASSIS_RUDDER_BR_MOTOR_TOE);
             break;
 
         default:

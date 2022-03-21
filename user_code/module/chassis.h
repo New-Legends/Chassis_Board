@@ -8,6 +8,7 @@
 #include "Remote_control.h"
 #include "Motor.h"
 #include "Pid.h"
+#include "Super_cap.h"
 
 #include "Config.h"
 
@@ -77,21 +78,21 @@
 /*----------------按键-------------------------*/
 
 //底盘前后左右控制按键
-#define KEY_CHASSIS_FRONT if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_FRONT)
-#define KEY_CHASSIS_BACK if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_BACK)
-#define KEY_CHASSIS_LEFT if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_LEFT)
-#define KEY_CHASSIS_RIGHT if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_RIGHT)
+#define KEY_CHASSIS_FRONT           if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_FRONT)
+#define KEY_CHASSIS_BACK            if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_BACK)
+#define KEY_CHASSIS_LEFT            if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_LEFT)
+#define KEY_CHASSIS_RIGHT           if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_RIGHT)
 
-#define KEY_CHASSIS_TOP if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_TOP)
-#define KEY_CHASSIS_SWING if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_SWING)
-#define KEY_CHASSIS_PISA if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_PISA)
+#define KEY_CHASSIS_TOP             if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_TOP)
+#define KEY_CHASSIS_SWING           if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_SWING)
+#define KEY_CHASSIS_PISA            if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_PISA)
+#define KEY_CHASSIS_SUPER_CAP       if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_SUPER_CAP)
+
 
 //m3508转化成底盘速度(m/s)的比例，
 #define M3508_MOTOR_RPM_TO_VECTOR 0.000415809748903494517209f
 #define CHASSIS_MOTOR_RPM_TO_VECTOR_SEN M3508_MOTOR_RPM_TO_VECTOR
-
-//gm6020转化成底盘速度(m/s)的比例，
-#define GM6020_MOTOR_RPM_TO_VECTOR 0.000415809748903494517209f * 187 / 3591
+#define CHASSIS_MOTOR_RPM_TO_VECTOR_SEN M3508_MOTOR_RPM_TO_VECTOR
 
 //单个底盘电机最大速度
 #define MAX_WHEEL_SPEED 4.0f //4
@@ -107,6 +108,8 @@
 //移动状态下小陀螺转速
 #define TOP_WZ_ANGLE_MOVE 0.4f
 
+
+#define CHASSIS_WZ_SET_SCALE 0.1f
 
 //摇摆原地不动摇摆最大角度(rad)
 #define SWING_NO_MOVE_ANGLE 0.7f //0.7
@@ -149,17 +152,9 @@
 //底盘电机速度环PID
 #define MOTIVE_MOTOR_SPEED_PID_KP 6000.0f
 #define MOTIVE_MOTOR_SPEED_PID_KI 0.0f
-#define MOTIVE_MOTOR_SPEED_PID_KD 0.0f
+#define MOTIVE_MOTOR_SPEED_PID_KD 2.0f
 #define MOTIVE_MOTOR_SPEED_PID_MAX_IOUT 2000.0f
 #define MOTIVE_MOTOR_SPEED_PID_MAX_OUT 6000.0f
-
-// //chassis motor speed PID
-// //底盘电机速度环PID
-// #define MOTIVE_MOTOR_SPEED_PID_KP 6000.0f
-// #define MOTIVE_MOTOR_SPEED_PID_KI 0.0f
-// #define MOTIVE_MOTOR_SPEED_PID_KD 2.0f
-// #define MOTIVE_MOTOR_SPEED_PID_MAX_IOUT 2000.0f
-// #define MOTIVE_MOTOR_SPEED_PID_MAX_OUT 6000.0f
 
 //chassis follow angle PID
 //底盘旋转跟随PID
@@ -183,6 +178,17 @@
 #define RUDDER_MATOR_ANGLE_PID_KD 0.0f
 #define RUDDER_MATOR_ANGLE_PID_MAX_IOUT 0.0f
 #define RUDDER_MATOR_ANGLE_PID_MAX_OUT 6.0f
+
+
+//功率控制参数
+#define POWER_DEFAULT_LIMIT 50.0f  //默认功率限制
+#define WARNING_POWER_DISTANCE 10.0f //距离超过率的距离
+#define WARNING_POWER_BUFF 30.0f   
+ //警告能量缓冲  通过计算超级电容 电压低于12v得到的值
+
+#define NO_JUDGE_TOTAL_CURRENT_LIMIT 64000.0f // 16000 * 4,
+#define BUFFER_TOTAL_CURRENT_LIMIT 16000.0f
+#define POWER_TOTAL_CURRENT_LIMIT 20000.0f
 
 typedef enum
 {
@@ -235,7 +241,6 @@ public:
     chassis_mode_e last_chassis_mode; //底盘上次控制状态机
 
     M3508_motor chassis_motive_motor[4]; //底盘动力电机数据
-    G6020_motor chassis_rudder_motor[4]; //底盘舵向电机数据
 
     First_order_filter chassis_cmd_slow_set_vx;        //使用一阶低通滤波减缓设定值
     First_order_filter chassis_cmd_slow_set_vy;        //使用一阶低通滤波减缓设定值
@@ -291,7 +296,7 @@ public:
     //功能性函数
     void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set);
 
-    void chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4], fp32 rudder_angle[4]);
+    void chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4]);
 
     fp32 motor_ecd_to_angle_change(uint16_t ecd, uint16_t offset_ecd);
 };
@@ -300,5 +305,7 @@ public:
 extern Chassis chassis;
 
 
+//超电模块
+extern Super_Cap cap;
 
 #endif
