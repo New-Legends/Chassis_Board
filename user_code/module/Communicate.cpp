@@ -47,7 +47,7 @@ void Communicate::init()
 
     referee.init();
 
-    ui.init(&referee.Judge_Self_ID, &referee.Judge_SelfClient_ID);
+    //ui.init(&referee.Judge_Self_ID, &referee.Judge_SelfClient_ID);
 }
 
 void Communicate::run()
@@ -55,7 +55,7 @@ void Communicate::run()
     referee.unpack();
     referee.determine_ID();
 
-    ui.run();
+    //ui.run();
 
 
     //向云台发送裁判数据

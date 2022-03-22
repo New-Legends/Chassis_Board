@@ -83,16 +83,16 @@
 #define GM6020_MOTOR_RPM_TO_VECTOR 0.000415809748903494517209f * 187 / 3591
 
 //单个底盘电机最大速度
-#define MAX_WHEEL_SPEED 4.0f 
+#define MAX_WHEEL_SPEED 6.0f 
 //底盘运动过程最大前进速度
-#define NORMAL_MAX_CHASSIS_SPEED_Y 2.5f 
+#define NORMAL_MAX_CHASSIS_SPEED_Y 4.0f 
 //底盘运动过程最大平移速度
-#define NORMAL_MAX_CHASSIS_SPEED_X 2.5f 
+#define NORMAL_MAX_CHASSIS_SPEED_X 3.0f 
 //底盘运动过程最大旋转速度
-#define NORMAL_MAX_CHASSIS_SPEED_Z 10.0f
+#define NORMAL_MAX_CHASSIS_SPEED_Z 15.0f
 
 //原地旋转小陀螺下Z轴转速
-#define TOP_WZ_ANGLE_STAND 1.5f
+#define TOP_WZ_ANGLE_STAND 2.0f
 //移动状态下小陀螺转速
 #define TOP_WZ_ANGLE_MOVE 0.7f
 
