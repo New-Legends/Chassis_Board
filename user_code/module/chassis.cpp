@@ -131,6 +131,9 @@ void Chassis::set_mode() {
   */
 void Chassis::feedback_update()
 {   
+
+
+
     //记录上一次遥控器值
     last_chassis_RC->key.v = chassis_RC->key.v;
 
@@ -701,9 +704,6 @@ fp32 move_top_x_parm = 0.7;
 fp32 move_top_y_parm = 0.7;
 fp32 move_top_z_parm = 0.8;
 
-uint16_t last_top_key_value = 0;
-
-
 /**
   * @brief          底盘跟随云台的行为状态机下，底盘模式是跟随云台角度，底盘旋转速度会根据角度差计算底盘旋转的角速度
   * @author         RM
@@ -795,6 +795,7 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     }
 
     /**************************小陀螺控制输入********************************/
+    static uint16_t last_top_key_value = 0;
 
     //单击F开启和关闭小陀螺
     if (if_key_singal_pessed(chassis_RC->key.v, last_top_key_value, KEY_PRESSED_CHASSIS_TOP) && top_switch == 0) //开启小陀螺
@@ -819,10 +820,13 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
         else
         {
             top_angle = TOP_WZ_ANGLE_STAND;
+            fp32 *src_vx_set = vx_set;
+            fp32 *src_vy_set = vy_set;
+            fp32 src_top_angle = top_angle;
 
-            *vx_set = move_top_x_parm * x.max_speed * (*vx_set / sqrtf(pow(*vx_set, 2) + pow(*vy_set, 2) + 6 * pow(top_angle, 2)));
-            *vy_set = move_top_y_parm * y.max_speed * (*vy_set / sqrtf(pow(*vx_set, 2) + pow(*vy_set, 2) + 6 * pow(top_angle, 2)));
-            top_angle = move_top_z_parm * TOP_WZ_ANGLE_STAND * (top_angle * 2.5 / sqrtf(pow(*vx_set, 2) + pow(*vy_set, 2) + 6 * pow(top_angle, 2)));
+            *vx_set = move_top_x_parm * x.max_speed * (*src_vx_set / sqrtf(pow(*src_vx_set, 2) + pow(*src_vy_set, 2) + 6 * pow(src_top_angle, 2)));
+            *vy_set = move_top_y_parm * y.max_speed * (*src_vy_set / sqrtf(pow(*src_vx_set, 2) + pow(*src_vy_set, 2) + 6 * pow(src_top_angle, 2)));
+            top_angle = move_top_z_parm * TOP_WZ_ANGLE_STAND * (src_top_angle * 2.5 / sqrtf(pow(*src_vx_set, 2) + pow(*src_vy_set, 2) + 6 * pow(src_top_angle, 2)));
 
             if_move_top = 1;
         }
@@ -861,14 +865,13 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     last_super_cap_key_value = chassis_RC->key.v;
 
     //将扭腰和小陀螺的角度添加进目标角度
-    // if (top_switch == TRUE && swing_switch == FALSE)
-    // {
-    //     *angle_set = top_angle;
-    // } else if (swing_switch == TRUE && top_switch == FALSE)
-    // {
-    //     *angle_set = swing_angle;
-    // }
-    *angle_set = top_angle;
+    if (top_switch == TRUE && swing_switch == FALSE)
+    {
+        *angle_set = top_angle;
+    } else if (swing_switch == TRUE && top_switch == FALSE)
+    {
+        *angle_set = swing_angle;
+    }
 }
 
 /**
@@ -1014,10 +1017,10 @@ void Chassis::chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4], fp32 ru
     wheel_speed[3] = sqrt(pow(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), 2) + pow(x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta), 2));
 
     //舵向电机角度解算
-    fp32 stop_set_num = 0.1 ;
+    fp32 stop_set_num = 0.2 ;
     if ((x.speed_set >= -stop_set_num && x.speed_set <= stop_set_num) &&
         (y.speed_set >= -stop_set_num && y.speed_set <= stop_set_num) && 
-        (z.speed_set >= -stop_set_num*5 && z.speed_set <= stop_set_num*5))
+        (z.speed_set >= -stop_set_num*10 && z.speed_set <= stop_set_num*10))
     {
         rudder_angle[0] = last_rudder_angle[0];
         rudder_angle[1] = last_rudder_angle[1];

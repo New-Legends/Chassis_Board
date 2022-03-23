@@ -12,7 +12,6 @@
 extern CAN_HandleTypeDef hcan1;
 extern CAN_HandleTypeDef hcan2;
 
-
 void Can_receive::init()
 {
     can_filter_init();

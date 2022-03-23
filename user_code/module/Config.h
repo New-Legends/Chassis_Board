@@ -12,11 +12,12 @@
 /*---------------------通信-----------------------------*/
 //底盘独立遥控器是否开启 下板通信时关闭设置为0
 #define CHASSIS_REMOTE_OPEN 0
-
+//UI 是否开启
+#define UI_OPEN 0
 
 /*---------------------按键---------------------------*/
 //底盘小陀螺 单击F
-#define KEY_PRESSED_CHASSIS_TOP     'Q'
+#define KEY_PRESSED_CHASSIS_TOP     'F'
 
 //底盘摇摆  单击C
 #define KEY_PRESSED_CHASSIS_SWING   'C'

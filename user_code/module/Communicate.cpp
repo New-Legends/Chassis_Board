@@ -47,7 +47,9 @@ void Communicate::init()
 
     referee.init();
 
-    //ui.init(&referee.Judge_Self_ID, &referee.Judge_SelfClient_ID);
+#if UI_OPEN
+    ui.init(&referee.Judge_Self_ID, &referee.Judge_SelfClient_ID);
+#endif
 }
 
 void Communicate::run()
@@ -55,8 +57,9 @@ void Communicate::run()
     referee.unpack();
     referee.determine_ID();
 
-    //ui.run();
-
+#if UI_OPEN
+    ui.run();
+#endif
 
     //向云台发送裁判数据
     uint16_t temp_id1_17mm_cooling_limit, temp_id1_17mm_cooling_rate, temp_id1_17mm_cooling_heat;

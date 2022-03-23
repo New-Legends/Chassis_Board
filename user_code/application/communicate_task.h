@@ -10,7 +10,7 @@
 #define COMMUNICATE_TASK_INIT_TIME 30
 
 //底盘任务控制间隔 2ms
-#define COMMUNICATE_CONTROL_TIME_MS 10
+#define COMMUNICATE_CONTROL_TIME_MS 2
 
 /**
   * @brief          test_task
