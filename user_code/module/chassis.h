@@ -1,7 +1,8 @@
 #ifndef CHASSIS_H
 #define CHASSIS_H
 
-#include "system_config.h"
+#include "start_task.h"
+
 #include "struct_typedef.h"
 #include "First_order_filter.h"
 #include "Remote_control.h"
@@ -140,12 +141,11 @@
 
 //chassis follow angle PID
 //底盘旋转跟随PID
-#define CHASSIS_FOLLOW_GIMBAL_PID_KP 7.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_KP 4.5f
 #define CHASSIS_FOLLOW_GIMBAL_PID_KI 0.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_KD 4.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_KD 8.0f
 #define CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT 2.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT 10.0f
-
+#define CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT 20.0f
 
 //底盘舵向电机 速度环 PID参数以及 PID最大输出，积分输出
 #define RUDDER_MOTOR_SPEED_PID_KP 2900.0f //2900
@@ -171,20 +171,20 @@
 #define BUFFER_TOTAL_CURRENT_LIMIT 16000.0f
 #define POWER_TOTAL_CURRENT_LIMIT 20000.0f
 
-    typedef enum {
-        CHASSIS_ZERO_FORCE,                  // chassis will be like no power,底盘无力, 跟没上电那样
-        CHASSIS_NO_MOVE,                     // chassis will be stop,底盘保持不动
-        CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW,  // chassis will follow gimbal, usually in infantry,正常步兵底盘跟随云台
-        CHASSIS_ENGINEER_FOLLOW_CHASSIS_YAW, // chassis will follow chassis yaw angle, usually in engineer,
-                                             // because chassis does have gyro sensor, its yaw angle is calculed by gyro in gimbal and gimbal motor angle,
-                                             // if you have a gyro sensor in chassis, please updata yaw, pitch, roll angle in "chassis_feedback_update"  function
-                                             //工程底盘角度控制底盘，由于底盘未有陀螺仪，故而角度是减去云台角度而得到，
-                                             //如果有底盘陀螺仪请更新底盘的yaw，pitch，roll角度 在chassis_feedback_update函数中
-        CHASSIS_NO_FOLLOW_YAW, // chassis does not follow angle, angle is open-loop,but wheels have closed-loop speed
-                               //底盘不跟随角度，角度是开环的，但轮子是有速度环
-        CHASSIS_OPEN, // the value of remote control will mulitiply a value, get current value that will be sent to can bus
-                      //  遥控器的值乘以比例成电流值 直接发送到can总线上
-    } chassis_behaviour_e;
+typedef enum {
+    CHASSIS_ZERO_FORCE,                  // chassis will be like no power,底盘无力, 跟没上电那样
+    CHASSIS_NO_MOVE,                     // chassis will be stop,底盘保持不动
+    CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW,  // chassis will follow gimbal, usually in infantry,正常步兵底盘跟随云台
+    CHASSIS_ENGINEER_FOLLOW_CHASSIS_YAW, // chassis will follow chassis yaw angle, usually in engineer,
+                                         // because chassis does have gyro sensor, its yaw angle is calculed by gyro in gimbal and gimbal motor angle,
+                                         // if you have a gyro sensor in chassis, please updata yaw, pitch, roll angle in "chassis_feedback_update"  function
+                                         //工程底盘角度控制底盘，由于底盘未有陀螺仪，故而角度是减去云台角度而得到，
+                                         //如果有底盘陀螺仪请更新底盘的yaw，pitch，roll角度 在chassis_feedback_update函数中
+    CHASSIS_NO_FOLLOW_YAW, // chassis does not follow angle, angle is open-loop,but wheels have closed-loop speed
+                           //底盘不跟随角度，角度是开环的，但轮子是有速度环
+    CHASSIS_OPEN, // the value of remote control will mulitiply a value, get current value that will be sent to can bus
+                  //  遥控器的值乘以比例成电流值 直接发送到can总线上
+} chassis_behaviour_e;
 
 typedef enum
 {

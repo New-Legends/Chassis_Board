@@ -739,11 +739,6 @@
           <GroupName>application</GroupName>
           <Files>
             <File>
-              <FileName>system_config.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\user_code\application\system_config.cpp</FilePath>
-            </File>
-            <File>
               <FileName>my_test_task.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\user_code\application\my_test_task.cpp</FilePath>
@@ -762,6 +757,11 @@
               <FileName>detect_task.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\user_code\application\detect_task.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>start_task.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\user_code\application\start_task.cpp</FilePath>
             </File>
           </Files>
         </Group>
@@ -904,5 +904,14 @@
     </components>
     <files/>
   </RTE>
+
+  <LayerInfo>
+    <Layers>
+      <Layer>
+        <LayName>Chassis_Board</LayName>
+        <LayPrjMark>1</LayPrjMark>
+      </Layer>
+    </Layers>
+  </LayerInfo>
 
 </Project>

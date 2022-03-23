@@ -60,8 +60,7 @@ fp32 Pid::pid_calc()
 {   
     data.last_error = data.error;
     data.error = *data.set - *data.ref;
-    if (mode == PID_SPEED)
-        *data.error_delta = data.error - data.last_error;
+
 
 
     if (mode == PID_ANGLE)
@@ -73,8 +72,10 @@ fp32 Pid::pid_calc()
 
     data.Dout = data.Kd * (*data.error_delta);
 
-   
-
+    if (mode == PID_SPEED)
+    {
+        data.Dout = data.Kd * (data.error - data.last_error);
+    }
 
     LimitMax(data.Iout, data.max_iout);
 
