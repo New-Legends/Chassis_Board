@@ -302,7 +302,7 @@ fp32 chassis_power = 0.0f;
 fp32 chassis_power_limit = 0.0f;
 //缓冲能量 单位为J
 fp32 chassis_power_buffer = 0.0f;  //裁判剩余缓冲能量
-fp32 chassis_power_cap_buffer = 0.0f; //电容剩余能量
+fp32 chassis_power_cap_buffer = 0.0f; //超级电容剩余能量，通过计算得出
 
 /**
   * @brief          底盘功率控制
