@@ -271,7 +271,7 @@ void Chassis::solve() {
     {
         for (i = 0; i < 4; i++)
         {
-            chassis_motive_motor[i].current_give = 0.0f;//(int16_t)(wheel_speed[i]);
+            chassis_motive_motor[i].current_give =(int16_t)(wheel_speed[i]);
         }
         //raw控制直接返回
         return;
