@@ -198,14 +198,14 @@ void Chassis::set_contorl() {
 
         if(super_cap_switch == TRUE && top_switch == FALSE)
         {
-                x.min_speed = 1.5 * NORMAL_MAX_CHASSIS_SPEED_X;
+                x.min_speed = -1.5 * NORMAL_MAX_CHASSIS_SPEED_X;
                 x.max_speed = 1.5 * NORMAL_MAX_CHASSIS_SPEED_X;
-                y.min_speed = 1.5 * NORMAL_MAX_CHASSIS_SPEED_Y;
+                y.min_speed = -1.5 * NORMAL_MAX_CHASSIS_SPEED_Y;
                 y.max_speed = 1.5 * NORMAL_MAX_CHASSIS_SPEED_Y;
         } else {
-                x.min_speed = NORMAL_MAX_CHASSIS_SPEED_X;
+                x.min_speed = -NORMAL_MAX_CHASSIS_SPEED_X;
                 x.max_speed = NORMAL_MAX_CHASSIS_SPEED_X;
-                y.min_speed = NORMAL_MAX_CHASSIS_SPEED_Y;
+                y.min_speed =- NORMAL_MAX_CHASSIS_SPEED_Y;
                 y.max_speed = NORMAL_MAX_CHASSIS_SPEED_Y;
         }
 
@@ -264,20 +264,19 @@ void Chassis::solve() {
 
     uint8_t i = 0;
 
-    //舵轮运动分解
+    //底盘运动分解
     chassis_vector_to_mecanum_wheel_speed(wheel_speed);
 
     if (chassis_mode == CHASSIS_VECTOR_RAW)
     {
         for (i = 0; i < 4; i++)
         {
-            chassis_motive_motor[i].current_give = (int16_t)(wheel_speed[i]);
+            chassis_motive_motor[i].current_give = 0.0f;//(int16_t)(wheel_speed[i]);
         }
         //raw控制直接返回
         return;
     }
-
-    //计算动力电机控制最大速度，并限制其最大速度，限制舵向电机的角度
+    //计算动力电机控制最大速度，并限制其最大速度，
     for (i = 0; i < 4; i++)
     {
         chassis_motive_motor[i].speed_set = wheel_speed[i];
