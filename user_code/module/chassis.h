@@ -306,6 +306,6 @@ extern Chassis chassis;
 
 
 //超电模块
-//extern Super_Cap cap;
+extern Super_Cap cap;
 
 #endif

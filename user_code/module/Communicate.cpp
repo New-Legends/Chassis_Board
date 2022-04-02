@@ -79,7 +79,7 @@ void Communicate::run()
 
     can_receive.send_17mm_speed_and_mode_board_com(temp_id1_17mm_speed_limit, temp_bullet_speed, temp_chassis_behaviour_mode);
 
-//    cap.cap_read_data(can_receive.cap_receive.input_vot, can_receive.cap_receive.cap_vot, can_receive.cap_receive.input_current,can_receive.cap_receive.target_power);
+    cap.cap_read_data(can_receive.cap_receive.input_vot, can_receive.cap_receive.cap_vot, can_receive.cap_receive.input_current,can_receive.cap_receive.target_power);
 //TODO _data这里最好使用指针赋值,减少计算量,后续需修改
 #if CHASSIS_REMOTE_OPEN
     remote_control.rc_ctrl.rc.ch[0] = can_receive.chassis_receive.ch_0;

@@ -17,7 +17,7 @@ extern "C"
 Chassis chassis;
 
 //超电模块
-//Super_Cap cap;
+Super_Cap cap;
 
 //扭腰控制数据
 fp32 swing_angle = 0.0f;
@@ -331,32 +331,32 @@ void Chassis::power_ctrl() {
 //    else
     {   
         referee.get_chassis_power_and_buffer(&chassis_power, &chassis_power_buffer);
-//        cap.read_cap_buff(&chassis_power_cap_buffer);
+        cap.read_cap_buff(&chassis_power_cap_buffer);
 
         referee.get_chassis_power_limit(&chassis_power_limit);
 
         //当超电能量低于阈值700 将超电关闭
-//        if (chassis_power_cap_buffer < 700)
-//        {
-//            super_cap_switch = FALSE;
-//        }
-//        
+        if (chassis_power_cap_buffer < 700)
+        {
+            super_cap_switch = FALSE;
+        }
+        
         //开启超电后 对超电设置功率进行修改
-//        if (super_cap_switch == TRUE)
-//        {
-//            can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit)*100 + 1500);
-//        } else if (super_cap_switch == FALSE){
-//            can_receive.can_cmd_super_cap_power(10000);
-//        }
+        if (super_cap_switch == TRUE)
+        {
+            can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit)*100 + 1500);
+        } else if (super_cap_switch == FALSE){
+            can_receive.can_cmd_super_cap_power(10000);
+        }
 
 
 
 
-        //功率超过上限 和缓冲能量小于50j,因为缓冲能量小于50意味着功率超过上限
+        //功率超过上限 和缓冲能量小于30j,因为缓冲能量小于50意味着功率超过上限
         if (chassis_power_buffer < WARNING_POWER_BUFF)
         {
             fp32 power_scale;
-            if (chassis_power_buffer > 5.0f)
+            if (chassis_power_buffer > 10.0f)
             {
                 //缩小WARNING_POWER_BUFF
                 power_scale = chassis_power_buffer / WARNING_POWER_BUFF;
@@ -703,14 +703,14 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     }
 
     //开启超电
-//    if (KEY_CHASSIS_SUPER_CAP && super_cap_switch == 0) //打开超电
-//    {
-//        super_cap_switch = TRUE;
-//    }
-//    else if (KEY_CHASSIS_SUPER_CAP && super_cap_switch != 0) //关闭超电
-//    {
-//        super_cap_switch = FALSE;
-//    }
+    if (KEY_CHASSIS_SUPER_CAP && super_cap_switch == 0) //打开超电
+    {
+        super_cap_switch = TRUE;
+    }
+    else if (KEY_CHASSIS_SUPER_CAP && super_cap_switch != 0) //关闭超电
+    {
+        super_cap_switch = FALSE;
+    }
 
     *angle_set = swing_angle + top_angle;
 }
