@@ -310,7 +310,7 @@ void Referee::get_shooter_id1_42mm_cooling_limit_and_heat(uint16_t *id1_42mm_coo
 }
 
 //42mm枪口枪口射速上限,42mm实时射速
-void Referee::get_shooter_id1_42mm_speed_limit_and_bullet_speed(uint16_t *id1_42mm_speed_limit, uint16_t *bullet_speed)
+void Referee::get_shooter_id1_42mm_speed_limit_and_bullet_speed(uint16_t *id1_42mm_speed_limit, fp32 *bullet_speed)
 {
     *id1_42mm_speed_limit = robot_state.shooter_id1_42mm_speed_limit;
     *bullet_speed = shoot_data_t.bullet_speed;

@@ -19,10 +19,12 @@ void chassis_task(void *pvParameters) {
     vTaskDelay(CHASSIS_TASK_INIT_TIME);
     chassis.init();
     //超级电容初始化
-//     for (uint8_t i=0; i<10; i++){
-//         vTaskDelay(2);
+  
+
+    // for (uint8_t i=0; i<10; i++){
+    //     vTaskDelay(2);
        cap.init();
-//     }
+    // }
 
     while(true) {
 
@@ -37,9 +39,11 @@ void chassis_task(void *pvParameters) {
       //解算
       chassis.solve();
       //功率控制
-//			chassis.power_ctrl();
+      chassis.power_ctrl();
       //电流输出
       chassis.output();
+
+
       //系统延时
       vTaskDelay(CHASSIS_CONTROL_TIME_MS);
     }

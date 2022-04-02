@@ -25,11 +25,11 @@ uint8_t swing_switch = 0;
 uint8_t key_pressed_num_ctrl = 0;
 
 //小陀螺控制数据
-fp32 top_angle = 0;
+fp32 top_angle = 0.0f;
 bool_t top_switch = 0;
 
 //45度角对敌数据
-fp32 pisa_angle = 0; //保留45度对敌前的云台相对底盘角度
+fp32 pisa_angle = 0.0f; //保留45度对敌前的云台相对底盘角度
 bool_t pisa_switch = 0;
 
 //超电控制数据
@@ -109,23 +109,23 @@ void Chassis::set_mode() {
 void Chassis::feedback_update()
 {   
     //记录上一次遥控器值
-    last_chassis_RC->key.v = chassis_RC->key.v;
-    chassis_last_key_v =chassis_RC->key.v;
+    //last_chassis_RC->key.v = chassis_RC->key.v;
+    chassis_last_key_v = chassis_RC->key.v;
 
     //切入跟随云台模式
-    if ((last_chassis_mode != CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW) && chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
+    if ((last_chassis_mode != CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW) && (chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW))
     {
         chassis_relative_angle_set = INIT_YAW_SET;
     }
-    //切入跟随底盘角度模式
-    else if ((last_chassis_mode != CHASSIS_VECTOR_FOLLOW_CHASSIS_YAW) && chassis_mode == CHASSIS_VECTOR_FOLLOW_CHASSIS_YAW)
+    //切入不跟随云台模式
+    else if ((last_chassis_mode != CHASSIS_VECTOR_NO_FOLLOW_YAW) && (chassis_mode == CHASSIS_VECTOR_NO_FOLLOW_YAW))
     {
-        chassis_yaw_set = chassis_yaw;
+        chassis_yaw_set = 0;
     }
     //切入不跟随云台模式
-    else if ((last_chassis_mode != CHASSIS_VECTOR_NO_FOLLOW_YAW) && chassis_mode == CHASSIS_VECTOR_NO_FOLLOW_YAW)
+    else if ((last_chassis_mode != CHASSIS_VECTOR_RAW) && (chassis_mode == CHASSIS_VECTOR_RAW))
     {
-        chassis_yaw_set = chassis_yaw;
+        chassis_yaw_set = 0;
     }
 
 
@@ -145,7 +145,7 @@ void Chassis::feedback_update()
 
         
     //TODO 还未完善
-    //底盘相对于云台的角度,由云台发送过来
+    //底盘相对于云台的角度,由云台发送过来 编码器中的角度
     chassis_relative_angle = can_receive.chassis_receive.gimbal_yaw_angle;
 
     // //计算底盘姿态角度, 如果底盘上有陀螺仪请更改这部分代码
@@ -153,6 +153,9 @@ void Chassis::feedback_update()
     // chassis_pitch = rad_format(*(chassis_INS_angle + INS_PITCH_ADDRESS_OFFSET) - chassis_pitch_motor->relative_angle);
     // chassis_roll = *(chassis_INS_angle + INS_ROLL_ADDRESS_OFFSET);
 }
+
+
+fp32 move_top_xyz_parm[3] = {0.7, 0.7, 1.3};
 
 /**
   * @brief          设置底盘控制设置值, 三运动控制值是通过chassis_behaviour_control_set函数设置的
@@ -164,7 +167,7 @@ void Chassis::set_contorl() {
 
     //获取三个控制设置值
     chassis_behaviour_control_set(&vx_set, &vy_set, &angle_set);
-
+    
     //跟随云台模式
     if (chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
     {
@@ -173,64 +176,62 @@ void Chassis::set_contorl() {
         sin_yaw = sin(-chassis_relative_angle);
         cos_yaw = cos(-chassis_relative_angle);
 
-        vx_set = cos_yaw * vx_set + sin_yaw * vy_set;
-        vy_set = -sin_yaw * vx_set + cos_yaw * vy_set;
+        x.speed_set = cos_yaw * vx_set + sin_yaw * vy_set;
+        y.speed_set = -sin_yaw * vx_set + cos_yaw * vy_set;
 
         //设置控制相对云台角度
         chassis_relative_angle_set = rad_format(angle_set);
 
 
-            // //计算旋转PID角速度 如果是小陀螺,固定转速 如果是45度角对敌,选择固定角度
+        //计算旋转PID角速度 如果是小陀螺,固定转速 如果是45度角对敌,选择固定角度
         if (top_switch == TRUE)
         {
-            chassis_wz_angle_pid.data.ref = NULL;
-            chassis_wz_angle_pid.data.set = &chassis_relative_angle_set;
+            if ((fabs(x.speed_set) < 0.001) && (fabs(y.speed_set) < 0.001))
+             {
+                z.speed_set = 2.0f;
+             }
+            else
+             {
+                z.speed_set = 2.0f;
+                fp32 temp_x_speed_set = x.speed_set;
+                fp32 temp_y_speed_set = y.speed_set;
+                fp32 temp_z_speed_set = z.speed_set;
+                x.speed_set = move_top_xyz_parm[0] * x.max_speed * (temp_x_speed_set / sqrtf(pow(temp_x_speed_set, 2) + pow(temp_y_speed_set, 2) + 6 * pow(temp_z_speed_set, 2)));
+                y.speed_set = move_top_xyz_parm[1] * y.max_speed * (temp_y_speed_set / sqrtf(pow(temp_x_speed_set, 2) + pow(temp_y_speed_set, 2) + 6 * pow(temp_z_speed_set, 2)));
+                z.speed_set = move_top_xyz_parm[2] * z.max_speed * (temp_z_speed_set * 2.5 / sqrtf(pow(temp_x_speed_set, 2) + pow(temp_y_speed_set, 2) + 6 * pow(temp_z_speed_set, 2)));
+             }
         }
         // else if (pisa_switch = TRUE)
         // {
         //     chassis_wz_angle_pid.data.ref = &chassis_relative_angle;
         //     chassis_wz_angle_pid.data.set = &chassis_relative_angle_set;
         // }
-        else {
+        else 
+        {
             chassis_wz_angle_pid.data.ref = &chassis_relative_angle;
             chassis_wz_angle_pid.data.set = &chassis_relative_angle_set;
+            z.speed_set = -chassis_wz_angle_pid.pid_calc();
         } 
 
         if(super_cap_switch == TRUE && top_switch == FALSE)
         {
-                x.min_speed = -1.5 * NORMAL_MAX_CHASSIS_SPEED_X;
-                x.max_speed = 1.5 * NORMAL_MAX_CHASSIS_SPEED_X;
-                y.min_speed = -1.5 * NORMAL_MAX_CHASSIS_SPEED_Y;
-                y.max_speed = 1.5 * NORMAL_MAX_CHASSIS_SPEED_Y;
-        } else {
-                x.min_speed = -NORMAL_MAX_CHASSIS_SPEED_X;
-                x.max_speed = NORMAL_MAX_CHASSIS_SPEED_X;
-                y.min_speed =- NORMAL_MAX_CHASSIS_SPEED_Y;
-                y.max_speed = NORMAL_MAX_CHASSIS_SPEED_Y;
+            x.min_speed = -1.5 * NORMAL_MAX_CHASSIS_SPEED_X;
+            x.max_speed =  1.5 * NORMAL_MAX_CHASSIS_SPEED_X;
+            y.min_speed = -1.5 * NORMAL_MAX_CHASSIS_SPEED_Y;
+            y.max_speed =  1.5 * NORMAL_MAX_CHASSIS_SPEED_Y;
+        } 
+        else
+        {
+            x.min_speed = -NORMAL_MAX_CHASSIS_SPEED_X;
+            x.max_speed =  NORMAL_MAX_CHASSIS_SPEED_X;
+            y.min_speed = -NORMAL_MAX_CHASSIS_SPEED_Y;
+            y.max_speed =  NORMAL_MAX_CHASSIS_SPEED_Y;
         }
 
-        z.speed_set = chassis_wz_angle_pid.pid_calc();
-
-
         //速度限幅
-        x.speed_set = fp32_constrain(vx_set, x.min_speed, x.max_speed);
-        y.speed_set = fp32_constrain(vy_set, y.min_speed, y.max_speed);
+        x.speed_set = fp32_constrain(x.speed_set, x.min_speed, x.max_speed);
+        y.speed_set = fp32_constrain(y.speed_set, y.min_speed, y.max_speed);
         z.speed_set = fp32_constrain(z.speed_set, z.min_speed, z.max_speed);
-    }
-    else if (chassis_mode == CHASSIS_VECTOR_FOLLOW_CHASSIS_YAW)
-    {
-        fp32 delat_angle = 0.0f;
-
-        //设置底盘控制的角度
-        chassis_yaw_set = rad_format(angle_set);
-        delat_angle = rad_format(chassis_yaw_set - chassis_yaw);
-
-        //计算旋转的角速度
-        z.speed_set = chassis_wz_angle_pid.pid_calc();
-
-        //速度限幅
-        x.speed_set = fp32_constrain(vx_set, x.min_speed, x.max_speed);
-        y.speed_set = fp32_constrain(vy_set, y.min_speed, y.max_speed);
     }
     else if (chassis_mode == CHASSIS_VECTOR_NO_FOLLOW_YAW)
     {
@@ -264,19 +265,20 @@ void Chassis::solve() {
 
     uint8_t i = 0;
 
-    //底盘运动分解
+    //麦轮运动分解
     chassis_vector_to_mecanum_wheel_speed(wheel_speed);
 
     if (chassis_mode == CHASSIS_VECTOR_RAW)
     {
         for (i = 0; i < 4; i++)
         {
-            chassis_motive_motor[i].current_give =(int16_t)(wheel_speed[i]);
+            chassis_motive_motor[i].current_give = (int16_t)(wheel_speed[i]);
         }
         //raw控制直接返回
         return;
     }
-    //计算动力电机控制最大速度，并限制其最大速度，
+
+    //计算动力电机控制最大速度，并限制其最大速度
     for (i = 0; i < 4; i++)
     {
         chassis_motive_motor[i].speed_set = wheel_speed[i];
@@ -287,6 +289,14 @@ void Chassis::solve() {
         }
     }
 
+    if (max_vector > MAX_WHEEL_SPEED)
+    {
+        vector_rate = MAX_WHEEL_SPEED / max_vector;
+        for (i = 0; i < 4; i++)
+        {
+            chassis_motive_motor[i].speed_set *= vector_rate;
+        }
+    }
 
     //计算pid
     for (i = 0; i < 4; i++)
@@ -301,7 +311,7 @@ fp32 chassis_power = 0.0f;
 fp32 chassis_power_limit = 0.0f;
 //缓冲能量 单位为J
 fp32 chassis_power_buffer = 0.0f;  //裁判剩余缓冲能量
-fp32 chassis_power_cap_buffer = 0.0f; //超级电容剩余能量，通过计算得出
+fp32 chassis_power_cap_buffer = 0.0f; //电容剩余能量
 
 /**
   * @brief          底盘功率控制
@@ -345,14 +355,13 @@ void Chassis::power_ctrl() {
         if (super_cap_switch == TRUE)
         {
             can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit)*100 + 1500);
-        } else if (super_cap_switch == FALSE){
+        }
+        else if (super_cap_switch == FALSE)
+        {
             can_receive.can_cmd_super_cap_power(10000);
         }
 
-
-
-
-        //功率超过上限 和缓冲能量小于30j,因为缓冲能量小于50意味着功率超过上限
+        //功率超过上限 和缓冲能量小于30j,因为缓冲能量小于30意味着功率超过上限
         if (chassis_power_buffer < WARNING_POWER_BUFF)
         {
             fp32 power_scale;
@@ -366,7 +375,6 @@ void Chassis::power_ctrl() {
                 // only left 10% of WARNING_POWER_BUFF
                 power_scale = 5.0f / WARNING_POWER_BUFF;
             }
-
 
             //缩小
             total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT * power_scale;
@@ -430,6 +438,10 @@ void Chassis::output()
     for (int i = 0; i < 4; i++)
     {
         chassis_motive_motor[i].current_give = (int16_t)(chassis_motive_motor[i].current_set);
+		if (chassis_behaviour_mode == CHASSIS_ZERO_FORCE)
+		{
+			chassis_motive_motor[i].current_give = 0;
+		}
     }
 
     //电流输出控制,通过调整宏定义控制
@@ -438,7 +450,6 @@ void Chassis::output()
 #if CHASSIS_MOTIVE_MOTOR_NO_CURRENT
         chassis_motive_motor[i].current_give = 0;
 #endif
-
     }
 
     can_receive.can_cmd_chassis_motive_motor(chassis_motive_motor[0].current_give, chassis_motive_motor[1].current_give,
@@ -456,54 +467,33 @@ void Chassis::chassis_behaviour_mode_set()
     last_chassis_mode = chassis_mode;
 
     //遥控器设置模式
-    if (switch_is_up(chassis_RC->rc.s[CHASSIS_MODE_CHANNEL]))
+    if (switch_is_up(chassis_RC->rc.s[CHASSIS_MODE_CHANNEL]))           //右拨杆上 底盘行为 跟随云台
     {
-        //chassis_behaviour_mode = CHASSIS_ENGINEER_FOLLOW_CHASSIS_YAW;
         chassis_behaviour_mode = CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW;
     }
-    else if (switch_is_mid(chassis_RC->rc.s[CHASSIS_MODE_CHANNEL]))
+    else if (switch_is_mid(chassis_RC->rc.s[CHASSIS_MODE_CHANNEL]))     //右拨杆中 底盘行为 自主运动
     {
         chassis_behaviour_mode = CHASSIS_NO_FOLLOW_YAW;
     }
-    else if (switch_is_down(chassis_RC->rc.s[CHASSIS_MODE_CHANNEL]))
+    else if (switch_is_down(chassis_RC->rc.s[CHASSIS_MODE_CHANNEL]))    //右拨杆下 底盘行为 无力
     {
         chassis_behaviour_mode = CHASSIS_ZERO_FORCE;
     }
 
-
-    //TODO 待对接
-    // //当云台在某些模式下或者弹仓打开，像初始化， 底盘不动
-    // if (gimbal_cmd_to_chassis_stop())
-    // {
-    //     chassis_behaviour_mode = CHASSIS_NO_MOVE;
-    // }
-
     //添加自己的逻辑判断进入新模式
 
     //根据行为模式选择一个底盘控制模式
-    if (chassis_behaviour_mode == CHASSIS_ZERO_FORCE)
+    if (chassis_behaviour_mode == CHASSIS_ZERO_FORCE)                       //右拨杆下 底盘控制 开环 直接将遥控器杆量转化为电流值 当前逻辑表现为无力
     {
         chassis_mode = CHASSIS_VECTOR_RAW;
     }
-    else if (chassis_behaviour_mode == CHASSIS_NO_MOVE)
-    {
-        chassis_mode = CHASSIS_VECTOR_NO_FOLLOW_YAW;
-    }
-    else if (chassis_behaviour_mode == CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW)
+    else if (chassis_behaviour_mode == CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW)  //右拨杆上 底盘控制 闭环 跟随云台
     {
         chassis_mode = CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW;
     }
-    else if (chassis_behaviour_mode == CHASSIS_ENGINEER_FOLLOW_CHASSIS_YAW)
-    {
-        chassis_mode = CHASSIS_VECTOR_FOLLOW_CHASSIS_YAW;
-    }
-    else if (chassis_behaviour_mode == CHASSIS_NO_FOLLOW_YAW)
+    else if (chassis_behaviour_mode == CHASSIS_NO_FOLLOW_YAW)               //右拨杆中 底盘控制 闭环 自主运动
     {
         chassis_mode = CHASSIS_VECTOR_NO_FOLLOW_YAW;
-    }
-    else if (chassis_behaviour_mode == CHASSIS_OPEN)
-    {
-        chassis_mode = CHASSIS_VECTOR_RAW;
     }
 }
 
@@ -526,26 +516,19 @@ void Chassis::chassis_behaviour_control_set(fp32 *vx_set, fp32 *vy_set, fp32 *an
     {
         chassis_zero_force_control(vx_set, vy_set, angle_set); 
     }
-    else if (chassis_behaviour_mode == CHASSIS_NO_MOVE)
-    {
-        chassis_no_move_control(vx_set, vy_set, angle_set); 
-    }
     else if (chassis_behaviour_mode == CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW)
     {
         chassis_infantry_follow_gimbal_yaw_control(vx_set, vy_set, angle_set);
-    }
-    else if (chassis_behaviour_mode == CHASSIS_ENGINEER_FOLLOW_CHASSIS_YAW)
-    {
-        chassis_engineer_follow_chassis_yaw_control(vx_set, vy_set, angle_set); 
     }
     else if (chassis_behaviour_mode == CHASSIS_NO_FOLLOW_YAW)
     {
         chassis_no_follow_yaw_control(vx_set, vy_set, angle_set); 
     }
-    else if (chassis_behaviour_mode == CHASSIS_OPEN)
+    else if (chassis_behaviour_mode == CHASSIS_OPEN)        //底盘控制 测试用 直接将遥控器杆量转化为电流值
     {
         chassis_open_set_control(vx_set, vy_set, angle_set); 
     }
+    last_chassis_RC->key.v = chassis_RC->key.v;
 }
 
 /**
@@ -689,7 +672,9 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
             top_angle = TOP_WZ_ANGLE_MOVE;
     }
     else
+    {
         top_angle = 0;
+    }
 
     /****************************45度角对敌控制输入*********************************************/
     //单击C,开启45度角对敌;重复操作取消45度角对敌
@@ -715,25 +700,6 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     *angle_set = swing_angle + top_angle;
 }
 
-/**
-  * @brief          底盘跟随底盘yaw的行为状态机下，底盘模式是跟随底盘角度，底盘旋转速度会根据角度差计算底盘旋转的角速度
-  * @author         RM
-  * @param[in]      vx_set前进的速度,正值 前进速度， 负值 后退速度
-  * @param[in]      vy_set左右的速度,正值 左移速度， 负值 右移速度
-  * @param[in]      angle_set底盘设置的yaw，范围 -PI到PI
-  * @param[in]      数据
-  * @retval         返回空
-  */
-void Chassis::chassis_engineer_follow_chassis_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *angle_set ){
-    if (vx_set == NULL || vy_set == NULL || angle_set == NULL )
-    {
-        return;
-    }
-
-    chassis_rc_to_control_vector(vx_set, vy_set); 
-
-    *angle_set = rad_format(chassis_yaw_set - CHASSIS_ANGLE_Z_RC_SEN * chassis_RC->rc.ch[CHASSIS_WZ_CHANNEL]);
-}
 
 /**
   * @brief          底盘不跟随角度的行为状态机下，底盘模式是不跟随角度，底盘旋转速度由参数直接设定
@@ -848,10 +814,15 @@ void Chassis::chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4])
 
     //normal
     //旋转的时候， 由于云台靠前，所以是前面两轮 0 ，1 旋转的速度变慢， 后面两轮 2,3 旋转的速度变快
-    wheel_speed[0] = -x.speed_set - y.speed_set + (CHASSIS_WZ_SET_SCALE - 1.0f) * MOTOR_DISTANCE_TO_CENTER * z.speed_set;
-    wheel_speed[1] = x.speed_set - y.speed_set + (CHASSIS_WZ_SET_SCALE - 1.0f) * MOTOR_DISTANCE_TO_CENTER * z.speed_set;
-    wheel_speed[2] = x.speed_set + y.speed_set + (-CHASSIS_WZ_SET_SCALE - 1.0f) * MOTOR_DISTANCE_TO_CENTER * z.speed_set;
-    wheel_speed[3] = -x.speed_set + y.speed_set + (-CHASSIS_WZ_SET_SCALE - 1.0f) * MOTOR_DISTANCE_TO_CENTER * z.speed_set;
+    // wheel_speed[0] = -x.speed_set - y.speed_set + (CHASSIS_WZ_SET_SCALE - 1.0f) * MOTOR_DISTANCE_TO_CENTER * z.speed_set;
+    // wheel_speed[1] = x.speed_set - y.speed_set + (CHASSIS_WZ_SET_SCALE - 1.0f) * MOTOR_DISTANCE_TO_CENTER * z.speed_set;
+    // wheel_speed[2] = x.speed_set + y.speed_set + (-CHASSIS_WZ_SET_SCALE - 1.0f) * MOTOR_DISTANCE_TO_CENTER * z.speed_set;
+    // wheel_speed[3] = -x.speed_set + y.speed_set + (-CHASSIS_WZ_SET_SCALE - 1.0f) * MOTOR_DISTANCE_TO_CENTER * z.speed_set;
+
+    wheel_speed[0] = -x.speed_set - y.speed_set - MOTOR_DISTANCE_TO_CENTER * z.speed_set;
+    wheel_speed[1] =  x.speed_set - y.speed_set - MOTOR_DISTANCE_TO_CENTER * z.speed_set;
+    wheel_speed[2] =  x.speed_set + y.speed_set - MOTOR_DISTANCE_TO_CENTER * z.speed_set;
+    wheel_speed[3] = -x.speed_set + y.speed_set - MOTOR_DISTANCE_TO_CENTER * z.speed_set;
 }
 
 /**

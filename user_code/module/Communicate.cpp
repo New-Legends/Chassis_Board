@@ -60,24 +60,24 @@ void Communicate::run()
 
 
     //向云台发送裁判数据
-    uint16_t temp_id1_17mm_cooling_limit, temp_id1_17mm_cooling_rate, temp_id1_17mm_cooling_heat;
+    uint16_t temp_id1_42mm_cooling_limit, temp_id1_42mm_cooling_rate, temp_id1_42mm_cooling_heat;
     uint8_t temp_color, temp_robot_id;
-    uint16_t temp_id1_17mm_speed_limit;
+    uint16_t temp_id1_42mm_speed_limit;
     fp32 temp_bullet_speed;
     uint8_t temp_chassis_behaviour_mode;
 
-    referee.get_shooter_id1_17mm_cooling_limit_and_heat(&temp_id1_17mm_cooling_limit, &temp_id1_17mm_cooling_heat);
-    referee.get_shooter_id1_17mm_cooling_rate(&temp_id1_17mm_cooling_rate);
+    referee.get_shooter_id1_42mm_cooling_limit_and_heat(&temp_id1_42mm_cooling_limit, &temp_id1_42mm_cooling_heat);
+    referee.get_shooter_id1_42mm_cooling_rate(&temp_id1_42mm_cooling_rate);
     referee.get_color(&temp_color);
     referee.get_robot_id(&temp_robot_id);
-    referee.get_shooter_id1_17mm_speed_limit_and_bullet_speed(&temp_id1_17mm_speed_limit, &temp_bullet_speed);
+    referee.get_shooter_id1_42mm_speed_limit_and_bullet_speed(&temp_id1_42mm_speed_limit, &temp_bullet_speed);
     temp_chassis_behaviour_mode = chassis.chassis_behaviour_mode;
 
 
-    can_receive.send_cooling_and_id_board_com(temp_id1_17mm_cooling_limit, temp_id1_17mm_cooling_rate, temp_id1_17mm_cooling_heat,
+    can_receive.send_cooling_and_id_board_com(temp_id1_42mm_cooling_limit, temp_id1_42mm_cooling_rate, temp_id1_42mm_cooling_heat,
                                               temp_color, temp_robot_id);
 
-    can_receive.send_17mm_speed_and_mode_board_com(temp_id1_17mm_speed_limit, temp_bullet_speed, temp_chassis_behaviour_mode);
+    can_receive.send_42mm_speed_and_mode_board_com(temp_id1_42mm_speed_limit, temp_bullet_speed, temp_chassis_behaviour_mode);
 
     cap.cap_read_data(can_receive.cap_receive.input_vot, can_receive.cap_receive.cap_vot, can_receive.cap_receive.input_current,can_receive.cap_receive.target_power);
 //TODO _data这里最好使用指针赋值,减少计算量,后续需修改
@@ -86,7 +86,7 @@ void Communicate::run()
     remote_control.rc_ctrl.rc.ch[2] = can_receive.chassis_receive.ch_2;
     remote_control.rc_ctrl.rc.ch[3] = can_receive.chassis_receive.ch_3;
     remote_control.rc_ctrl.key.v = can_receive.chassis_receive.v;
-    remote_control.rc_ctrl.rc.s[0] = can_receive.chassis_receive.s0;
+    remote_control.rc_ctrl.rc.s[1] = can_receive.chassis_receive.s1;
 #else
    ;
 #endif
@@ -104,32 +104,36 @@ extern "C"
         if (hcan == &CHASSIS_CAN) //接底盘CAN 信息
         {
 
-        HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rx_header, rx_data);
-        switch (rx_header.StdId)
-        {
-        //底盘动力电机
-        case CAN_MOTIVE_FR_MOTOR_ID:
-            can_receive.get_motive_motor_measure(MOTIVE_FR_MOTOR, rx_data);
-            //detect_hook(CHASSIS_MOTIVE_FR_MOTOR_TOE);
-            break;
-        case CAN_MOTIVE_FL_MOTOR_ID:
-            can_receive.get_motive_motor_measure(MOTIVE_FL_MOTOR, rx_data);
-            //detect_hook(CHASSIS_MOTIVE_FL_MOTOR_TOE);
-            break;
-        case CAN_MOTIVE_BL_MOTOR_ID:
-            can_receive.get_motive_motor_measure(MOTIVE_BL_MOTOR, rx_data);
-            //detect_hook(CHASSIS_MOTIVE_BL_MOTOR_TOE);
-            break;
-        case CAN_MOTIVE_BR_MOTOR_ID:
-            can_receive.get_motive_motor_measure(MOTIVE_BR_MOTOR, rx_data);
-            //detect_hook(CHASSIS_MOTIVE_BR_MOTOR_TOE);
-            break;
+            HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rx_header, rx_data);
+            switch (rx_header.StdId)
+            {
+                //底盘动力电机
+                case CAN_MOTIVE_FR_MOTOR_ID:
+                    can_receive.get_motive_motor_measure(MOTIVE_FR_MOTOR, rx_data);
+                    //detect_hook(CHASSIS_MOTIVE_FR_MOTOR_TOE);
+                    break;
+                case CAN_MOTIVE_FL_MOTOR_ID:
+                    can_receive.get_motive_motor_measure(MOTIVE_FL_MOTOR, rx_data);
+                    //detect_hook(CHASSIS_MOTIVE_FL_MOTOR_TOE);
+                    break;
+                case CAN_MOTIVE_BL_MOTOR_ID:
+                    can_receive.get_motive_motor_measure(MOTIVE_BL_MOTOR, rx_data);
+                    //detect_hook(CHASSIS_MOTIVE_BL_MOTOR_TOE);
+                    break;
+                case CAN_MOTIVE_BR_MOTOR_ID:
+                    can_receive.get_motive_motor_measure(MOTIVE_BR_MOTOR, rx_data);
+                    //detect_hook(CHASSIS_MOTIVE_BR_MOTOR_TOE);
+                    break;
+                case CAN_SUPER_CAP_ID:
+                    can_receive.get_super_cap_data(rx_data);
+                    //detect_hook(CHASSIS_MOTIVE_BR_MOTOR_TOE);
+                    break;
 
-        default:
-        {
-            break;
-        }
-        }
+                default:
+                {
+                    break;
+                }
+            }
 
 
         }
@@ -139,27 +143,24 @@ extern "C"
             switch (rx_header.StdId)
             {
 
-            case CAN_RC_BOARM_COM_ID:
-                can_receive.receive_rc_board_com(rx_data);
-                //detect_hook(BOARD_COM);
-                break;
+                case CAN_RC_BOARM_COM_ID:
+                    can_receive.receive_rc_board_com(rx_data);
+                    //detect_hook(BOARD_COM);
+                    break;
 
-            case CAN_GIMBAL_BOARD_COM_ID:
-                can_receive.receive_gimbal_board_com(rx_data);
-                //detect_hook(BOARD_COM);
-                break;
+                case CAN_GIMBAL_BOARD_COM_ID:
+                    can_receive.receive_gimbal_board_com(rx_data);
+                    //detect_hook(BOARD_COM);
+                    break;
 
-            default:
-            {
-                break;
+                default:
+                {
+                    break;
+                }
+
             }
-
-
-            }
-
-
         }
-        }
+    }
     // TODO 设备检查未更新
     //遥控器串口
     void USART3_IRQHandler(void)
