@@ -6,10 +6,9 @@
 void Super_Cap::init() {
 
     for (uint8_t i=0; i<10; i++){
-        vTaskDelay(1);
-        can_receive.can_cmd_super_cap_power(9000);
+        vTaskDelay(1000);
+        can_receive.can_cmd_super_cap_power(5000);
     }
-    
 }
 
 void Super_Cap::cap_read_data(float _input_vot, float _cap_vot, float _input_current, float _target_power)

@@ -22,8 +22,7 @@ void chassis_task(void *pvParameters) {
 
   // for (uint8_t i=0; i<10; i++){
   //     vTaskDelay(2);
-  cap.init();
-  ;
+  //cap.init();
   // }
 
   while (true)

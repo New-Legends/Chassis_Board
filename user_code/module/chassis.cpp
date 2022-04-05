@@ -415,6 +415,7 @@ void Chassis::power_ctrl() {
     else if (robot_id == RED_ENGINEER || robot_id == BLUE_ENGINEER || robot_id == 0)
     {
         total_current_limit = NO_JUDGE_TOTAL_CURRENT_LIMIT;
+        can_receive.can_cmd_super_cap_power(12000);
     }
     else
     {   
@@ -504,7 +505,8 @@ void Chassis::power_ctrl() {
         chassis_motive_motor[2].current_set *= current_scale;
         chassis_motive_motor[3].current_set *= current_scale;
 
-        // //对舵向电机进行功率控制
+        //TODO 对舵向电机进行功率控制 可能会导致转向不灵敏
+        // // //对舵向电机进行功率控制
         // chassis_rudder_motor[0].current_set *= current_scale;
         // chassis_rudder_motor[1].current_set *= current_scale;
         // chassis_rudder_motor[2].current_set *= current_scale;
@@ -702,7 +704,7 @@ void Chassis::chassis_no_move_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set)
 uint8_t if_move_top = 0;
 fp32 move_top_x_parm = 0.7;
 fp32 move_top_y_parm = 0.7;
-fp32 move_top_z_parm = 0.8;
+fp32 move_top_z_parm = 0.5;
 
 /**
   * @brief          底盘跟随云台的行为状态机下，底盘模式是跟随云台角度，底盘旋转速度会根据角度差计算底盘旋转的角速度
@@ -819,7 +821,8 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
         }
         else
         {
-            top_angle = TOP_WZ_ANGLE_STAND;
+            top_angle = TOP_WZ_ANGLE_STAND * 0.5;
+            //TODO 可能导致底盘移动缓慢,需要改进
             fp32 *src_vx_set = vx_set;
             fp32 *src_vy_set = vy_set;
             fp32 src_top_angle = top_angle;
@@ -827,6 +830,11 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
             *vx_set = move_top_x_parm * x.max_speed * (*src_vx_set / sqrtf(pow(*src_vx_set, 2) + pow(*src_vy_set, 2) + 6 * pow(src_top_angle, 2)));
             *vy_set = move_top_y_parm * y.max_speed * (*src_vy_set / sqrtf(pow(*src_vx_set, 2) + pow(*src_vy_set, 2) + 6 * pow(src_top_angle, 2)));
             top_angle = move_top_z_parm * TOP_WZ_ANGLE_STAND * (src_top_angle * 2.5 / sqrtf(pow(*src_vx_set, 2) + pow(*src_vy_set, 2) + 6 * pow(src_top_angle, 2)));
+
+            // *vx_set = move_top_x_parm * x.max_speed * (*vx_set / sqrtf(pow(*vx_set, 2) + pow(*vy_set, 2) + 6 * pow(top_angle, 2)));
+            // *vy_set = move_top_y_parm * y.max_speed * (*vy_set / sqrtf(pow(*vx_set, 2) + pow(*vy_set, 2) + 6 * pow(top_angle, 2)));
+            // top_angle = move_top_z_parm * TOP_WZ_ANGLE_STAND * (top_angle * 2.5 / sqrtf(pow(*vx_set, 2) + pow(*vy_set, 2) + 6 * pow(top_angle, 2)));
+
 
             if_move_top = 1;
         }
