@@ -34,9 +34,9 @@ fp32 pisa_angle = 0; //保留45度对敌前的云台相对底盘角度
 bool_t pisa_switch = 0;
 
 //未受击打的不规则运动初始
-int16_t Irregular_motion[10];
-int8_t Irregular_motion_num = 0;
-int16_t Irregular_motion_sign[10];
+int16_t Irregular_motion[200];
+int16_t Irregular_motion_num = 0;
+int16_t Irregular_motion_sign[200];
 int16_t tim = 1;
 
 /**
@@ -87,7 +87,7 @@ void Chassis::init()
     
     //不规则运动初始化
     srand(tim);   //初始化种子为随机值
-	for(Irregular_motion_num=0;Irregular_motion_num<10;Irregular_motion_num++)
+	for(Irregular_motion_num = 0;Irregular_motion_num < 200;Irregular_motion_num++)
 	{
 			Irregular_motion[Irregular_motion_num] = rand()%2300+1000;
             Irregular_motion_sign[Irregular_motion_num] = Irregular_motion[Irregular_motion_num];
@@ -255,7 +255,7 @@ void Chassis::power_ctrl() {
         if (chassis_power_buffer < WARNING_POWER_BUFF)
         {
             fp32 power_scale;
-            if (chassis_power_buffer > 5.0f)
+            if (chassis_power_buffer > 25.0f)
             {
                 //缩小WARNING_POWER_BUFF
                 power_scale = chassis_power_buffer / WARNING_POWER_BUFF;
@@ -263,7 +263,7 @@ void Chassis::power_ctrl() {
             else
             {
                 // only left 10% of WARNING_POWER_BUFF
-                power_scale = 5.0f / WARNING_POWER_BUFF;
+                power_scale = 25.0f / WARNING_POWER_BUFF;
             }
             //缩小
             total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT * power_scale;
@@ -535,22 +535,19 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
         int up_time = 0;        //加速时间
         int change_time = 0;    //变向时间
         int change_flag = 0;    //变向开关
-        if(referee.if_hit()){
+        float CHASSIS_MAX_SPEED = CHASSIS_MID_SPEED;
+        if(referee.if_hit())
+        {
             speed_flag = 1;
         }
-        if(referee.if_hit()){
-            if(change_flag = 0){
+        if(referee.if_hit())
+        {
+            if(change_flag == 0 && change_time == 0)
+            {
                 change_flag = 1;
-                change_time ++;
-            } 
-            else if(change_flag = 1){
-                change_flag = 0;
-                change_time = 0;
-            } 
-            if(change_time>300){
-                change_time = 300;
-            }          
+            }  
         }
+
         referee.output_state();
         if(referee.field_event_outpost == 1){//前哨站存活,停在右边
             if(left_light_sensor == TRUE && right_light_sensor == TRUE)
@@ -594,28 +591,27 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
             {
                   
                 //不规则运动
-                if(!referee.if_hit() && Irregular_motion[Irregular_motion_num] > 0)
+                if(!referee.if_hit() && Irregular_motion[Irregular_motion_num] >= Irregular_motion_sign[Irregular_motion_num]/2)
                 {
                     Irregular_motion[Irregular_motion_num]--;
+                    *vy_set = CHASSIS_MAX_SPEED * 2 * (1 - Irregular_motion[Irregular_motion_num] / Irregular_motion_sign[Irregular_motion_num]);
+                }
+                else if(!referee.if_hit() && Irregular_motion[Irregular_motion_num] < Irregular_motion_sign[Irregular_motion_num]/2 && Irregular_motion[Irregular_motion_num] > 0)
+                {
+                    Irregular_motion[Irregular_motion_num]--;
+                    *vy_set = CHASSIS_MAX_SPEED * 2 * Irregular_motion[Irregular_motion_num] / Irregular_motion_sign[Irregular_motion_num];
                 }
                 if(!referee.if_hit() && Irregular_motion[Irregular_motion_num] == 0)
                 {
-                    if(direction == LEFT)
-                    {
-                        direction = RIGHT;
-                    }
-                    else
-                    {
-                        direction = LEFT;
-                    }
                     if(Irregular_motion_num >= 0)
                     {
                         Irregular_motion_num--;
                     }
-                    else
+                    else 
                     {
                         srand(tim++);
-                        for(Irregular_motion_num=0;Irregular_motion_num<10;Irregular_motion_num++){
+                        for(Irregular_motion_num = 0;Irregular_motion_num < 200;Irregular_motion_num++)
+                        {
 			                    Irregular_motion[Irregular_motion_num] = rand()%2300+1000;  //随机数生成
                                 Irregular_motion_sign[Irregular_motion_num] = Irregular_motion[Irregular_motion_num];
 	                    }
@@ -624,11 +620,23 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
                 }
                 if(change_flag)
                 {                   
-                    if(direction == LEFT){
+                    if(direction == LEFT)
+                    {
                         direction = RIGHT;
                     }
-                    if(direction == RIGHT){
+                    if(direction == RIGHT)
+                    {
                         direction = LEFT;
+                    }
+                    change_flag = 0;
+                    change_time = 1;
+                }
+                if(change_flag == 0 && change_time != 0)
+                {
+                    change_time ++;
+                    if(change_time >= 1000)
+                    {
+                        change_time = 0;
                     }
                 }
                 direction = direction;
@@ -639,17 +647,17 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
         //受击打加速
         if(speed_flag)
         {
-            *vy_set = CHASSIS_HIGH_SPEED;
+            CHASSIS_MAX_SPEED = CHASSIS_HIGH_SPEED;
         }
         else
         {
-            *vy_set = CHASSIS_MID_SPEED;
+            CHASSIS_MAX_SPEED = CHASSIS_MID_SPEED;
         }
         if(!referee.if_hit()){
             if(speed_flag){
                 up_time++;
             }
-            if(up_time>300){
+            if(up_time>=300){
                 speed_flag = 0;
             }
         }
