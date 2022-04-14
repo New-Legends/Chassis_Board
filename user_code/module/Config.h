@@ -11,7 +11,7 @@
 
 /*---------------------通信-----------------------------*/
 //底盘遥控器是否开启 正常上下板通信是开启状态的
-#define CHASSIS_REMOTE_OPEN 0
+#define CHASSIS_REMOTE_OPEN 1
 
 
 
