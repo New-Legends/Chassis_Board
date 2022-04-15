@@ -64,7 +64,7 @@
 #define MOTOR_SPEED_TO_CHASSIS_SPEED_VY 0.25f
 #define MOTOR_SPEED_TO_CHASSIS_SPEED_WZ 0.25f
 
-#define MOTOR_DISTANCE_TO_CENTER 0.46f //英雄为0.22+0.24=0.46  官方步兵为0.2
+#define MOTOR_DISTANCE_TO_CENTER 0.2f //英雄为0.22+0.24=0.46  官方步兵为0.2
 
 //底盘任务控制间隔 2ms
 #define CHASSIS_CONTROL_TIME_MS 2
@@ -99,14 +99,14 @@
 //底盘运动过程最大前进速度
 #define NORMAL_MAX_CHASSIS_SPEED_X 2.5f //2.0
 //底盘运动过程最大平移速度
-#define NORMAL_MAX_CHASSIS_SPEED_Y 1.5f //1.5
+#define NORMAL_MAX_CHASSIS_SPEED_Y 2.5f //1.5
 //底盘运动过程最大旋转速度
 #define NORMAL_MAX_CHASSIS_SPEED_Z 10.0f
 
 //原地旋转小陀螺下Z轴转速
-#define TOP_WZ_ANGLE_STAND 0.6f
+#define TOP_WZ_ANGLE_STAND 5.0f
 //移动状态下小陀螺转速
-#define TOP_WZ_ANGLE_MOVE 0.5f
+#define TOP_WZ_ANGLE_MOVE 0.8f
 
 
 #define CHASSIS_WZ_SET_SCALE 0.1f
@@ -145,10 +145,10 @@
 
 //chassis follow angle PID
 //底盘旋转跟随PID
-#define CHASSIS_FOLLOW_GIMBAL_PID_KP 11.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_KP 8.0f
 #define CHASSIS_FOLLOW_GIMBAL_PID_KI 0.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_KD 0.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT 2.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_KD 2.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT 0.1f
 #define CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT 10.0f
 
 

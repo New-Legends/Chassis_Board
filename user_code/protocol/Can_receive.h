@@ -35,7 +35,7 @@ typedef enum
   CAN_RC_BOARM_COM_ID = 0x301,
   CAN_GIMBAL_BOARD_COM_ID = 0x302,
   CAN_COOLING_BOARM_COM_ID = 0x303,
-  CAN_42MM_SPEED_BOARD_COM_ID = 0x304,
+  CAN_17MM_SPEED_BOARD_COM_ID = 0x304,
 
   //超级电容接收ID
   CAN_SUPER_CAP_ID = 0x211
@@ -82,15 +82,15 @@ typedef struct
 typedef struct
 {
   //测试热量及ID
-  uint16_t id1_42mm_cooling_limit;//42mm测速热量上限
-  uint16_t id1_42mm_cooling_rate;//42mm测速热量冷却
-  uint16_t id1_42mm_cooling_heat; //42mm测速实时热量
+  uint16_t id1_17mm_cooling_limit;//17mm测速热量上限
+  uint16_t id1_17mm_cooling_rate;//17mm测速热量冷却
+  uint16_t id1_17mm_cooling_heat; //17mm测速实时热量
   uint8_t color;               //判断红蓝方
   uint8_t robot_id;            //机器人编号
 
   //测速速度及底盘模式
-  uint16_t id1_42mm_speed_limi;//42mm测速射速上限
-  uint16_t bullet_speed;       //42mm测速实时射速
+  uint16_t id1_17mm_speed_limi;//17mm测速射速上限
+  uint16_t bullet_speed;       //17mm测速实时射速
 
   uint8_t chassis_behaviour;
 
@@ -141,9 +141,9 @@ public:
   void receive_gimbal_board_com(uint8_t data[8]);
 
   // 发送枪口热量及ID
-  void send_cooling_and_id_board_com(uint16_t id1_42mm_cooling_limit, uint16_t id1_42mm_cooling_rate, uint16_t id1_42mm_cooling_heat, uint8_t color, uint8_t robot_id);
+  void send_cooling_and_id_board_com(uint16_t id1_17mm_cooling_limit, uint16_t id1_17mm_cooling_rate, uint16_t id1_17mm_cooling_heat, uint8_t color, uint8_t robot_id);
   //发送枪口速度及底盘模式
-  void send_42mm_speed_and_mode_board_com(uint16_t id1_42mm_speed_limi, uint16_t bullet_speed, uint8_t chassis_behaviour);
+  void send_17mm_speed_and_mode_board_com(uint16_t id1_17mm_speed_limi, uint16_t bullet_speed, uint8_t chassis_behaviour);
 
   //发送超级电容设定功率
   void can_cmd_super_cap_power(uint16_t set_power);

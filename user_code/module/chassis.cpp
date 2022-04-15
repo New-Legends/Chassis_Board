@@ -188,11 +188,11 @@ void Chassis::set_contorl() {
         {
             if ((fabs(x.speed_set) < 0.001) && (fabs(y.speed_set) < 0.001))
              {
-                z.speed_set = 2.0f;
+                z.speed_set = TOP_WZ_ANGLE_STAND;
              }
             else
              {
-                z.speed_set = 2.0f;
+                z.speed_set = TOP_WZ_ANGLE_MOVE;
                 fp32 temp_x_speed_set = x.speed_set;
                 fp32 temp_y_speed_set = y.speed_set;
                 fp32 temp_z_speed_set = z.speed_set;
