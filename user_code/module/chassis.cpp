@@ -659,7 +659,7 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
             if(speed_flag){
                 up_time++;
             }
-            if(up_time>=300){
+            if(up_time>=2000){
                 speed_flag = 0;
             }
         }
