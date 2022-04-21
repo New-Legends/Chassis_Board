@@ -119,37 +119,12 @@
 #define left_light_sensor_GPIO_Port GPIOE
 
 
-#define CHASSIS_WZ_SET_SCALE 0.1f
-
-//摇摆原地不动摇摆最大角度(rad)
-#define SWING_NO_MOVE_ANGLE 0.7f //0.7
-//摇摆过程底盘运动最大角度(rad)
-#define SWING_MOVE_ANGLE 0.31415926535897932384626433832795f
-
-#define RUDDER_RADIUS 0.212f //轮中心距
-
-//舵向电机初试位置拨码值 
-//由于机械安装问题,0,3号电机安装方式与另外二者不同,手动校准
-#define RUDDER_OFFSET_0 2733
-#define RUDDER_OFFSET 5483 //编码器
-#define RUDDER_OFFSET_3 4
-
 //电机反馈码盘值范围
 #define HALF_ECD_RANGE 4096
 #define ECD_RANGE 8191
 
 //电机编码值转化成角度值
 #define MOTOR_ECD_TO_RAD 0.000766990394f //      2*  PI  /8192
-
-#define MIN_RUDDER_ANGLE -PI
-#define MID_RUDDER_ANGLE 0.0f
-#define MAX_RUDDER_ANGLE PI
-
-#define ACCEL_RUDDER_NUM 0.002f
-
-#define MISS_CLOSE 0
-#define MISS_BEGIN 1
-#define MISS_OVER 2
 
 #define SWING_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_C) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_C))
 #define PISA_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_X) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_X))

@@ -611,7 +611,7 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
                         Irregular_motion_num--;
                     }
                     else 
-                    {
+                    { 
                         srand(tim++);
                         for(Irregular_motion_num = 0;Irregular_motion_num < 200;Irregular_motion_num++)
                         {
