@@ -19,13 +19,12 @@ public:
     fp32 speed_set;
 
     fp32 current_set;
-
     int16_t current_give;
 
     void init(const motor_measure_t *motor_measure_);
-};
+} ;
 
-//m3508电机
+//m6020电机
 class G6020_motor
 {
 public:
@@ -35,7 +34,6 @@ public:
     Pid angle_pid;
 
     uint16_t offset_ecd;  //用户定义的初始中值
-    uint16_t if_turn_falg;   //电机是否过圈
 
     fp32 max_angle; //rad   角度限幅
     fp32 mid_angle; //rad

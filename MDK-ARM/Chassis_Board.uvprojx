@@ -16,7 +16,7 @@
         <TargetCommonOption>
           <Device>STM32F407IGHx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.15.0</PackID>
+          <PackID>Keil.STM32F4xx_DFP.2.16.0</PackID>
           <PackURL>http://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20000000-0x2001FFFF) IRAM2(0x10000000-0x1000FFFF) IROM(0x8000000-0x80FFFFF) CLOCK(25000000) FPU2 CPUTYPE("Cortex-M4") TZ</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -134,7 +134,7 @@
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>4101</DriverSelection>
+            <DriverSelection>4096</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>BIN\UL2CM3.DLL</Flash2>
@@ -352,7 +352,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
-            <ClangAsOpt>4</ClangAsOpt>
+            <ClangAsOpt>1</ClangAsOpt>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -739,6 +739,11 @@
           <GroupName>application</GroupName>
           <Files>
             <File>
+              <FileName>system_config.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\user_code\application\system_config.cpp</FilePath>
+            </File>
+            <File>
               <FileName>my_test_task.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\user_code\application\my_test_task.cpp</FilePath>
@@ -757,11 +762,6 @@
               <FileName>detect_task.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\user_code\application\detect_task.cpp</FilePath>
-            </File>
-            <File>
-              <FileName>start_task.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\user_code\application\start_task.cpp</FilePath>
             </File>
           </Files>
         </Group>
@@ -802,11 +802,6 @@
               <FileName>Motor.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\user_code\device\Motor.cpp</FilePath>
-            </File>
-            <File>
-              <FileName>Super_cap.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\user_code\device\Super_cap.cpp</FilePath>
             </File>
           </Files>
         </Group>
