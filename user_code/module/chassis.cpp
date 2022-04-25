@@ -1025,10 +1025,13 @@ void Chassis::chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4], fp32 ru
     wheel_speed[3] = sqrt(pow(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), 2) + pow(x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta), 2));
 
     //舵向电机角度解算
-    fp32 stop_set_num = 0.2 ;
+    fp32 stop_set_num = 0.1 ;
     if ((x.speed_set >= -stop_set_num && x.speed_set <= stop_set_num) &&
         (y.speed_set >= -stop_set_num && y.speed_set <= stop_set_num) && 
         (z.speed_set >= -stop_set_num*10 && z.speed_set <= stop_set_num*10))
+    // if ((x.speed_set == 0) &&
+    //     (y.speed_set == 0) &&
+    //     (z.speed_set == 0))
     {
         rudder_angle[0] = last_rudder_angle[0];
         rudder_angle[1] = last_rudder_angle[1];
