@@ -756,17 +756,17 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
 
     static uint16_t last_swing_key_value = 0;
 
-    //单击C开启或关闭扭腰
-    if (if_key_singal_pessed(chassis_RC->key.v, last_swing_key_value, KEY_PRESSED_CHASSIS_SWING) && swing_switch == 0) //开启扭腰
-    {
-        swing_switch = TRUE;
-        swing_time = 0.0f;
-    }
-    else if (if_key_singal_pessed(chassis_RC->key.v, last_swing_key_value, KEY_PRESSED_CHASSIS_SWING) && swing_switch == 1) //开启扭腰
-    {
-        miss_flag = MISS_CLOSE;
-        swing_switch = 0;
-    }
+    //单击C开启或关闭扭腰  TODO 有问题 暂时注释
+    // if (if_key_singal_pessed(chassis_RC->key.v, last_swing_key_value, KEY_PRESSED_CHASSIS_SWING) && swing_switch == 0) //开启扭腰
+    // {
+    //     swing_switch = TRUE;
+    //     swing_time = 0.0f;
+    // }
+    // else if (if_key_singal_pessed(chassis_RC->key.v, last_swing_key_value, KEY_PRESSED_CHASSIS_SWING) && swing_switch == 1) //开启扭腰
+    // {
+    //     miss_flag = MISS_CLOSE;
+    //     swing_switch = 0;
+    // }
 
     last_swing_key_value = chassis_RC->key.v;
 
@@ -827,14 +827,17 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
             fp32 *src_vy_set = vy_set;
             fp32 src_top_angle = top_angle;
 
-            *vx_set = move_top_x_parm * x.max_speed * (*src_vx_set / sqrtf(pow(*src_vx_set, 2) + pow(*src_vy_set, 2) + 6 * pow(src_top_angle, 2)));
-            *vy_set = move_top_y_parm * y.max_speed * (*src_vy_set / sqrtf(pow(*src_vx_set, 2) + pow(*src_vy_set, 2) + 6 * pow(src_top_angle, 2)));
-            top_angle = move_top_z_parm * TOP_WZ_ANGLE_STAND * (src_top_angle * 2.5 / sqrtf(pow(*src_vx_set, 2) + pow(*src_vy_set, 2) + 6 * pow(src_top_angle, 2)));
+            *vx_set = *vx_set * move_top_x_parm;
+            *vy_set = *vy_set * move_top_y_parm;
+            top_angle = TOP_WZ_ANGLE_STAND * move_top_z_parm;
+
+            // *vx_set = move_top_x_parm * x.max_speed * (*src_vx_set / sqrtf(pow(*src_vx_set, 2) + pow(*src_vy_set, 2) + 6 * pow(src_top_angle, 2)));
+            // *vy_set = move_top_y_parm * y.max_speed * (*src_vy_set / sqrtf(pow(*src_vx_set, 2) + pow(*src_vy_set, 2) + 6 * pow(src_top_angle, 2)));
+            // top_angle = move_top_z_parm * TOP_WZ_ANGLE_STAND * (src_top_angle * 2.5 / sqrtf(pow(*src_vx_set, 2) + pow(*src_vy_set, 2) + 6 * pow(src_top_angle, 2)));
 
             // *vx_set = move_top_x_parm * x.max_speed * (*vx_set / sqrtf(pow(*vx_set, 2) + pow(*vy_set, 2) + 6 * pow(top_angle, 2)));
             // *vy_set = move_top_y_parm * y.max_speed * (*vy_set / sqrtf(pow(*vx_set, 2) + pow(*vy_set, 2) + 6 * pow(top_angle, 2)));
             // top_angle = move_top_z_parm * TOP_WZ_ANGLE_STAND * (top_angle * 2.5 / sqrtf(pow(*vx_set, 2) + pow(*vy_set, 2) + 6 * pow(top_angle, 2)));
-
 
             if_move_top = 1;
         }
