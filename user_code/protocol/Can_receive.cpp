@@ -103,6 +103,14 @@ void Can_receive::receive_gimbal_board_com(uint8_t data[8])
     chassis_receive.gimbal_yaw_angle = (fp32)(int32_t)(data[2] << 24 | data[3] << 16 | data[4] << 8 | data[5]) / 1000;
 }
 
+void Can_receive::receive_ui_board_com(uint8_t data[8])
+{
+    chassis_receive.auto_state = data[0];
+    chassis_receive.aim_state = data[1];
+    chassis_receive.fric_state = data[2];
+    chassis_receive.gimbal_pitch_angle = (fp32)(int16_t)(data[3] << 8 | data[4]);;
+    chassis_receive.v = (uint16_t)(data[5] << 8 | data[6]);
+}
 
 void Can_receive::send_cooling_and_id_board_com(uint16_t id1_17mm_cooling_limit, uint16_t id1_17mm_cooling_rate, uint16_t id1_17mm_cooling_heat, uint8_t color, uint8_t robot_id)
 {
@@ -131,13 +139,14 @@ void Can_receive::send_cooling_and_id_board_com(uint16_t id1_17mm_cooling_limit,
     HAL_CAN_AddTxMessage(&BOARD_COM_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
 }
 
-void Can_receive::send_17mm_speed_and_mode_board_com(uint16_t id1_17mm_speed_limit, uint16_t bullet_speed, uint8_t chassis_behaviour)
+void Can_receive::send_17mm_speed_and_mode_board_com(uint16_t id1_17mm_speed_limit, uint16_t bullet_speed, uint8_t chassis_behaviour,uint8_t game_progress)
 {
     //数据填充
     chassis_send.id1_17mm_speed_limi = id1_17mm_speed_limit;
     chassis_send.bullet_speed = bullet_speed;
     chassis_send.chassis_behaviour = chassis_behaviour;
-
+    chassis_send.game_progress = game_progress;
+	
     uint32_t send_mail_box;
     chassis_tx_message.StdId = CAN_17MM_SPEED_BOARD_COM_ID;
     chassis_tx_message.IDE = CAN_ID_STD;
@@ -148,19 +157,19 @@ void Can_receive::send_17mm_speed_and_mode_board_com(uint16_t id1_17mm_speed_lim
     chassis_can_send_data[2] = bullet_speed >> 8;
     chassis_can_send_data[3] = bullet_speed;
     chassis_can_send_data[4] = chassis_behaviour;
-    chassis_can_send_data[5] = 0;
+    chassis_can_send_data[5] = game_progress;
     chassis_can_send_data[6] = 0;
     chassis_can_send_data[7] = 0;
 
     HAL_CAN_AddTxMessage(&BOARD_COM_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
 }
 
-void Can_receive::get_super_cap_data(uint8_t data[8])
+void Can_receive::get_super_cap_data(uint8_t data[8])  //接收超电数据
 {
     cap_receive.input_vot     = ((float) ((int16_t) (data[1] << 8 | data[0])) / 100.0f);  //输入电压
     cap_receive.cap_vot       = ((float) ((int16_t) (data[3] << 8 | data[2])) / 100.0f);  //电容电压
     cap_receive.input_current = ((float) ((int16_t) (data[5] << 8 | data[4])) / 100.0f);  //输入电流
-    cap_receive.target_power  = ((float) ((int16_t) (data[7] << 8 | data[6])) / 100.0f);  //输入功率
+    cap_receive.target_power  = ((float) ((int16_t) (data[7] << 8 | data[6])) / 100.0f);  //设定功率
 }
 
   void Can_receive::can_cmd_super_cap_power(uint16_t set_power)

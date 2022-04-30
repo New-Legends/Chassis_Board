@@ -108,6 +108,9 @@ void Chassis::set_mode() {
   */
 void Chassis::feedback_update()
 {   
+	
+	
+	
     //记录上一次遥控器值
     //last_chassis_RC->key.v = chassis_RC->key.v;
     chassis_last_key_v = chassis_RC->key.v;
@@ -155,7 +158,7 @@ void Chassis::feedback_update()
 }
 
 
-fp32 move_top_xyz_parm[3] = {0.7, 0.7, 1.3};
+fp32 move_top_xyz_parm[3] = {0.8, 0.8, 0.9};//小陀螺旋转优化
 
 /**
   * @brief          设置底盘控制设置值, 三运动控制值是通过chassis_behaviour_control_set函数设置的
@@ -196,6 +199,7 @@ void Chassis::set_contorl() {
                 fp32 temp_x_speed_set = x.speed_set;
                 fp32 temp_y_speed_set = y.speed_set;
                 fp32 temp_z_speed_set = z.speed_set;
+							 //对速度进行优化
                 x.speed_set = move_top_xyz_parm[0] * x.max_speed * (temp_x_speed_set / sqrtf(pow(temp_x_speed_set, 2) + pow(temp_y_speed_set, 2) + 6 * pow(temp_z_speed_set, 2)));
                 y.speed_set = move_top_xyz_parm[1] * y.max_speed * (temp_y_speed_set / sqrtf(pow(temp_x_speed_set, 2) + pow(temp_y_speed_set, 2) + 6 * pow(temp_z_speed_set, 2)));
                 z.speed_set = move_top_xyz_parm[2] * z.max_speed * (temp_z_speed_set * 2.5 / sqrtf(pow(temp_x_speed_set, 2) + pow(temp_y_speed_set, 2) + 6 * pow(temp_z_speed_set, 2)));
@@ -354,7 +358,7 @@ void Chassis::power_ctrl() {
         //开启超电后 对超电设置功率进行修改
         if (super_cap_switch == TRUE)
         {
-            can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit)*100 + 1500);
+					can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit)*100);//功率上限增加15w
         }
         else if (super_cap_switch == FALSE)
         {
@@ -812,7 +816,6 @@ void Chassis::chassis_rc_to_control_vector(fp32 * vx_set, fp32 * vy_set) {
 void Chassis::chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4])
 {
 
-    //normal
     //旋转的时候， 由于云台靠前，所以是前面两轮 0 ，1 旋转的速度变慢， 后面两轮 2,3 旋转的速度变快
     // wheel_speed[0] = -x.speed_set - y.speed_set + (CHASSIS_WZ_SET_SCALE - 1.0f) * MOTOR_DISTANCE_TO_CENTER * z.speed_set;
     // wheel_speed[1] = x.speed_set - y.speed_set + (CHASSIS_WZ_SET_SCALE - 1.0f) * MOTOR_DISTANCE_TO_CENTER * z.speed_set;

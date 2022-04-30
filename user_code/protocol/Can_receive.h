@@ -36,7 +36,7 @@ typedef enum
   CAN_GIMBAL_BOARD_COM_ID = 0x302,
   CAN_COOLING_BOARM_COM_ID = 0x303,
   CAN_17MM_SPEED_BOARD_COM_ID = 0x304,
-
+  CAN_UI_COM_ID = 0x305,
   //超级电容接收ID
   CAN_SUPER_CAP_ID = 0x211
 
@@ -52,8 +52,8 @@ typedef struct
     int16_t last_ecd;
 } motor_measure_t;
 
-//TODO 超电还未对接
-// //rm motor data
+
+//测试完成后完善 
 // typedef struct
 // {
 //   fp32 input_vot;
@@ -75,6 +75,12 @@ typedef struct
   uint8_t s1;
   uint8_t gimbal_behaviour;
   fp32    gimbal_yaw_angle;
+
+  // UI状态
+  fp32 gimbal_pitch_angle;
+  bool_t auto_state;
+  bool_t aim_state;
+  bool_t fric_state;
 } chassis_receive_t;
 
 
@@ -93,7 +99,8 @@ typedef struct
   uint16_t bullet_speed;       //17mm测速实时射速
 
   uint8_t chassis_behaviour;
-
+	
+  uint8_t game_progress;
 } chassis_send_t;
 
 typedef struct 
@@ -106,7 +113,8 @@ typedef struct
 
 
 
-class Can_receive {
+class Can_receive 
+{
 public: 
   //动力电机反馈数据结构体
   motor_measure_t chassis_motive_motor[4];
@@ -132,18 +140,21 @@ public:
   void can_cmd_chassis_motive_motor(int16_t motor1, int16_t motor2, int16_t motor3, int16_t motor4);      //动力电机数据
 
   void can_cmd_chassis_motive_motor_reset_ID();
+	
 
+ 
   const motor_measure_t *get_chassis_motive_motor_measure_point(uint8_t i);
 
   //板间通信函数
   void receive_rc_board_com(uint8_t data[8]);
 
   void receive_gimbal_board_com(uint8_t data[8]);
-
+	
+  void receive_ui_board_com(uint8_t data[8]);
   // 发送枪口热量及ID
   void send_cooling_and_id_board_com(uint16_t id1_17mm_cooling_limit, uint16_t id1_17mm_cooling_rate, uint16_t id1_17mm_cooling_heat, uint8_t color, uint8_t robot_id);
   //发送枪口速度及底盘模式
-  void send_17mm_speed_and_mode_board_com(uint16_t id1_17mm_speed_limi, uint16_t bullet_speed, uint8_t chassis_behaviour);
+  void send_17mm_speed_and_mode_board_com(uint16_t id1_17mm_speed_limi, uint16_t bullet_speed, uint8_t chassis_behaviour,uint8_t temp_game_progress);
 
   //发送超级电容设定功率
   void can_cmd_super_cap_power(uint16_t set_power);

@@ -19,15 +19,8 @@ void chassis_task(void *pvParameters) {
     vTaskDelay(CHASSIS_TASK_INIT_TIME);
     chassis.init();
     //超级电容初始化
-  
-
-    // for (uint8_t i=0; i<10; i++){
-    //     vTaskDelay(2);
        cap.init();
-    // }
-
     while(true) {
-
       chassis_flag = HAL_GPIO_ReadPin(KEY_GPIO_Port, KEY_Pin);
 
       //设置模式
