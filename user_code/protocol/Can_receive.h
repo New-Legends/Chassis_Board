@@ -28,9 +28,8 @@ typedef enum
 
   //板间通信ID
   CAN_RC_BOARM_COM_ID = 0x301,
-  CAN_GIMBAL_BOARD_COM_ID = 0x302,
-  CAN_COOLING_BOARM_COM_ID = 0x303,
-  CAN_17MM_SPEED_BOARD_COM_ID = 0x304,
+  CAN_COOLING_BOARM_COM_ID = 0x302,
+  CAN_17MM_SPEED_BOARD_COM_ID = 0x303,
 
 
 } can_msg_id_e;
@@ -118,8 +117,6 @@ public:
 
   //板间通信函数
   void receive_rc_board_com(uint8_t data[8]);
-
-  void receive_gimbal_board_com(uint8_t data[8]);
 
   // 发送枪口热量及ID
   void send_cooling_and_id_board_com(uint16_t id1_17mm_cooling_limit, uint16_t id1_17mm_cooling_rate, uint16_t id1_17mm_cooling_heat, uint8_t color, uint8_t robot_id);

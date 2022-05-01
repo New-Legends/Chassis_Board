@@ -134,11 +134,6 @@ extern "C"
                     //detect_hook(BOARD_COM);
                     break;
 
-                case CAN_GIMBAL_BOARD_COM_ID:
-                    can_receive.receive_gimbal_board_com(rx_data);
-                    //detect_hook(BOARD_COM);
-                    break;
-
                 default:
                 {
                     break;
