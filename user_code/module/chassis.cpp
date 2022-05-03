@@ -329,6 +329,7 @@ void Chassis::output()
     
 
     can_receive.can_cmd_chassis_motive_motor(chassis_motive_motor.current_give);
+    can_receive.can_cmd_yaw_motor(can_receive.chassis_receive.gimbal_yaw_give);
 }
 
 /**
