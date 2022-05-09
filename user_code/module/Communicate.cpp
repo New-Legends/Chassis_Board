@@ -98,7 +98,7 @@ void Communicate::run()
         can_receive.send_17mm_speed_and_mode_board_com(temp_id1_17mm_speed_limit, temp_bullet_speed, temp_chassis_behaviour_mode,temp_blue_base_HP);
     }
     can_receive.send_rc_board_com(temp_ch_0,temp_ch_1,temp_s0);
-    can_receive.send_yaw_motor(temp_ecd,temp_speed_rpm,temp_give_current,temp_temperate);
+    // can_receive.send_yaw_motor(temp_ecd,temp_speed_rpm,temp_give_current,temp_temperate);
 
 
 //TODO 这里最好使用指针赋值,减少计算量,后续需修改
@@ -132,10 +132,10 @@ extern "C"
                     //detect_hook(CHASSIS_MOTIVE_FR_MOTOR_TOE);
                     break;
 
-                case CAN_YAW_MOTOR_ID:
-                    can_receive.get_yaw_motor_measure(rx_data);
-                    //detect_hook(GIMBAL_PITCH_MOTOR_TOE);
-                    break;
+                // case CAN_YAW_MOTOR_ID:
+                //     can_receive.get_yaw_motor_measure(rx_data);
+                //     //detect_hook(GIMBAL_PITCH_MOTOR_TOE);
+                //     break;
 
                 default:
                 {
