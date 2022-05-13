@@ -1,3 +1,6 @@
+//
+// Created by WSJ on 2021/11/2.
+//
 
 #ifndef CLASSIS_BOARD_SYSTEM_CONFIG_H
 #define CLASSIS_BOARD_SYSTEM_CONFIG_H
@@ -19,4 +22,4 @@ extern void System_Resource_Init(void);
 }
 #endif
 
-#endif 
+#endif //CLASSIS_BOARD_SYSTEM_CONFIG_H

@@ -169,9 +169,9 @@ void Remote_control::slove_data_error(void)
 /*-----相比于官方的版本,将宏定义布尔值转化为可传参的函数,方便不同任务内的遥控器调用按键--*/
 
 //是否按下鼠标
-uint16_t if_mouse_pessed(const RC_ctrl_t *_rc_ctrl, char mouse_num)
+bool_t if_mouse_pessed(const RC_ctrl_t *_rc_ctrl, char mouse_num)
 {
-    uint16_t ans = FALSE;
+    bool_t ans = FALSE;
     if (mouse_num == 'L')
         ans = _rc_ctrl->mouse.press_l != 0;
     else if (mouse_num == 'R')
@@ -181,9 +181,9 @@ uint16_t if_mouse_pessed(const RC_ctrl_t *_rc_ctrl, char mouse_num)
 }
 
 //是否单击鼠标
-uint16_t if_mouse_singal_pessed(const RC_ctrl_t *_rc_ctrl, const RC_ctrl_t *_last_rc_ctrl, char mouse_num)
+bool_t if_mouse_singal_pessed(const RC_ctrl_t *_rc_ctrl, const RC_ctrl_t *_last_rc_ctrl, char mouse_num)
 {
-    uint16_t ans = FALSE;
+    bool_t ans = FALSE;
     if (mouse_num == 'L')
         ans = if_mouse_pessed(_rc_ctrl, 'L') && if_mouse_pessed(_last_rc_ctrl, 'L');
     else if (mouse_num == 'R')
@@ -193,9 +193,9 @@ uint16_t if_mouse_singal_pessed(const RC_ctrl_t *_rc_ctrl, const RC_ctrl_t *_las
 }
 
 //是否按下对应按键
-uint16_t if_key_pessed(const RC_ctrl_t *_rc_ctrl, char key_num)
+bool_t if_key_pessed(const RC_ctrl_t *_rc_ctrl, char key_num)
 {
-    uint16_t ans = FALSE;
+    bool_t ans = FALSE;
 
     switch (key_num)
     {
@@ -271,9 +271,9 @@ uint16_t if_key_pessed(const RC_ctrl_t *_rc_ctrl, char key_num)
 }
 
 //是否单击对于按键
-uint16_t if_key_singal_pessed(const RC_ctrl_t *_rc_ctrl, const RC_ctrl_t *_last_rc_ctrl, char key_num)
+bool_t if_key_singal_pessed(const RC_ctrl_t *_rc_ctrl, const RC_ctrl_t *_last_rc_ctrl, char key_num)
 {
-    uint16_t ans = FALSE;
+    bool_t ans = FALSE;
 
     switch (key_num)
     {

@@ -43,10 +43,10 @@
 #define CHASSIS_MODE_CHANNEL 1
 
 //遥控器前进摇杆（max 660）转化成车体前进速度（m/s）的比例
-#define CHASSIS_VX_RC_SEN 0.006f
+#define CHASSIS_VX_RC_SEN 0.003f
 
 //遥控器左右摇杆（max 660）转化成车体左右速度（m/s）的比例
-#define CHASSIS_VY_RC_SEN 0.005f
+#define CHASSIS_VY_RC_SEN 0.003f
 
 //跟随底盘yaw模式下，遥控器的yaw遥杆（max 660）增加到车体角度的比例
 #define CHASSIS_ANGLE_Z_RC_SEN 0.000002f
@@ -64,7 +64,7 @@
 #define MOTOR_SPEED_TO_CHASSIS_SPEED_VY 0.25f
 #define MOTOR_SPEED_TO_CHASSIS_SPEED_WZ 0.25f
 
-#define MOTOR_DISTANCE_TO_CENTER 0.2f //官方步兵为0.2
+#define MOTOR_DISTANCE_TO_CENTER 0.2f //英雄为0.22+0.24=0.46  官方步兵为0.2
 
 //底盘任务控制间隔 2ms
 #define CHASSIS_CONTROL_TIME_MS 2
@@ -104,7 +104,7 @@
 #define NORMAL_MAX_CHASSIS_SPEED_Z 10.0f
 
 //原地旋转小陀螺下Z轴转速
-#define TOP_WZ_ANGLE_STAND 5.0f//55w--10.0f
+#define TOP_WZ_ANGLE_STAND 5.0f
 //移动状态下小陀螺转速
 #define TOP_WZ_ANGLE_MOVE 2.5f
 
@@ -137,29 +137,29 @@
 
 //chassis motor speed PID
 //底盘电机速度环PID
-#define MOTIVE_MOTOR_SPEED_PID_KP 8000.0f
+#define MOTIVE_MOTOR_SPEED_PID_KP 6000.0f
 #define MOTIVE_MOTOR_SPEED_PID_KI 0.0f
-#define MOTIVE_MOTOR_SPEED_PID_KD 20.0f
+#define MOTIVE_MOTOR_SPEED_PID_KD 2.0f
 #define MOTIVE_MOTOR_SPEED_PID_MAX_IOUT 2000.0f
-#define MOTIVE_MOTOR_SPEED_PID_MAX_OUT 8000.0f
+#define MOTIVE_MOTOR_SPEED_PID_MAX_OUT 6000.0f
 
 //chassis follow angle PID
 //底盘旋转跟随PID
-#define CHASSIS_FOLLOW_GIMBAL_PID_KP 12.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_KP 8.0f
 #define CHASSIS_FOLLOW_GIMBAL_PID_KI 0.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_KD 8.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_KD 3.0f
 #define CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT 0.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT 20.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT 10.0f
 
 
-          
+
 //功率控制参数
 #define POWER_DEFAULT_LIMIT 50.0f  //默认功率限制
 #define WARNING_POWER_DISTANCE 10.0f //距离超过率的距离
 #define WARNING_POWER_BUFF 30.0f   
  //警告能量缓冲  通过计算超级电容 电压低于12v得到的值
 
-#define NO_JUDGE_TOTAL_CURRENT_LIMIT 64000.0f   // 16000 * 4,
+#define NO_JUDGE_TOTAL_CURRENT_LIMIT 48000.0f   // 16000 * 4,
 #define BUFFER_TOTAL_CURRENT_LIMIT 12000.0f     //16000
 #define POWER_TOTAL_CURRENT_LIMIT 16000.0f      //20000
 
