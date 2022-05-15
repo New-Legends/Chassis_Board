@@ -17,7 +17,7 @@ void my_test_task(void *pvParameters)
   while (1)
   {
     test_flag = HAL_GPIO_ReadPin(KEY_GPIO_Port, KEY_Pin);
-
+   
     //系统延时
     vTaskDelay(TEST_CONTROL_TIME_MS);
   }

@@ -6,7 +6,7 @@
 #include "stm32f4xx.h"
 #include "stdarg.h"
 #include "usart.h"
-
+#include "Can_receive.h"
 #pragma pack(1) //按1字节对齐
 
 #define NULL 0
@@ -147,7 +147,6 @@ typedef struct
 } String_Data; //打印字符串数据
 
 extern UART_HandleTypeDef huart6;
-
 class Ui
 {
 public:
@@ -162,22 +161,36 @@ public:
     Graph_Data G_RECOVER;                  //无敌状态
     Graph_Data G_AUTO_READY;               //自瞄准备状态
     Graph_Data G_AUTO_AIM;                 //自瞄识别状态
+    Graph_Data G_SUPER_CAP;
     Graph_Data G_BLOCK1, G_BLOCK2,
         G_BLOCK3, G_BLOCK4,
         G_BLOCK5, G_BLOCK6,
         G_BLOCK7, G_BLOCK8, G_BLOCK9; //超电能量条
     Float_Data G_PITCH;               // Pitch轴角度
     Float_Data G_YAW;                 // Yaw轴角度
+    char shoot_arr[5];//摩擦轮
+    char rotate_arr[6];  //小陀螺
+    char super_arr[9];//超电
+    char mode_arr[6];
+    char auto_arr[4];  
+    char mag_arr[7] ;
+    String_Data CH_SHOOT;
+    String_Data CH_ROTATE;
+    String_Data CH_SUPER_CAP;
+    String_Data CH_MODE;
+    String_Data CH_AUTO_READY;
+    String_Data CH_MAG;
 
-    void draw_super_cap(); //根据超电容量得到UI数据
 
     void init(uint8_t *Temp_Judge_Self_ID, uint16_t *Temp_Judge_SelfClient_ID);
 
     void run();
+/*----------------------------UI功能函数----------------------------------------*/
+		void feedback_update();
+		void draw_super_cap(); //根据超电容量得到UI数据
 
-    //基础图形绘制函数
+/*----------------------------基础图形绘制函数----------------------------------------*/
     void UI_SendByte(unsigned char ch);
-
     void UI_Delete(uint8_t Del_Operate, uint8_t Del_Layer);
     void Line_Draw(Graph_Data *image, char imagename[3], uint32_t Graph_Operate, uint32_t Graph_Layer, uint32_t Graph_Color, uint32_t Graph_Width, uint32_t Start_x, uint32_t Start_y, uint32_t End_x, uint32_t End_y);
     int UI_ReFresh(int cnt, ...);

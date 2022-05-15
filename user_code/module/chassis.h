@@ -77,7 +77,7 @@
 
 /*----------------按键-------------------------*/
 
-//底盘前后左右控制按键
+//底盘前后左右控制按键WASD
 #define KEY_CHASSIS_FRONT           if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_FRONT)
 #define KEY_CHASSIS_BACK            if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_BACK)
 #define KEY_CHASSIS_LEFT            if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_LEFT)
@@ -104,7 +104,7 @@
 #define NORMAL_MAX_CHASSIS_SPEED_Z 10.0f
 
 //原地旋转小陀螺下Z轴转速
-#define TOP_WZ_ANGLE_STAND 5.0f
+#define TOP_WZ_ANGLE_STAND 11.0f
 //移动状态下小陀螺转速
 #define TOP_WZ_ANGLE_MOVE 2.5f
 

@@ -1,11 +1,9 @@
 #include "communicate.h"
-
 #include "main.h"
 #include "string.h"
 
 #include "bsp_usart.h"
 #include "bsp_led.h"
-
 #ifdef __cplusplus
 extern "C"
 {
@@ -27,7 +25,7 @@ extern "C"
 #include "Ui.h"
 
 Remote_control remote_control;
-Can_receive can_receive;
+extern Can_receive can_receive;
 Referee referee;
 Ui ui;
 
@@ -56,7 +54,6 @@ void Communicate::run()
     referee.determine_ID();
 
     ui.run();
-
     //向云台发送裁判数据
     uint16_t temp_id1_17mm_cooling_limit, temp_id1_17mm_cooling_rate, temp_id1_17mm_cooling_heat;
     uint8_t temp_color, temp_robot_id;

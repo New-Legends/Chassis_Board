@@ -7,7 +7,7 @@
 
 
 /*---------------------通信-----------------------------*/
-//底盘遥控器是否开启 1为开启上下板通讯底盘不需要遥控器
+//底盘遥控器是否开启 1为开启上下板通讯  底盘不需要遥控器
 #define CHASSIS_REMOTE_OPEN 1
 
 /*---------------------按键---------------------------*/
@@ -28,6 +28,8 @@
 #define KEY_PRESSED_CHASSIS_BACK   'S'
 #define KEY_PRESSED_CHASSIS_LEFT   'A'
 #define KEY_PRESSED_CHASSIS_RIGHT  'D'
-
+//初始化UI界面
+#define KEY_PRESSED_UI_UPDATE  'L'
+#define KEY_UI_UPDATE             if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_UI_UPDATE)
 
 #endif

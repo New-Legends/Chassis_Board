@@ -21,9 +21,9 @@ void chassis_task(void *pvParameters) {
     //超级电容初始化
   
 
-    // for (uint8_t i=0; i<10; i++){
-    //     vTaskDelay(2);
-       cap.init();
+// for (uint8_t i=0; i<10; i++){
+//     vTaskDelay(2);
+//       cap.init();
     // }
 
     while(true) {

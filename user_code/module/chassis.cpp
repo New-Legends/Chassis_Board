@@ -1,16 +1,16 @@
 #include "Chassis.h"
 #include "Communicate.h"
 #include "cmsis_os.h"
-
 #include "arm_math.h"
-
+#include "Ui.h"
 #ifdef __cplusplus //告诉编译器，这部分代码按C语言的格式进行编译，而不是C++的
 extern "C"
 {
 #include "user_lib.h"
 }
 #endif
-
+//ui模块
+extern Ui ui;
 //底盘模块 对象
 Chassis chassis;
 
@@ -31,7 +31,7 @@ fp32 pisa_angle = 0.0f; //保留45度对敌前的云台相对底盘角度
 bool_t pisa_switch = 0;
 
 //超电控制数据
-bool_t super_cap_switch = 0;
+extern bool_t super_cap_switch;
 
 /**
  * @brief          初始化变量，包括pid初始化， 遥控器指针初始化，3508底盘电机指针初始化，云台电机初始化，陀螺仪角度指针初始化
@@ -660,7 +660,12 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     {
         top_angle = 0;
     }
+/****************************重新绘制UI*********************************************/	
 
+    if(KEY_UI_UPDATE){
+	     ui.init(&referee.Judge_Self_ID, &referee.Judge_SelfClient_ID);
+    }
+		
     /****************************45度角对敌控制输入*********************************************/
     //单击C,开启45度角对敌;重复操作取消45度角对敌
     if (KEY_CHASSIS_PISA && pisa_switch == 0) //打开45度对敌

@@ -5,10 +5,7 @@
 
 void Super_Cap::init() {
 
-    for (uint8_t i=0; i<100; i++){
-        can_receive.can_cmd_super_cap_power(5000);
-        vTaskDelay(100);
-    }
+can_receive.can_cmd_super_cap_power(12000);
     
 }
 
