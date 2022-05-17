@@ -282,23 +282,34 @@ void Referee::get_chassis_power_limit(fp32 *power_limit)
 }
 
 //17mm枪口热量上限, 17mm枪口实时热量 默认ID1
-void Referee::get_shooter_id1_17mm_cooling_limit_and_heat(uint16_t *id1_17mm_cooling_limit, uint16_t *id1_17mm_cooling_heat)
+void Referee::get_shooter_17mm_cooling_limit_and_heat(uint16_t *id1_17mm_cooling_limit, uint16_t *id1_17mm_cooling_heat, uint16_t *id2_17mm_cooling_limit, uint16_t *id2_17mm_cooling_heat)
 {
     *id1_17mm_cooling_limit = robot_state.shooter_id1_17mm_cooling_limit;
     *id1_17mm_cooling_heat = power_heat_data_t.shooter_id1_17mm_cooling_heat;
+    *id2_17mm_cooling_limit = robot_state.shooter_id2_17mm_cooling_limit;
+    *id2_17mm_cooling_heat = power_heat_data_t.shooter_id2_17mm_cooling_heat;
 }
 
 //17mm枪口枪口射速上限,17mm实时射速 默认ID1
-void Referee::get_shooter_id1_17mm_speed_limit_and_bullet_speed(uint16_t *id1_17mm_speed_limit, fp32 *bullet_speed)
+void Referee::get_shooter_17mm_speed_limit_and_bullet_speed(uint16_t *id1_17mm_speed_limit, fp32 *id1_bullet_speed, uint16_t *id2_17mm_speed_limit, fp32 *id2_bullet_speed)
 {
     *id1_17mm_speed_limit = robot_state.shooter_id1_17mm_speed_limit;
-    *bullet_speed = shoot_data_t.bullet_speed;
+    *id2_17mm_speed_limit = robot_state.shooter_id2_17mm_speed_limit;
+    if(shoot_data_t.shooter_id == 1)
+    {
+        *id1_bullet_speed = shoot_data_t.bullet_speed;
+    }
+    else if(shoot_data_t.shooter_id == 2)
+    {
+        *id2_bullet_speed = shoot_data_t.bullet_speed;
+    }
 }
 
 //17mm枪口热量冷却 默认ID1
-void Referee::get_shooter_id1_17mm_cooling_rate(uint16_t *id1_17mm_cooling_rate)
+void Referee::get_shooter_17mm_cooling_rate(uint16_t *id1_17mm_cooling_rate, uint16_t *id2_17mm_cooling_rate)
 {
     *id1_17mm_cooling_rate = robot_state.shooter_id1_17mm_cooling_rate;
+    *id2_17mm_cooling_rate = robot_state.shooter_id2_17mm_cooling_rate;
 }
 
 //42mm枪口热量上限, 42mm枪口实时热量

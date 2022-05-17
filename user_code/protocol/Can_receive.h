@@ -32,12 +32,10 @@ typedef enum
 
   //板间通信ID
   CAN_RC_BOARM_COM_ID = 0x301,
-  CAN_COOLING_BOARM_COM_ID = 0x302,
-  CAN_17MM_SPEED_BOARD_COM_ID = 0x303,
-  CAN_RC_BOARM_COM_ID_2 = 0x304,
-  CAN_CHASSIS_UNDER = 0x305,
-  CAN_CHASSIS_YAW = 0x306,
-
+  CAN_COOLING_BOARM_COM_1_ID = 0x302,
+  CAN_17MM_SPEED_BOARD_COM_1_ID = 0x303,
+  CAN_COOLING_BOARM_COM_2_ID = 0x304,
+  CAN_17MM_SPEED_BOARD_COM_2_ID = 0x305,
 
 } can_msg_id_e;
 
@@ -90,12 +88,17 @@ typedef struct
   uint16_t id1_17mm_cooling_limit;//17mm测速热量上限
   uint16_t id1_17mm_cooling_rate;//17mm测速热量冷却
   uint16_t id1_17mm_cooling_heat; //17mm测速实时热量
+  uint16_t id2_17mm_cooling_limit;//17mm测速热量上限
+  uint16_t id2_17mm_cooling_rate;//17mm测速热量冷却
+  uint16_t id2_17mm_cooling_heat; //17mm测速实时热量
   uint8_t color;               //判断红蓝方
   uint8_t robot_id;            //机器人编号
 
   //测速速度及底盘模式
   uint16_t id1_17mm_speed_limi;//17mm测速射速上限
-  uint16_t bullet_speed;       //17mm测速实时射速
+  uint16_t id1_bullet_speed;       //17mm测速实时射速
+  uint16_t id2_17mm_speed_limi;//17mm测速射速上限
+  uint16_t id2_bullet_speed;       //17mm测速实时射速
 
   uint8_t chassis_behaviour;
   //YAW轴电机数据
@@ -143,10 +146,14 @@ public:
   void receive_rc_board_com(uint8_t data[8]);
   void receive_yaw_motor(uint8_t data[8]);
 
-  // 发送枪口热量及ID
-  void send_cooling_and_id_board_com(uint16_t id1_17mm_cooling_limit, uint16_t id1_17mm_cooling_rate, uint16_t id1_17mm_cooling_heat, uint8_t color, uint8_t robot_id);
-  //发送枪口速度及底盘模式
-  void send_17mm_speed_and_mode_board_com(uint16_t id1_17mm_speed_limi, uint16_t bullet_speed, uint8_t chassis_behaviour, uint16_t base_HP);
+  // 发送枪口1热量及ID
+  void send_cooling_and_id_board_com_1(uint16_t id1_17mm_cooling_limit, uint16_t id1_17mm_cooling_rate, uint16_t id1_17mm_cooling_heat, uint8_t color, uint8_t robot_id);
+  //发送枪口1速度及底盘模式
+  void send_17mm_speed_and_mode_board_com_1(uint16_t id1_17mm_speed_limit, uint16_t id1_bullet_speed, uint8_t chassis_behaviour, uint16_t base_HP);
+  // 发送枪口2热量及ID
+  void send_cooling_and_id_board_com_2(uint16_t id2_17mm_cooling_limit, uint16_t id2_17mm_cooling_rate, uint16_t id2_17mm_cooling_heat, uint8_t color, uint8_t robot_id);
+  //发送枪口2速度及底盘模式
+  void send_17mm_speed_and_mode_board_com_2(uint16_t id2_17mm_speed_limit, uint16_t id2_bullet_speed, uint8_t chassis_behaviour, uint16_t base_HP);
   //发送下云台遥控器数据
   void send_rc_board_com(int16_t ch_0, int16_t ch_1 ,int8_t s0);
   //发送下云台yaw电机数据

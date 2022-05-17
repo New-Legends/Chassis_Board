@@ -251,7 +251,7 @@ void Chassis::power_ctrl() {
         referee.get_chassis_power_and_buffer(&chassis_power, &chassis_power_buffer);
         referee.get_chassis_power_limit(&chassis_power_limit);
 
-        //功率超过上限 和缓冲能量小于50j,因为缓冲能量小于50意味着功率超过上限
+        //功率超过上限 和缓冲能量小于150j,因为缓冲能量小于150意味着功率超过上限
         if (chassis_power_buffer < WARNING_POWER_BUFF)
         {
             fp32 power_scale;

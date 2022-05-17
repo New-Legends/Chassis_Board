@@ -321,11 +321,11 @@ public:
     //底盘输出功率上限
     void get_chassis_power_limit(fp32 *power_limit);
     //17mm枪口热量上限, 17mm枪口实时热量 默认ID1
-    void get_shooter_id1_17mm_cooling_limit_and_heat(uint16_t *id1_17mm_cooling_limit, uint16_t *id1_17mm_cooling_heat);
+    void get_shooter_17mm_cooling_limit_and_heat(uint16_t *id1_17mm_cooling_limit, uint16_t *id1_17mm_cooling_heat, uint16_t *id2_17mm_cooling_limit, uint16_t *id2_17mm_cooling_heat);
     //17mm枪口枪口射速上限,17mm实时射速 默认ID1
-    void get_shooter_id1_17mm_speed_limit_and_bullet_speed(uint16_t *id1_17mm_speed_limit, fp32 *bullet_speed);
+    void get_shooter_17mm_speed_limit_and_bullet_speed(uint16_t *id1_17mm_speed_limit, fp32 *id1_bullet_speed, uint16_t *id2_17mm_speed_limit, fp32 *id2_bullet_speed);
     //17mm枪口热量冷却 默认ID1
-    void get_shooter_id1_17mm_cooling_rate(uint16_t *id1_17mm_cooling_rate);
+    void get_shooter_17mm_cooling_rate(uint16_t *id1_17mm_cooling_rate, uint16_t *id2_17mm_cooling_rate);
     //42mm枪口热量上限, 42mm枪口实时热量
     void get_shooter_id1_42mm_cooling_limit_and_heat(uint16_t *id1_42mm_cooling_limit, uint16_t *id1_42mm_cooling_heat);
     //42mm枪口枪口射速上限,42mm实时射速

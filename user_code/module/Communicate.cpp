@@ -59,9 +59,10 @@ void Communicate::run()
 
     //向云台发送裁判数据
     uint16_t temp_id1_17mm_cooling_limit, temp_id1_17mm_cooling_rate, temp_id1_17mm_cooling_heat;
+    uint16_t temp_id2_17mm_cooling_limit, temp_id2_17mm_cooling_rate, temp_id2_17mm_cooling_heat;
     uint8_t temp_color, temp_robot_id;
-    uint16_t temp_id1_17mm_speed_limit;
-    fp32 temp_bullet_speed;
+    uint16_t temp_id1_17mm_speed_limit, temp_id2_17mm_speed_limit;
+    fp32 temp_id1_bullet_speed, temp_id2_bullet_speed;
     uint8_t temp_chassis_behaviour_mode;
     uint16_t  temp_red_base_HP;
     uint16_t  temp_blue_base_HP;
@@ -72,11 +73,11 @@ void Communicate::run()
     int16_t temp_give_current;
     uint8_t temp_temperate;
 
-    referee.get_shooter_id1_17mm_cooling_limit_and_heat(&temp_id1_17mm_cooling_limit, &temp_id1_17mm_cooling_heat);
-    referee.get_shooter_id1_17mm_cooling_rate(&temp_id1_17mm_cooling_rate);
+    referee.get_shooter_17mm_cooling_limit_and_heat(&temp_id1_17mm_cooling_limit, &temp_id1_17mm_cooling_heat, &temp_id2_17mm_cooling_limit,&temp_id2_17mm_cooling_heat);
+    referee.get_shooter_17mm_cooling_rate(&temp_id1_17mm_cooling_rate, &temp_id2_17mm_cooling_rate);
     referee.get_color(&temp_color);
     referee.get_robot_id(&temp_robot_id);
-    referee.get_shooter_id1_17mm_speed_limit_and_bullet_speed(&temp_id1_17mm_speed_limit, &temp_bullet_speed);
+    referee.get_shooter_17mm_speed_limit_and_bullet_speed(&temp_id1_17mm_speed_limit, &temp_id1_bullet_speed, &temp_id2_17mm_speed_limit, &temp_id2_bullet_speed);
     temp_chassis_behaviour_mode = chassis.chassis_behaviour_mode;
     temp_red_base_HP = referee.game_robot_HP_t.red_base_HP;
     temp_blue_base_HP = referee.game_robot_HP_t.blue_base_HP;
@@ -89,15 +90,17 @@ void Communicate::run()
     temp_temperate = can_receive.chassis_yaw_motor.temperate;
 
 
-    can_receive.send_cooling_and_id_board_com(temp_id1_17mm_cooling_limit, temp_id1_17mm_cooling_rate, temp_id1_17mm_cooling_heat,
+    can_receive.send_cooling_and_id_board_com_1(temp_id1_17mm_cooling_limit, temp_id1_17mm_cooling_rate, temp_id1_17mm_cooling_heat,
                                               temp_color, temp_robot_id);
     if(temp_color == RED){
-        can_receive.send_17mm_speed_and_mode_board_com(temp_id1_17mm_speed_limit, temp_bullet_speed, temp_chassis_behaviour_mode,temp_red_base_HP);
+        can_receive.send_17mm_speed_and_mode_board_com_1(temp_id1_17mm_speed_limit, temp_id1_bullet_speed, temp_chassis_behaviour_mode,temp_red_base_HP);
+        can_receive.send_17mm_speed_and_mode_board_com_2(temp_id2_17mm_speed_limit, temp_id2_bullet_speed, temp_chassis_behaviour_mode,temp_red_base_HP);
     }
     else if(temp_color == BLUE){
-        can_receive.send_17mm_speed_and_mode_board_com(temp_id1_17mm_speed_limit, temp_bullet_speed, temp_chassis_behaviour_mode,temp_blue_base_HP);
+        can_receive.send_17mm_speed_and_mode_board_com_1(temp_id1_17mm_speed_limit, temp_id1_bullet_speed, temp_chassis_behaviour_mode,temp_blue_base_HP);
+        can_receive.send_17mm_speed_and_mode_board_com_2(temp_id2_17mm_speed_limit, temp_id2_bullet_speed, temp_chassis_behaviour_mode,temp_blue_base_HP);
     }
-    can_receive.send_rc_board_com(temp_ch_0,temp_ch_1,temp_s0);
+    // can_receive.send_rc_board_com(temp_ch_0,temp_ch_1,temp_s0);
     // can_receive.send_yaw_motor(temp_ecd,temp_speed_rpm,temp_give_current,temp_temperate);
 
 
@@ -153,9 +156,10 @@ extern "C"
                     //detect_hook(BOARD_COM);
                     break;
 
-                case CAN_RC_BOARM_COM_ID_2:
-                    can_receive.receive_yaw_motor(rx_data);
-                    //detect_hook(BOARD_COM);
+                // case CAN_RC_BOARM_COM_ID_2:
+                //     can_receive.receive_yaw_motor(rx_data);
+                //     //detect_hook(BOARD_COM);
+                //  break;
 
                 default:
                 {
