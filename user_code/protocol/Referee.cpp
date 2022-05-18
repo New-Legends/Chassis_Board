@@ -275,10 +275,11 @@ void Referee::get_chassis_power_and_buffer(fp32 *power, fp32 *buffer)
     *buffer = power_heat_data_t.chassis_power_buffer;
 }
 
-//底盘输出功率上限
+//底盘输出功率,底盘功率缓存
 void Referee::get_chassis_power_limit(fp32 *power_limit)
 {
     *power_limit = robot_state.chassis_power_limit;
+    
 }
 
 //17mm枪口热量上限, 17mm枪口实时热量 默认ID1
@@ -309,7 +310,7 @@ void Referee::get_shooter_id1_42mm_cooling_limit_and_heat(uint16_t *id1_42mm_coo
 }
 
 //42mm枪口枪口射速上限,42mm实时射速
-void Referee::get_shooter_id1_42mm_speed_limit_and_bullet_speed(uint16_t *id1_42mm_speed_limit, uint16_t *bullet_speed)
+void Referee::get_shooter_id1_42mm_speed_limit_and_bullet_speed(uint16_t *id1_42mm_speed_limit, fp32 *bullet_speed)
 {
     *id1_42mm_speed_limit = robot_state.shooter_id1_42mm_speed_limit;
     *bullet_speed = shoot_data_t.bullet_speed;
@@ -386,28 +387,4 @@ void Referee::determine_ID(void)
     {
         Judge_SelfClient_ID = 0x0100 + Judge_Self_ID; //计算客户端ID
     }
-}
-
-//获取前哨站情况，转换哨兵模式
-void Referee::output_state(void){
-    get_color(&Color);
-    if(Color==BLUE){
-        if(game_robot_HP_t.blue_base_HP>0){
-            field_event_outpost=1;       //前哨站被摧毁，哨兵转换模式
-        }
-        else 
-        {
-            field_event_outpost=0;
-        }
-    }
-    else if(Color=RED){
-        if(game_robot_HP_t.red_base_HP>0){
-            field_event_outpost=1;      //前哨站被摧毁，哨兵转换模式
-        }
-        else
-        {
-            field_event_outpost=0;
-        }
-    }
-    
 }

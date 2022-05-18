@@ -10,8 +10,6 @@
 
 
 
-
-
 /**
   * @brief          chassis_task
   * @param[in]      pvParameters: NULL
