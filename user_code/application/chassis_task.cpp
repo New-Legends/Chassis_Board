@@ -4,6 +4,7 @@
 
 #include "chassis.h"
 
+#include "Super_cap.h"
 
 
 uint8_t chassis_flag = 0;
@@ -19,7 +20,7 @@ void chassis_task(void *pvParameters) {
     vTaskDelay(CHASSIS_TASK_INIT_TIME);
     chassis.init();
     //超级电容初始化
-  
+    cap.init();
 
     // for (uint8_t i=0; i<10; i++){
     //     vTaskDelay(2);

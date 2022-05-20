@@ -97,16 +97,16 @@
 //单个底盘电机最大速度
 #define MAX_WHEEL_SPEED 4.0f //4
 //底盘运动过程最大前进速度
-#define NORMAL_MAX_CHASSIS_SPEED_X 2.5f //2.0
+#define NORMAL_MAX_CHASSIS_SPEED_X 2.8f //2.0
 //底盘运动过程最大平移速度
-#define NORMAL_MAX_CHASSIS_SPEED_Y 2.5f //1.5
+#define NORMAL_MAX_CHASSIS_SPEED_Y 2.7f //1.5
 //底盘运动过程最大旋转速度
-#define NORMAL_MAX_CHASSIS_SPEED_Z 10.0f
+#define NORMAL_MAX_CHASSIS_SPEED_Z 12.0f
 
 //原地旋转小陀螺下Z轴转速
-#define TOP_WZ_ANGLE_STAND 5.0f
+#define TOP_WZ_ANGLE_STAND 11.5f
 //移动状态下小陀螺转速
-#define TOP_WZ_ANGLE_MOVE 2.5f
+#define TOP_WZ_ANGLE_MOVE 5.5f
 
 
 #define CHASSIS_WZ_SET_SCALE 0.1f
@@ -145,9 +145,9 @@
 
 //chassis follow angle PID
 //底盘旋转跟随PID
-#define CHASSIS_FOLLOW_GIMBAL_PID_KP 8.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_KP 14.0f
 #define CHASSIS_FOLLOW_GIMBAL_PID_KI 0.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_KD 3.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_KD 3.3f
 #define CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT 0.0f
 #define CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT 10.0f
 
