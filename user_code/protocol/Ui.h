@@ -171,7 +171,7 @@ public:
     char shoot_arr[5];//摩擦轮
     char rotate_arr[6];  //小陀螺
     char super_arr[9];//超电
-    char mode_arr[6];
+    char cover_arr[6];//弹仓
     char auto_arr[4];  
     char mag_arr[7] ;
     String_Data CH_SHOOT;
@@ -180,6 +180,7 @@ public:
     String_Data CH_MODE;
     String_Data CH_AUTO_READY;
     String_Data CH_MAG;
+    String_Data CH_COVER;
 
 
     void init(uint8_t *Temp_Judge_Self_ID, uint16_t *Temp_Judge_SelfClient_ID);

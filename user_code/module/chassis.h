@@ -43,7 +43,7 @@
 #define CHASSIS_MODE_CHANNEL 1
 
 //遥控器前进摇杆（max 660）转化成车体前进速度（m/s）的比例
-#define CHASSIS_VX_RC_SEN 0.003f
+#define CHASSIS_VX_RC_SEN 0.005f
 
 //遥控器左右摇杆（max 660）转化成车体左右速度（m/s）的比例
 #define CHASSIS_VY_RC_SEN 0.003f
@@ -95,11 +95,11 @@
 #define CHASSIS_MOTOR_RPM_TO_VECTOR_SEN M3508_MOTOR_RPM_TO_VECTOR
 
 //单个底盘电机最大速度
-#define MAX_WHEEL_SPEED 4.0f //4
+#define MAX_WHEEL_SPEED 8.0f //4
 //底盘运动过程最大前进速度
-#define NORMAL_MAX_CHASSIS_SPEED_X 2.5f //2.0
+#define NORMAL_MAX_CHASSIS_SPEED_X 5.0f //2.0
 //底盘运动过程最大平移速度
-#define NORMAL_MAX_CHASSIS_SPEED_Y 2.5f //1.5
+#define NORMAL_MAX_CHASSIS_SPEED_Y 5.0f //1.5
 //底盘运动过程最大旋转速度
 #define NORMAL_MAX_CHASSIS_SPEED_Z 10.0f
 
