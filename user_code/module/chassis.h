@@ -97,9 +97,9 @@
 //单个底盘电机最大速度
 #define MAX_WHEEL_SPEED 4.0f //4
 //底盘运动过程最大前进速度
-#define NORMAL_MAX_CHASSIS_SPEED_X 2.8f //2.0
+#define NORMAL_MAX_CHASSIS_SPEED_X 3.8f //2.8
 //底盘运动过程最大平移速度
-#define NORMAL_MAX_CHASSIS_SPEED_Y 2.7f //1.5
+#define NORMAL_MAX_CHASSIS_SPEED_Y 2.7f //2.7
 //底盘运动过程最大旋转速度
 #define NORMAL_MAX_CHASSIS_SPEED_Z 12.0f
 
@@ -156,7 +156,7 @@
 //功率控制参数
 #define POWER_DEFAULT_LIMIT 50.0f  //默认功率限制
 #define WARNING_POWER_DISTANCE 10.0f //距离超过率的距离
-#define WARNING_POWER_BUFF 30.0f   
+#define WARNING_POWER_BUFF 35.0f   
  //警告能量缓冲  通过计算超级电容 电压低于12v得到的值
 
 #define NO_JUDGE_TOTAL_CURRENT_LIMIT 48000.0f   // 16000 * 4,
