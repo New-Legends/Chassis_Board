@@ -95,18 +95,18 @@
 #define CHASSIS_MOTOR_RPM_TO_VECTOR_SEN M3508_MOTOR_RPM_TO_VECTOR
 
 //单个底盘电机最大速度
-#define MAX_WHEEL_SPEED 4.0f //4
+#define MAX_WHEEL_SPEED 20.0f //4
 //底盘运动过程最大前进速度
-#define NORMAL_MAX_CHASSIS_SPEED_X 3.8f //2.8
+#define NORMAL_MAX_CHASSIS_SPEED_X 2.3f //2.8
 //底盘运动过程最大平移速度
-#define NORMAL_MAX_CHASSIS_SPEED_Y 2.7f //2.7
+#define NORMAL_MAX_CHASSIS_SPEED_Y 2.3f //2.7
 //底盘运动过程最大旋转速度
-#define NORMAL_MAX_CHASSIS_SPEED_Z 12.0f
+#define NORMAL_MAX_CHASSIS_SPEED_Z 14.0f
 
 //原地旋转小陀螺下Z轴转速
-#define TOP_WZ_ANGLE_STAND 11.5f
+#define TOP_WZ_ANGLE_STAND 10.0f
 //移动状态下小陀螺转速
-#define TOP_WZ_ANGLE_MOVE 5.5f
+#define TOP_WZ_ANGLE_MOVE 6.5f
 
 
 #define CHASSIS_WZ_SET_SCALE 0.1f
@@ -161,7 +161,7 @@
 
 #define NO_JUDGE_TOTAL_CURRENT_LIMIT 48000.0f   // 16000 * 4,
 #define BUFFER_TOTAL_CURRENT_LIMIT 12000.0f     //16000
-#define POWER_TOTAL_CURRENT_LIMIT 16000.0f      //20000
+#define POWER_TOTAL_CURRENT_LIMIT 40000.0f      //20000
 
 typedef enum
 {
