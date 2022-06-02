@@ -9,7 +9,6 @@
 #include "Motor.h"
 #include "Pid.h"
 #include "Super_cap.h"
-
 #include "Config.h"
 
 #define rc_deadband_limit(input, output, dealine)        \
@@ -95,11 +94,11 @@
 #define CHASSIS_MOTOR_RPM_TO_VECTOR_SEN M3508_MOTOR_RPM_TO_VECTOR
 
 //单个底盘电机最大速度
-#define MAX_WHEEL_SPEED 8.0f //4
+#define MAX_WHEEL_SPEED 5.0f //4
 //底盘运动过程最大前进速度
-#define NORMAL_MAX_CHASSIS_SPEED_X 5.0f //2.0
+#define NORMAL_MAX_CHASSIS_SPEED_X 2.5f //2.0
 //底盘运动过程最大平移速度
-#define NORMAL_MAX_CHASSIS_SPEED_Y 5.0f //1.5
+#define NORMAL_MAX_CHASSIS_SPEED_Y 2.5f //1.5
 //底盘运动过程最大旋转速度
 #define NORMAL_MAX_CHASSIS_SPEED_Z 10.0f
 
@@ -160,8 +159,8 @@
  //警告能量缓冲  通过计算超级电容 电压低于12v得到的值
 
 #define NO_JUDGE_TOTAL_CURRENT_LIMIT 48000.0f   // 16000 * 4,
-#define BUFFER_TOTAL_CURRENT_LIMIT 12000.0f     //16000
-#define POWER_TOTAL_CURRENT_LIMIT 16000.0f      //20000
+#define BUFFER_TOTAL_CURRENT_LIMIT 50000.0f     //16000
+#define POWER_TOTAL_CURRENT_LIMIT 30000.0f      //20000
 
 typedef enum
 {
@@ -278,8 +277,6 @@ public:
 
 extern Chassis chassis;
 
-
 //超电模块
 extern Super_Cap cap;
-
 #endif
