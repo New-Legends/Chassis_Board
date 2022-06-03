@@ -259,6 +259,15 @@ void Chassis::set_contorl() {
             chassis_wz_angle_pid.data.set = &chassis_relative_angle_set;
         } 
 
+
+
+
+
+
+
+
+
+
         if(super_cap_switch == TRUE && top_switch == FALSE)
         {
                 x.min_speed = 1.5 * -NORMAL_MAX_CHASSIS_SPEED_X;
@@ -415,7 +424,7 @@ void Chassis::power_ctrl() {
     else if (robot_id == RED_ENGINEER || robot_id == BLUE_ENGINEER || robot_id == 0)
     {
         total_current_limit = NO_JUDGE_TOTAL_CURRENT_LIMIT;
-        can_receive.can_cmd_super_cap_power(12000);
+        can_receive.can_cmd_super_cap_power(4500);
     }
     else
     {   
@@ -424,69 +433,70 @@ void Chassis::power_ctrl() {
 
         referee.get_chassis_power_limit(&chassis_power_limit);
 
-        //当超电能量低于阈值700 将超电关闭
-        if (chassis_power_cap_buffer < 700)
+        //当超电能量低于阈值300 将超电关闭
+        if (chassis_power_cap_buffer < 300)
         {
             super_cap_switch = FALSE;
         }
-        
-        //开启超电后 对超电设置功率进行修改
-        if (super_cap_switch == TRUE)
-        {
-            can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit)*100 + 1500);
-        } else if (super_cap_switch == FALSE){
-            can_receive.can_cmd_super_cap_power(10000);
-        }
+        can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit) * 100+1500);
+			  if (chassis_power_buffer < 10.0f){
+						can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit) * 100-300);
+					}
 
-
-
+		//电流限幅
+		if(super_cap_switch == true ){
+					total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT;
+		}
+		else{
+			total_current_limit = POWER_TOTAL_CURRENT_LIMIT;
+		}
+       }
 
         //功率超过上限 和缓冲能量小于50j,因为缓冲能量小于50意味着功率超过上限
-        if (chassis_power_buffer < WARNING_POWER_BUFF)
-        {
-            fp32 power_scale;
-            if (chassis_power_buffer > 5.0f)
-            {
-                //缩小WARNING_POWER_BUFF
-                power_scale = chassis_power_buffer / WARNING_POWER_BUFF;
-            }
-            else
-            {
-                // only left 10% of WARNING_POWER_BUFF
-                power_scale = 5.0f / WARNING_POWER_BUFF;
-            }
+//        if (chassis_power_buffer < WARNING_POWER_BUFF)
+//        {
+//            fp32 power_scale;
+//            if (chassis_power_buffer > 5.0f)
+//            {
+//                //缩小WARNING_POWER_BUFF
+//                power_scale = chassis_power_buffer / WARNING_POWER_BUFF;
+//            }
+//            else
+//            {
+//                // only left 10% of WARNING_POWER_BUFF
+//                power_scale = 5.0f / WARNING_POWER_BUFF;
+//            }
 
 
-            //缩小
-            total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT * power_scale;
-        }
-        else
-        {
-            //功率大于WARNING_POWER
-            if (chassis_power > chassis_power_limit - WARNING_POWER_DISTANCE)
-            {
-                fp32 power_scale;
-                //功率小于上限
-                if (chassis_power < chassis_power_limit)
-                {
-                    //缩小
-                    power_scale = (chassis_power_limit - chassis_power) / (chassis_power_limit - (chassis_power_limit - WARNING_POWER_DISTANCE));
-                }
-                //功率大于上限
-                else
-                {
-                    power_scale = 0.0f;
-                }
+//            //缩小
+//            total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT * power_scale;
+//        }
+//        else
+//        {
+//            //功率大于WARNING_POWER
+//            if (chassis_power > chassis_power_limit - WARNING_POWER_DISTANCE)
+//            {
+//                fp32 power_scale;
+//                //功率小于上限
+//               }   if (chassis_power < chassis_power_limit)
+//                {
+//                    //缩小
+//                    power_scale = (chassis_power_limit - chassis_power) / (chassis_power_limit - (chassis_power_limit - WARNING_POWER_DISTANCE));
+//              
+//                //功率大于上限
+//                else
+//                {
+//                    power_scale = 0.0f;
+//                }
 
-                total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT + POWER_TOTAL_CURRENT_LIMIT * power_scale;
-            }
-            //功率小于WARNING_POWER
-            else
-            {
-                total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT + POWER_TOTAL_CURRENT_LIMIT;
-            }
-        }
-    }
+//                total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT + POWER_TOTAL_CURRENT_LIMIT * power_scale;
+//            }
+//            //功率小于WARNING_POWER
+//            else
+//            {
+//                total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT + POWER_TOTAL_CURRENT_LIMIT;
+//            }
+
 
     total_current = 0.0f;
     //计算原本电机电流设定
