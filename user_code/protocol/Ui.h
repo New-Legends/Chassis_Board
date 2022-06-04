@@ -161,13 +161,14 @@ public:
     Graph_Data G_RECOVER;                  //无敌状态
     Graph_Data G_AUTO_READY;               //自瞄准备状态
     Graph_Data G_AUTO_AIM;                 //自瞄识别状态
-    Graph_Data G_SUPER_CAP;
+    Graph_Data G_SUPER_CAP;                //超电开关
     Graph_Data G_BLOCK1, G_BLOCK2,
         G_BLOCK3, G_BLOCK4,
         G_BLOCK5, G_BLOCK6,
         G_BLOCK7, G_BLOCK8, G_BLOCK9; //超电能量条
     Float_Data G_PITCH;               // Pitch轴角度
     Float_Data G_YAW;                 // Yaw轴角度
+    Float_Data G_SUPER_NUM;           //浮点数据
     char shoot_arr[5];//摩擦轮
     char rotate_arr[6];  //小陀螺
     char super_arr[9];//超电
@@ -204,5 +205,4 @@ public:
     int Char_ReFresh(String_Data string_Data);
     void Arc_Draw(Graph_Data *image, char imagename[3], uint32_t Graph_Operate, uint32_t Graph_Layer, uint32_t Graph_Color, uint32_t Graph_StartAngle, uint32_t Graph_EndAngle, uint32_t Graph_Width, uint32_t Start_x, uint32_t Start_y, uint32_t x_Length, uint32_t y_Length);
 };
-
 #endif

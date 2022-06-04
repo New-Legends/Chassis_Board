@@ -8,8 +8,9 @@ extern Super_Cap cap;
 extern bool_t top_switch;
 bool_t fric_switch;
 bool_t auto_ready_switch;
-bool_t super_cap_switch =0;
+bool_t super_cap_switch =1;
 float pitch_angle =0;
+float super_num =0;
 void Ui::init(uint8_t *Temp_Judge_Self_ID, uint16_t *Temp_Judge_SelfClient_ID)
 {
 
@@ -35,6 +36,7 @@ void Ui::init(uint8_t *Temp_Judge_Self_ID, uint16_t *Temp_Judge_SelfClient_ID)
    memset(&G_AUTO_READY, 0, sizeof(G_AUTO_READY)); //自瞄准备状态
    memset(&G_AUTO_AIM, 0, sizeof(G_AUTO_AIM));     //自瞄识别状态
 	 memset(&G_SUPER_CAP, 0, sizeof(G_SUPER_CAP));   //超电标识
+	 memset(&G_SUPER_NUM, 0, sizeof(G_SUPER_NUM));   //超电百分比
    /*超电能量条*/
    memset(&G_BLOCK1, 0, sizeof(G_BLOCK1));
    memset(&G_BLOCK2, 0, sizeof(G_BLOCK2));
@@ -68,33 +70,41 @@ void Ui::init(uint8_t *Temp_Judge_Self_ID, uint16_t *Temp_Judge_SelfClient_ID)
 	 Char_Draw(&CH_SHOOT, "030", UI_Graph_ADD, 9, UI_Color_Yellow, 20, 5, 4, 440, 280, &shoot_arr[0]);
 	 Char_Draw(&CH_ROTATE, "031", UI_Graph_ADD, 9, UI_Color_Yellow, 20, 6, 4, 440, 320, &rotate_arr[0]);
 	 Char_Draw(&CH_AUTO_READY, "032", UI_Graph_ADD, 9, UI_Color_Yellow, 20, 4, 4, 440, 360, &auto_arr[0]);
-	 Char_Draw(&CH_SUPER_CAP, "032", UI_Graph_ADD, 9, UI_Color_Yellow, 20, 9, 4, 440, 400, &super_arr[0]);
-//   //绘制Pitch，Yaw轴数据
-    Float_Draw(&G_PITCH, "014", UI_Graph_ADD, 8, UI_Color_White, 20, 3, 4, 300, 600, pitch_angle); 
+	 Char_Draw(&CH_SUPER_CAP, "033", UI_Graph_ADD, 9, UI_Color_Yellow, 20, 9, 4, 440, 400, &super_arr[0]);
+  //绘制Pitch，Yaw轴数据
+//    Float_Draw(&G_PITCH, "014", UI_Graph_ADD, 8, UI_Color_White, 20, 3, 4, 300, 600, pitch_angle); 
+		Float_Draw(&G_SUPER_NUM, "014", UI_Graph_ADD, 8, UI_Color_White, 20, 3, 4, 300, 600, super_num); 
 
 }
 
 void Ui::run()  //运行主函数
 {
-///*-----------------------------------------数据更新--------------------------------------------*/	
-	 feedback_update();
-   Float_Draw(&G_PITCH, "014", UI_Graph_ADD, 8, UI_Color_White, 20, 3, 4, 300, 600, pitch_angle); //pitch轴数据
 /*-----------------------------------------辅助瞄准线--------------------------------------------*/
 	   UI_ReFresh(7, G1, G2, G3, G4, G5, G6, G7);
 /*-----------------------------------------文字提示----------------------------------------------*/
 	   Char_ReFresh(CH_SUPER_CAP);
-	   Char_ReFresh(CH_ROTATE);
 		 Char_ReFresh(CH_AUTO_READY);
+		 Char_ReFresh(CH_ROTATE);
 	   Char_ReFresh(CH_SHOOT);
-     UI_ReFresh(1, G_PITCH);
+     UI_ReFresh(1, &G_SUPER_NUM);
+	   
+
+	UI_ReFresh(1, G_TOP);
+	UI_ReFresh(1, G_SHOOT);
+	UI_ReFresh(1, G_AUTO_READY);
+	UI_ReFresh(1,G_SUPER_CAP);
+
+/*-----------------------------------------数据更新--------------------------------------------*/	
+	feedback_update();
 }
 
 void Ui::feedback_update(){
 /*-----------------------------------------数据处理----------------------------------------------*/	
 	 fric_switch = can_receive.chassis_receive.fric_state;//摩擦轮标识符
 	 auto_ready_switch = can_receive.chassis_receive.auto_state;//自瞄开启标识符
-	 pitch_angle = can_receive.chassis_receive.gimbal_pitch_angle;//pitch轴角度获取
-	
+//	 pitch_angle = can_receive.chassis_receive.gimbal_pitch_angle;//pitch轴角度获取
+	super_num =cap.super_number ;
+	Float_Draw(&G_SUPER_NUM, "014", UI_Graph_Change, 8, UI_Color_White, 20, 3, 4, 300, 600, super_num); 
 	//小陀螺功能
 	   if (top_switch)
    {
