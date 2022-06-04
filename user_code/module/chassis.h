@@ -145,9 +145,9 @@
 
 //chassis follow angle PID
 //底盘旋转跟随PID
-#define CHASSIS_FOLLOW_GIMBAL_PID_KP 14.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_KP 23.0f//14.0f
 #define CHASSIS_FOLLOW_GIMBAL_PID_KI 0.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_KD 3.3f
+#define CHASSIS_FOLLOW_GIMBAL_PID_KD 250.0f//3.3f
 #define CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT 0.0f
 #define CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT 10.0f
 
@@ -224,6 +224,9 @@ public:
     speed_t x;
     speed_t y;
     speed_t z;
+
+    fp32 top_wz_angle_anto;
+    uint8_t wz_time;//随机小陀螺速度
 
     fp32 chassis_relative_angle;     //底盘与云台的相对角度，单位 rad
     fp32 chassis_relative_angle_set; //设置相对云台控制角度

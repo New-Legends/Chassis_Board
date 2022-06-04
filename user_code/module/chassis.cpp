@@ -31,7 +31,7 @@ fp32 pisa_angle = 0.0f; //保留45度对敌前的云台相对底盘角度
 bool_t pisa_switch = 0;
 
 //超电控制数据
-bool_t super_cap_switch = 0;
+extern bool_t super_cap_switch;
 
 /**
  * @brief          初始化变量，包括pid初始化， 遥控器指针初始化，3508底盘电机指针初始化，云台电机初始化，陀螺仪角度指针初始化
@@ -584,7 +584,6 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     static uint16_t miss_swing_time = 700;
     // 0表示未开始闪避 1表示正在闪避 2表示闪避已结束
     static uint8_t miss_flag = MISS_CLOSE;
-
     // //开始自动闪避,扭腰倒计时开始
     // if (if_hit() == TRUE)
     // {

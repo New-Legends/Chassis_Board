@@ -2,15 +2,26 @@
 #include "string.h"
 #include "arm_math.h"
 #include "chassis.h"
-
+#include "Can_receive.h"
+Can_receive can_receive;
 extern Super_Cap cap;
 extern bool_t top_switch;
-
+bool_t fric_switch;
+bool_t auto_ready_switch;
+bool_t super_cap_switch =0;
+float pitch_angle =0;
 void Ui::init(uint8_t *Temp_Judge_Self_ID, uint16_t *Temp_Judge_SelfClient_ID)
 {
 
    Robot_ID = Temp_Judge_Self_ID;
    Cilent_ID = Temp_Judge_SelfClient_ID;
+
+	  strcpy(shoot_arr, "SHOOT");
+    strcpy(rotate_arr, "ROTATE");
+    strcpy(super_arr, "SUPER_CAP");
+    strcpy(cover_arr, "COVER");
+    strcpy(auto_arr, "AUTO");
+    strcpy(mag_arr, "MAGZINE");
 
    memset(&G1, 0, sizeof(G1)); //中心垂线
    memset(&G2, 0, sizeof(G2)); //上击打线
@@ -19,10 +30,11 @@ void Ui::init(uint8_t *Temp_Judge_Self_ID, uint16_t *Temp_Judge_SelfClient_ID)
    memset(&G5, 0, sizeof(G5)); //下击打线
    memset(&G6, 0, sizeof(G6)); //远距离击打线
    memset(&G7, 0, sizeof(G7)); //中央瞄准点
-
+   memset(&CH_SHOOT, 0, sizeof(CH_SHOOT));         //摩擦轮标识
    memset(&G_SHOOT, 0, sizeof(G_SHOOT));           //摩擦轮状态
    memset(&G_AUTO_READY, 0, sizeof(G_AUTO_READY)); //自瞄准备状态
    memset(&G_AUTO_AIM, 0, sizeof(G_AUTO_AIM));     //自瞄识别状态
+	 memset(&G_SUPER_CAP, 0, sizeof(G_SUPER_CAP));   //超电标识
    /*超电能量条*/
    memset(&G_BLOCK1, 0, sizeof(G_BLOCK1));
    memset(&G_BLOCK2, 0, sizeof(G_BLOCK2));
@@ -45,169 +57,89 @@ void Ui::init(uint8_t *Temp_Judge_Self_ID, uint16_t *Temp_Judge_SelfClient_ID)
    Line_Draw(&G5, "005", UI_Graph_ADD, 8, UI_Color_Orange, 1, 900, 420, 1020, 420);
    Line_Draw(&G6, "006", UI_Graph_ADD, 8, UI_Color_Orange, 1, 920, 370, 1000, 370);
    Rectangle_Draw(&G7, "007", UI_Graph_ADD, 9, UI_Color_White, 10, 955, 455, 965, 465);
-
-   Rectangle_Draw(&G_SHOOT, "008", UI_Graph_ADD, 8, UI_Color_White, 10, 955, 455, 965, 465);
-   Rectangle_Draw(&G_TOP, "009", UI_Graph_ADD, 8, UI_Color_White, 10, 955, 455, 965, 465);
+  /*绘制功能标识图形符*/
+   Rectangle_Draw(&G_SHOOT, "008", UI_Graph_ADD, 8, UI_Color_White,10, 550, 265, 560, 275);//完成
+   Rectangle_Draw(&G_TOP, "009", UI_Graph_ADD, 8, UI_Color_White, 10, 565, 305, 575, 315);//完成
    Rectangle_Draw(&G_RECOVER, "0010", UI_Graph_ADD, 8, UI_Color_White, 10, 955, 455, 965, 465);
-   Rectangle_Draw(&G_AUTO_READY, "011", UI_Graph_ADD, 8, UI_Color_White, 10, 955, 455, 965, 465);
+   Rectangle_Draw(&G_AUTO_READY, "011", UI_Graph_ADD, 8, UI_Color_White, 10, 540, 345, 550, 355);//完成
    Rectangle_Draw(&G_AUTO_AIM, "012", UI_Graph_ADD, 8, UI_Color_White, 10, 955, 455, 965, 465);
-   //绘制Pitch轴数据
-   Float_Draw(&G_PITCH, "013", UI_Graph_ADD, 8, UI_Color_White, 10, 955, 455, 965, 465, 0);
-   //绘制Yaw轴数据
-   Float_Draw(&G_YAW, "014", UI_Graph_ADD, 8, UI_Color_White, 10, 955, 455, 965, 465, 0);
-   //绘制超电条
-   Rectangle_Draw(&G_BLOCK1, "015", UI_Graph_ADD, 8, UI_Color_Cyan, 10, 1600, 790, 1630, 800);
-   Rectangle_Draw(&G_BLOCK2, "016", UI_Graph_ADD, 8, UI_Color_Cyan, 10, 1630, 790, 1660, 800);
-   Rectangle_Draw(&G_BLOCK3, "017", UI_Graph_ADD, 8, UI_Color_Cyan, 10, 1660, 790, 1690, 800);
-   Rectangle_Draw(&G_BLOCK4, "018", UI_Graph_ADD, 8, UI_Color_Cyan, 10, 1690, 790, 1720, 800);
-   Rectangle_Draw(&G_BLOCK5, "019", UI_Graph_ADD, 8, UI_Color_Cyan, 10, 1720, 790, 1750, 800);
-   Rectangle_Draw(&G_BLOCK6, "020", UI_Graph_ADD, 8, UI_Color_Cyan, 10, 1750, 790, 1780, 800);
-   Rectangle_Draw(&G_BLOCK7, "021", UI_Graph_ADD, 8, UI_Color_Cyan, 10, 1780, 790, 1810, 800);
-   Rectangle_Draw(&G_BLOCK8, "022", UI_Graph_ADD, 8, UI_Color_Cyan, 10, 1810, 790, 1840, 800);
-   Rectangle_Draw(&G_BLOCK9, "023", UI_Graph_ADD, 8, UI_Color_Cyan, 10, 1840, 790, 1870, 800);
+	 Rectangle_Draw(&G_SUPER_CAP, "013", UI_Graph_ADD, 8, UI_Color_White, 10, 625, 385, 635, 395);//完成
+	 /*绘制功能标识字符*/
+	 Char_Draw(&CH_SHOOT, "030", UI_Graph_ADD, 9, UI_Color_Yellow, 20, 5, 4, 440, 280, &shoot_arr[0]);
+	 Char_Draw(&CH_ROTATE, "031", UI_Graph_ADD, 9, UI_Color_Yellow, 20, 6, 4, 440, 320, &rotate_arr[0]);
+	 Char_Draw(&CH_AUTO_READY, "032", UI_Graph_ADD, 9, UI_Color_Yellow, 20, 4, 4, 440, 360, &auto_arr[0]);
+	 Char_Draw(&CH_SUPER_CAP, "032", UI_Graph_ADD, 9, UI_Color_Yellow, 20, 9, 4, 440, 400, &super_arr[0]);
+//   //绘制Pitch，Yaw轴数据
+    Float_Draw(&G_PITCH, "014", UI_Graph_ADD, 8, UI_Color_White, 20, 3, 4, 300, 600, pitch_angle); 
+
 }
 
 void Ui::run()  //运行主函数
 {
-   UI_ReFresh(7, G1, G2, G3, G4, G5, G6, G7);
-   if (top_switch)
+///*-----------------------------------------数据更新--------------------------------------------*/	
+	 feedback_update();
+   Float_Draw(&G_PITCH, "014", UI_Graph_ADD, 8, UI_Color_White, 20, 3, 4, 300, 600, pitch_angle); //pitch轴数据
+/*-----------------------------------------辅助瞄准线--------------------------------------------*/
+	   UI_ReFresh(7, G1, G2, G3, G4, G5, G6, G7);
+/*-----------------------------------------文字提示----------------------------------------------*/
+	   Char_ReFresh(CH_SUPER_CAP);
+	   Char_ReFresh(CH_ROTATE);
+		 Char_ReFresh(CH_AUTO_READY);
+	   Char_ReFresh(CH_SHOOT);
+     UI_ReFresh(1, G_PITCH);
+}
+
+void Ui::feedback_update(){
+/*-----------------------------------------数据处理----------------------------------------------*/	
+	 fric_switch = can_receive.chassis_receive.fric_state;//摩擦轮标识符
+	 auto_ready_switch = can_receive.chassis_receive.auto_state;//自瞄开启标识符
+	 pitch_angle = can_receive.chassis_receive.gimbal_pitch_angle;//pitch轴角度获取
+	
+	//小陀螺功能
+	   if (top_switch)
    {
-      Rectangle_Draw(&G_TOP, "009", UI_Graph_Change, 8, UI_Color_Yellow, 10, 655, 155, 665, 165);
+      Rectangle_Draw(&G_TOP, "009", UI_Graph_Change, 8, UI_Color_Yellow, 10, 565, 305, 575, 315);
+		  UI_ReFresh(1, G_TOP);
    }
 	 else
 	 {
-		 Rectangle_Draw(&G_TOP, "009", UI_Graph_Change, 8, UI_Color_White, 10, 655, 155, 665, 165);
+		  Rectangle_Draw(&G_TOP, "009", UI_Graph_Change, 8, UI_Color_White, 10, 565, 305, 575, 315);
+		  UI_ReFresh(1, G_TOP);
 	 }
-   UI_ReFresh(1, G_TOP);//更新小陀螺状态
-   draw_super_cap();
-}
-
-void Ui::draw_super_cap()  //绘制超电
-{
-   static int capline_length = (int)(cap.cap_vot - 22);
-   if (capline_length == 9)
+	 //摩擦轮
+	 	 if(fric_switch)
    {
-      Rectangle_Draw(&G_BLOCK1, "016", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1600, 790, 1630, 800);
-      Rectangle_Draw(&G_BLOCK2, "017", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1630, 790, 1660, 800);
-      Rectangle_Draw(&G_BLOCK3, "018", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1660, 790, 1690, 800);
-      Rectangle_Draw(&G_BLOCK4, "019", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1690, 790, 1720, 800);
-      Rectangle_Draw(&G_BLOCK5, "020", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1720, 790, 1750, 800);
-      Rectangle_Draw(&G_BLOCK6, "021", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1750, 790, 1780, 800);
-      Rectangle_Draw(&G_BLOCK7, "022", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1780, 790, 1810, 800);
-      Rectangle_Draw(&G_BLOCK8, "023", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1810, 790, 1840, 800);
-      Rectangle_Draw(&G_BLOCK9, "024", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1840, 790, 1870, 800);
+      Rectangle_Draw(&G_SHOOT, "008", UI_Graph_Change, 8, UI_Color_Yellow, 10, 550, 265, 560, 275);
+		  UI_ReFresh(1, G_SHOOT);
    }
-   else if (capline_length == 8)
+	 else
+	 {
+		  Rectangle_Draw(&G_SHOOT, "008", UI_Graph_Change, 8, UI_Color_White, 10, 550, 265, 560, 275);
+		  UI_ReFresh(1, G_SHOOT);
+	 }
+	 //自瞄是否准备好
+	 	 	 if(auto_ready_switch)
    {
-      Rectangle_Draw(&G_BLOCK1, "016", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1600, 790, 1630, 800);
-      Rectangle_Draw(&G_BLOCK2, "017", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1630, 790, 1660, 800);
-      Rectangle_Draw(&G_BLOCK3, "018", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1660, 790, 1690, 800);
-      Rectangle_Draw(&G_BLOCK4, "019", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1690, 790, 1720, 800);
-      Rectangle_Draw(&G_BLOCK5, "020", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1720, 790, 1750, 800);
-      Rectangle_Draw(&G_BLOCK6, "021", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1750, 790, 1780, 800);
-      Rectangle_Draw(&G_BLOCK7, "022", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1780, 790, 1810, 800);
-      Rectangle_Draw(&G_BLOCK8, "023", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1810, 790, 1840, 800);
-      Rectangle_Draw(&G_BLOCK9, "024", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1840, 790, 1870, 800);
+     Rectangle_Draw(&G_AUTO_READY, "011", UI_Graph_ADD, 8, UI_Color_White, 10, 540, 345, 550, 355);
+		  UI_ReFresh(1, G_AUTO_READY);
    }
-   else if (capline_length == 7)
+	 else
+	 {
+		  Rectangle_Draw(&G_AUTO_READY, "011", UI_Graph_ADD, 8, UI_Color_White, 10, 540, 345, 550, 355);
+		  UI_ReFresh(1, G_AUTO_READY);
+	 }
+    //超电
+	 	 	 if(super_cap_switch)
    {
-      Rectangle_Draw(&G_BLOCK1, "016", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1600, 790, 1630, 800);
-      Rectangle_Draw(&G_BLOCK2, "017", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1630, 790, 1660, 800);
-      Rectangle_Draw(&G_BLOCK3, "018", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1660, 790, 1690, 800);
-      Rectangle_Draw(&G_BLOCK4, "019", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1690, 790, 1720, 800);
-      Rectangle_Draw(&G_BLOCK5, "020", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1720, 790, 1750, 800);
-      Rectangle_Draw(&G_BLOCK6, "021", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1750, 790, 1780, 800);
-      Rectangle_Draw(&G_BLOCK7, "022", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1780, 790, 1810, 800);
-      Rectangle_Draw(&G_BLOCK8, "023", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1810, 790, 1840, 800);
-      Rectangle_Draw(&G_BLOCK9, "024", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1840, 790, 1870, 800);
+     Rectangle_Draw(&G_SUPER_CAP, "013", UI_Graph_Change, 8, UI_Color_Yellow, 10, 625, 385, 635, 395);
+		  UI_ReFresh(1,G_SUPER_CAP);
    }
-   else if (capline_length == 6)
-   {
-      Rectangle_Draw(&G_BLOCK1, "016", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1600, 790, 1630, 800);
-      Rectangle_Draw(&G_BLOCK2, "017", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1630, 790, 1660, 800);
-      Rectangle_Draw(&G_BLOCK3, "018", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1660, 790, 1690, 800);
-      Rectangle_Draw(&G_BLOCK4, "019", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1690, 790, 1720, 800);
-      Rectangle_Draw(&G_BLOCK5, "020", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1720, 790, 1750, 800);
-      Rectangle_Draw(&G_BLOCK6, "021", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1750, 790, 1780, 800);
-      Rectangle_Draw(&G_BLOCK7, "022", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1780, 790, 1810, 800);
-      Rectangle_Draw(&G_BLOCK8, "023", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1810, 790, 1840, 800);
-      Rectangle_Draw(&G_BLOCK9, "024", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1840, 790, 1870, 800);
-   }
-   else if (capline_length == 5)
-   {
-      Rectangle_Draw(&G_BLOCK1, "016", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1600, 790, 1630, 800);
-      Rectangle_Draw(&G_BLOCK2, "017", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1630, 790, 1660, 800);
-      Rectangle_Draw(&G_BLOCK3, "018", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1660, 790, 1690, 800);
-      Rectangle_Draw(&G_BLOCK4, "019", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1690, 790, 1720, 800);
-      Rectangle_Draw(&G_BLOCK5, "020", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1720, 790, 1750, 800);
-      Rectangle_Draw(&G_BLOCK6, "021", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1750, 790, 1780, 800);
-      Rectangle_Draw(&G_BLOCK7, "022", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1780, 790, 1810, 800);
-      Rectangle_Draw(&G_BLOCK8, "023", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1810, 790, 1840, 800);
-      Rectangle_Draw(&G_BLOCK9, "024", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1840, 790, 1870, 800);
-   }
-   else if (capline_length == 4)
-   {
-      Rectangle_Draw(&G_BLOCK1, "016", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1600, 790, 1630, 800);
-      Rectangle_Draw(&G_BLOCK2, "017", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1630, 790, 1660, 800);
-      Rectangle_Draw(&G_BLOCK3, "018", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1660, 790, 1690, 800);
-      Rectangle_Draw(&G_BLOCK4, "019", UI_Graph_ADD, 9, UI_Color_Cyan, 10, 1690, 790, 1720, 800);
-      Rectangle_Draw(&G_BLOCK5, "020", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1720, 790, 1750, 800);
-      Rectangle_Draw(&G_BLOCK6, "021", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1750, 790, 1780, 800);
-      Rectangle_Draw(&G_BLOCK7, "022", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1780, 790, 1810, 800);
-      Rectangle_Draw(&G_BLOCK8, "023", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1810, 790, 1840, 800);
-      Rectangle_Draw(&G_BLOCK9, "024", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1840, 790, 1870, 800);
-   }
-   else if (capline_length == 3)
-   {
-      Rectangle_Draw(&G_BLOCK1, "016", UI_Graph_ADD, 9, UI_Color_Purplish_red, 10, 1600, 790, 1630, 800);
-      Rectangle_Draw(&G_BLOCK2, "017", UI_Graph_ADD, 9, UI_Color_Purplish_red, 10, 1630, 790, 1660, 800);
-      Rectangle_Draw(&G_BLOCK3, "018", UI_Graph_ADD, 9, UI_Color_Purplish_red, 10, 1660, 790, 1690, 800);
-      Rectangle_Draw(&G_BLOCK4, "019", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1690, 790, 1720, 800);
-      Rectangle_Draw(&G_BLOCK5, "020", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1720, 790, 1750, 800);
-      Rectangle_Draw(&G_BLOCK6, "021", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1750, 790, 1780, 800);
-      Rectangle_Draw(&G_BLOCK7, "022", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1780, 790, 1810, 800);
-      Rectangle_Draw(&G_BLOCK8, "023", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1810, 790, 1840, 800);
-      Rectangle_Draw(&G_BLOCK9, "024", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1840, 790, 1870, 800);
-   }
-   else if (capline_length == 2)
-   {
-      Rectangle_Draw(&G_BLOCK1, "016", UI_Graph_ADD, 9, UI_Color_Purplish_red, 10, 1600, 790, 1630, 800);
-      Rectangle_Draw(&G_BLOCK2, "017", UI_Graph_ADD, 9, UI_Color_Purplish_red, 10, 1630, 790, 1660, 800);
-      Rectangle_Draw(&G_BLOCK3, "018", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1660, 790, 1690, 800);
-      Rectangle_Draw(&G_BLOCK4, "019", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1690, 790, 1720, 800);
-      Rectangle_Draw(&G_BLOCK5, "020", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1720, 790, 1750, 800);
-      Rectangle_Draw(&G_BLOCK6, "021", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1750, 790, 1780, 800);
-      Rectangle_Draw(&G_BLOCK7, "022", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1780, 790, 1810, 800);
-      Rectangle_Draw(&G_BLOCK8, "023", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1810, 790, 1840, 800);
-      Rectangle_Draw(&G_BLOCK9, "024", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1840, 790, 1870, 800);
-   }
-   else if (capline_length == 1)
-   {
-      Rectangle_Draw(&G_BLOCK1, "016", UI_Graph_ADD, 9, UI_Color_Purplish_red, 10, 1600, 790, 1630, 800);
-      Rectangle_Draw(&G_BLOCK2, "017", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1630, 790, 1660, 800);
-      Rectangle_Draw(&G_BLOCK3, "018", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1660, 790, 1690, 800);
-      Rectangle_Draw(&G_BLOCK4, "019", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1690, 790, 1720, 800);
-      Rectangle_Draw(&G_BLOCK5, "020", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1720, 790, 1750, 800);
-      Rectangle_Draw(&G_BLOCK6, "021", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1750, 790, 1780, 800);
-      Rectangle_Draw(&G_BLOCK7, "022", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1780, 790, 1810, 800);
-      Rectangle_Draw(&G_BLOCK8, "023", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1810, 790, 1840, 800);
-      Rectangle_Draw(&G_BLOCK9, "024", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1840, 790, 1870, 800);
-   }
-   else if (capline_length == 0)
-   {
-      Rectangle_Draw(&G_BLOCK1, "016", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1600, 790, 1630, 800);
-      Rectangle_Draw(&G_BLOCK2, "017", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1630, 790, 1660, 800);
-      Rectangle_Draw(&G_BLOCK3, "018", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1660, 790, 1690, 800);
-      Rectangle_Draw(&G_BLOCK4, "019", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1690, 790, 1720, 800);
-      Rectangle_Draw(&G_BLOCK5, "020", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1720, 790, 1750, 800);
-      Rectangle_Draw(&G_BLOCK6, "021", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1750, 790, 1780, 800);
-      Rectangle_Draw(&G_BLOCK7, "022", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1780, 790, 1810, 800);
-      Rectangle_Draw(&G_BLOCK8, "023", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1810, 790, 1840, 800);
-      Rectangle_Draw(&G_BLOCK9, "024", UI_Graph_Del, 9, UI_Color_Cyan, 10, 1840, 790, 1870, 800);
-   }
-   static int last_length = capline_length;
-   UI_ReFresh(7, G_BLOCK1, G_BLOCK2, G_BLOCK3, G_BLOCK4, G_BLOCK5, G_BLOCK6, G_BLOCK7);
-   UI_ReFresh(2, G_BLOCK8, G_BLOCK9);
+	 else
+	 {
+		   Rectangle_Draw(&G_SUPER_CAP, "013", UI_Graph_Change, 8, UI_Color_White, 10, 625, 385, 635, 395);
+		  UI_ReFresh(1, G_SUPER_CAP);
+	 }
+	 
 }
 
 /****************************************串口驱动映射************************************/
