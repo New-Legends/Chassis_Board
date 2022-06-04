@@ -66,8 +66,8 @@ void Communicate::run()
     uint8_t temp_chassis_behaviour_mode;
     uint16_t  temp_red_base_HP;
     uint16_t  temp_blue_base_HP;
-    int16_t temp_ch_0,temp_ch_1;
-    int8_t temp_s0;
+    int16_t temp_ch_0,temp_ch_1,temp_ch_2;
+    int8_t temp_s0,temp_s1;
     uint16_t temp_ecd;
     int16_t temp_speed_rpm;
     int16_t temp_give_current;
@@ -83,7 +83,9 @@ void Communicate::run()
     temp_blue_base_HP = referee.game_robot_HP_t.blue_base_HP;
     temp_ch_0 = can_receive.chassis_receive.ch_0;
     temp_ch_1 = can_receive.chassis_receive.ch_1;
+    temp_ch_2 = can_receive.chassis_receive.ch_2;
     temp_s0 = can_receive.chassis_receive.s0;
+    temp_s1 = can_receive.chassis_receive.s1;
     temp_ecd = can_receive.chassis_yaw_motor.ecd;
     temp_speed_rpm = can_receive.chassis_yaw_motor.speed_rpm;
     temp_give_current = can_receive.chassis_yaw_motor.given_current;
@@ -92,6 +94,8 @@ void Communicate::run()
 
     can_receive.send_cooling_and_id_board_com_1(temp_id1_17mm_cooling_limit, temp_id1_17mm_cooling_rate, temp_id1_17mm_cooling_heat,
                                               temp_color, temp_robot_id);
+    can_receive.send_cooling_and_id_board_com_2(temp_id2_17mm_cooling_limit, temp_id2_17mm_cooling_rate, temp_id2_17mm_cooling_heat,
+                                              temp_color, temp_robot_id);                              
     if(temp_color == RED){
         can_receive.send_17mm_speed_and_mode_board_com_1(temp_id1_17mm_speed_limit, temp_id1_bullet_speed, temp_chassis_behaviour_mode,temp_red_base_HP);
         can_receive.send_17mm_speed_and_mode_board_com_2(temp_id2_17mm_speed_limit, temp_id2_bullet_speed, temp_chassis_behaviour_mode,temp_red_base_HP);
@@ -100,8 +104,7 @@ void Communicate::run()
         can_receive.send_17mm_speed_and_mode_board_com_1(temp_id1_17mm_speed_limit, temp_id1_bullet_speed, temp_chassis_behaviour_mode,temp_blue_base_HP);
         can_receive.send_17mm_speed_and_mode_board_com_2(temp_id2_17mm_speed_limit, temp_id2_bullet_speed, temp_chassis_behaviour_mode,temp_blue_base_HP);
     }
-    // can_receive.send_rc_board_com(temp_ch_0,temp_ch_1,temp_s0);
-    // can_receive.send_yaw_motor(temp_ecd,temp_speed_rpm,temp_give_current,temp_temperate);
+    can_receive.send_rc_com(temp_ch_0,temp_ch_1,temp_ch_2,temp_s0,temp_s1);
 
 
 //TODO 这里最好使用指针赋值,减少计算量,后续需修改
@@ -110,6 +113,7 @@ void Communicate::run()
     remote_control.rc_ctrl.rc.ch[2] = can_receive.chassis_receive.ch_2;
     remote_control.rc_ctrl.rc.ch[1] = can_receive.chassis_receive.ch_1;
     remote_control.rc_ctrl.rc.s[0] = can_receive.chassis_receive.s0;
+    remote_control.rc_ctrl.rc.s[1] = can_receive.chassis_receive.s1;
 #else
    ;
 #endif
@@ -135,11 +139,6 @@ extern "C"
                     //detect_hook(CHASSIS_MOTIVE_FR_MOTOR_TOE);
                     break;
 
-                // case CAN_YAW_MOTOR_ID:
-                //     can_receive.get_yaw_motor_measure(rx_data);
-                //     //detect_hook(GIMBAL_PITCH_MOTOR_TOE);
-                //     break;
-
                 default:
                 {
                     break;
@@ -155,11 +154,6 @@ extern "C"
                     can_receive.receive_rc_board_com(rx_data);
                     //detect_hook(BOARD_COM);
                     break;
-
-                // case CAN_RC_BOARM_COM_ID_2:
-                //     can_receive.receive_yaw_motor(rx_data);
-                //     //detect_hook(BOARD_COM);
-                //  break;
 
                 default:
                 {

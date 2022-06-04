@@ -290,7 +290,7 @@ void Referee::get_shooter_17mm_cooling_limit_and_heat(uint16_t *id1_17mm_cooling
     *id2_17mm_cooling_heat = power_heat_data_t.shooter_id2_17mm_cooling_heat;
 }
 
-//17mm枪口枪口射速上限,17mm实时射速 默认ID1
+//17mm枪口枪口射速上限,17mm实时射速 
 void Referee::get_shooter_17mm_speed_limit_and_bullet_speed(uint16_t *id1_17mm_speed_limit, fp32 *id1_bullet_speed, uint16_t *id2_17mm_speed_limit, fp32 *id2_bullet_speed)
 {
     *id1_17mm_speed_limit = robot_state.shooter_id1_17mm_speed_limit;

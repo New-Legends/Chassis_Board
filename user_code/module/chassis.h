@@ -105,11 +105,11 @@
 //单个底盘电机最大速度
 #define MAX_WHEEL_SPEED 4.0f //4
 //底盘运动过程最大平移速度
-#define NORMAL_MAX_CHASSIS_SPEED_Y 5.0f //1.5
+#define NORMAL_MAX_CHASSIS_SPEED_Y 2.0f //1.5
 //底盘巡逻速度等级
-#define CHASSIS_LOW_SPEED 0.5*NORMAL_MAX_CHASSIS_SPEED_Y
-#define CHASSIS_MID_SPEED 0.8*NORMAL_MAX_CHASSIS_SPEED_Y
-#define CHASSIS_HIGH_SPEED 1.2*NORMAL_MAX_CHASSIS_SPEED_Y
+#define CHASSIS_LOW_SPEED 0.6*NORMAL_MAX_CHASSIS_SPEED_Y
+#define CHASSIS_MID_SPEED 1.1*NORMAL_MAX_CHASSIS_SPEED_Y
+#define CHASSIS_HIGH_SPEED 1.5*NORMAL_MAX_CHASSIS_SPEED_Y
 
 
 #define right_light_sensor_Pin GPIO_PIN_9
@@ -148,11 +148,11 @@
 
 //chassis follow angle PID
 //底盘旋转跟随PID
-#define CHASSIS_FOLLOW_GIMBAL_PID_KP 11.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_KI 0.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_KD 0.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT 2.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT 10.0f
+// #define CHASSIS_FOLLOW_GIMBAL_PID_KP 11.0f
+// #define CHASSIS_FOLLOW_GIMBAL_PID_KI 0.0f
+// #define CHASSIS_FOLLOW_GIMBAL_PID_KD 0.0f
+// #define CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT 2.0f
+// #define CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT 10.0f
 
 //功率控制参数
 #define POWER_DEFAULT_LIMIT 30.0f  //默认功率限制
@@ -237,6 +237,9 @@ public:
     uint16_t left_light_sensor_update_time; //光电传感器数据更新时间
     uint16_t right_light_sensor_update_time; //光电传感器数据更新时间
     uint8_t direction;          //底盘移动方向 分为NO_MOVE LEFT RIGHT 
+    fp32 CHASSIS_MAX_SPEED;
+    int speed_flag;
+    int up_time ;        //加速时间
 
 
 

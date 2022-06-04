@@ -71,9 +71,9 @@ void Chassis::init()
     chassis_cmd_slow_set_vy.init(CHASSIS_CONTROL_TIME, chassis_y_order_filter);
 
     //初始化角度Z轴PID
-    fp32 z_angle_pid_parm[5] = {CHASSIS_FOLLOW_GIMBAL_PID_KP, CHASSIS_FOLLOW_GIMBAL_PID_KI, CHASSIS_FOLLOW_GIMBAL_PID_KD, CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT, CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT};
-    chassis_wz_angle_pid.init(PID_ANGLE, z_angle_pid_parm, &chassis_relative_angle, &chassis_relative_angle_set, NULL);
-    chassis_wz_angle_pid.pid_clear();
+    // fp32 z_angle_pid_parm[5] = {CHASSIS_FOLLOW_GIMBAL_PID_KP, CHASSIS_FOLLOW_GIMBAL_PID_KI, CHASSIS_FOLLOW_GIMBAL_PID_KD, CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT, CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT};
+    // chassis_wz_angle_pid.init(PID_ANGLE, z_angle_pid_parm, &chassis_relative_angle, &chassis_relative_angle_set, NULL);
+    // chassis_wz_angle_pid.pid_clear();
     //速度限幅设置
     y.min_speed = -NORMAL_MAX_CHASSIS_SPEED_Y;
     y.max_speed = NORMAL_MAX_CHASSIS_SPEED_Y;
@@ -89,7 +89,7 @@ void Chassis::init()
     srand(tim);   //初始化种子为随机值
 	for(Irregular_motion_num = 0;Irregular_motion_num < 200;Irregular_motion_num++)
 	{
-			Irregular_motion[Irregular_motion_num] = rand()%2300+1000;
+			Irregular_motion[Irregular_motion_num] = rand()%800+1000;
             Irregular_motion_sign[Irregular_motion_num] = Irregular_motion[Irregular_motion_num];
 	}
 	Irregular_motion_num = 199;
@@ -329,7 +329,6 @@ void Chassis::output()
     
 
     can_receive.can_cmd_chassis_motive_motor(chassis_motive_motor.current_give);
-    can_receive.can_cmd_yaw_motor(can_receive.chassis_receive.gimbal_yaw_give);
 }
 
 /**
@@ -500,6 +499,7 @@ void Chassis::chassis_open_set_control( fp32 *vy_set) {
     return;
 }
 
+
 /**
   * @brief          根据遥控器通道值，计算纵向和横移速度
   *                 
@@ -532,11 +532,9 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
         *vy_set = chassis_cmd_slow_set_vy.out;
     }
     else if(chassis_control_way==AUTO){
-        int speed_flag = 0;           //被击打开关
-        int up_time = 0;        //加速时间
         int change_time = 0;    //变向时间
         int change_flag = 0;    //变向开关
-        float CHASSIS_MAX_SPEED = CHASSIS_MID_SPEED;
+        CHASSIS_MAX_SPEED = CHASSIS_MID_SPEED;
         if(referee.if_hit())
         {
             speed_flag = 1;
@@ -595,75 +593,83 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
             {
                   
                 //不规则运动
-                if(!referee.if_hit() && Irregular_motion[Irregular_motion_num] >= Irregular_motion_sign[Irregular_motion_num]/2)//从0开始加速到正常速度
+                //受击打加速
+                if(speed_flag)
                 {
-                    Irregular_motion[Irregular_motion_num]--;
-                    *vy_set = CHASSIS_MAX_SPEED * 2 * (1 - Irregular_motion[Irregular_motion_num] / Irregular_motion_sign[Irregular_motion_num]);
+                    CHASSIS_MAX_SPEED = CHASSIS_HIGH_SPEED;
+                    *vy_set = CHASSIS_MAX_SPEED;
                 }
-                else if(!referee.if_hit() && Irregular_motion[Irregular_motion_num] < Irregular_motion_sign[Irregular_motion_num]/2 && Irregular_motion[Irregular_motion_num] > 0)//从正常速度开始缓慢减速到0
+                else
                 {
-                    Irregular_motion[Irregular_motion_num]--;
-                    *vy_set = CHASSIS_MAX_SPEED * 2 * Irregular_motion[Irregular_motion_num] / Irregular_motion_sign[Irregular_motion_num];
-                }
-                if(!referee.if_hit() && Irregular_motion[Irregular_motion_num] == 0)//跑完一个随机数切换下一个随机数
-                {
-                    if(Irregular_motion_num >= 0)
+                    CHASSIS_MAX_SPEED = CHASSIS_MID_SPEED;
+                
+                    if(!referee.if_hit() && Irregular_motion[Irregular_motion_num] >= Irregular_motion_sign[Irregular_motion_num]/2)//从0开始加速到正常速度
                     {
-                        Irregular_motion_num--;
+                        Irregular_motion[Irregular_motion_num]--;
+                        *vy_set = CHASSIS_MAX_SPEED * 2 * (1 - Irregular_motion[Irregular_motion_num] / Irregular_motion_sign[Irregular_motion_num]);
                     }
-                    else 
-                    { 
-                        srand(tim++);
-                        for(Irregular_motion_num = 0;Irregular_motion_num < 200;Irregular_motion_num++)
+                    else if(!referee.if_hit() && Irregular_motion[Irregular_motion_num] < Irregular_motion_sign[Irregular_motion_num]/2 && Irregular_motion[Irregular_motion_num] > 0)//从正常速度开始缓慢减速到0
+                    {
+                        Irregular_motion[Irregular_motion_num]--;
+                        *vy_set = CHASSIS_MAX_SPEED * 2 * Irregular_motion[Irregular_motion_num] / Irregular_motion_sign[Irregular_motion_num];
+                    }
+                    if(!referee.if_hit() && Irregular_motion[Irregular_motion_num] == 0)//跑完一个随机数切换下一个随机数
+                    {
+                        if(Irregular_motion_num >= 0)
                         {
-			                    Irregular_motion[Irregular_motion_num] = rand()%2300+1000;  //随机数生成
-                                Irregular_motion_sign[Irregular_motion_num] = Irregular_motion[Irregular_motion_num];
-	                    }
-	                    Irregular_motion_num = 199;
-                    }  
-                } 
+                            Irregular_motion_num--;
+                        }
+                        else 
+                        { 
+                            srand(tim++);
+                            for(Irregular_motion_num = 0;Irregular_motion_num < 200;Irregular_motion_num++)
+                            {
+                                    Irregular_motion[Irregular_motion_num] = rand()%800+1000;  //随机数生成
+                                    Irregular_motion_sign[Irregular_motion_num] = Irregular_motion[Irregular_motion_num];
+                            }
+                            Irregular_motion_num = 199;
+                        }  
+                    } 
+                    
+                }
                 if(change_flag)
                 {                   
                     if(direction == LEFT)
                     {
                         direction = RIGHT;
                     }
-                    if(direction == RIGHT)
+                    else if(direction == RIGHT)
                     {
                         direction = LEFT;
                     }
                     change_flag = 0;
                     change_time = 1;
                 }
+                
                 if(change_flag == 0 && change_time != 0)
                 {
                     change_time ++;
-                    if(change_time >= 1000)
+                    if(change_time >= 2000)
                     {
                         change_time = 0;
                     }
                 }
+
+                if(!referee.if_hit()){
+                    if(speed_flag){
+                        up_time++;
+                    }
+                    if(up_time >= 2000){
+                        speed_flag = 0;
+                    }
+                }
                 direction = direction;
+                
             }
         }        
 
-        //受击打加速
-        if(speed_flag)
-        {
-            CHASSIS_MAX_SPEED = CHASSIS_HIGH_SPEED;
-        }
-        else
-        {
-            CHASSIS_MAX_SPEED = CHASSIS_MID_SPEED;
-        }
-        if(!referee.if_hit()){
-            if(speed_flag){
-                up_time++;
-            }
-            if(up_time>=2000){
-                speed_flag = 0;
-            }
-        }
+        
+
         //根据方向设置输出
         if(direction == LEFT)
             *vy_set = *vy_set;

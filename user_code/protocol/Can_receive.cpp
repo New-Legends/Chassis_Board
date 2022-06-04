@@ -25,14 +25,6 @@ void Can_receive::get_motive_motor_measure(uint8_t data[8])
     chassis_motive_motor.temperate = data[6];
 }
 
-void Can_receive::get_yaw_motor_measure(uint8_t data[8])
-{
-    chassis_yaw_motor.last_ecd = chassis_yaw_motor.ecd;
-    chassis_yaw_motor.ecd = (uint16_t)(data[0] << 8 | data[1]);
-    chassis_yaw_motor.speed_rpm = (uint16_t)(data[2] << 8 | data[3]);
-    chassis_yaw_motor.given_current = (uint16_t)(data[4] << 8 | data[5]);
-    chassis_yaw_motor.temperate = data[6]; 
-}
 /**
 * @brief          发送电机控制电流(0x204)
 * @param[in]      motor: (0x204) 3508电机控制电流, 范围 [-16384,16384]
@@ -51,35 +43,13 @@ void Can_receive::can_cmd_chassis_motive_motor( int16_t motor)
     chassis_can_send_data[3] = 0;
     chassis_can_send_data[4] = 0;
     chassis_can_send_data[5] = 0;
-    chassis_can_send_data[6] = motor>>8;
+    chassis_can_send_data[6] = motor >> 8;
     chassis_can_send_data[7] = motor;
 
     HAL_CAN_AddTxMessage(&CHASSIS_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
 }
 
-/**
-* @brief          发送YAW控制电流(0x205)
-* @param[in]      motor: (0x205) 6020电机控制电流, 范围 [-16384,16384]
-* @retval         none
-*/
-void Can_receive::can_cmd_yaw_motor( int16_t yaw)
-{
-    uint32_t send_mail_box;
-    chassis_tx_message.StdId = CAN_GIMBAL_ALL_ID;
-    chassis_tx_message.IDE = CAN_ID_STD;
-    chassis_tx_message.RTR = CAN_RTR_DATA;
-    chassis_tx_message.DLC = 0x08;
-    chassis_can_send_data[0] = yaw >> 8;
-    chassis_can_send_data[1] = yaw;
-    chassis_can_send_data[2] = 0;
-    chassis_can_send_data[3] = 0;
-    chassis_can_send_data[4] = 0;
-    chassis_can_send_data[5] = 0;
-    chassis_can_send_data[6] = 0;
-    chassis_can_send_data[7] = 0;
 
-    HAL_CAN_AddTxMessage(&CHASSIS_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
-}
 /**
   * @brief          发送ID为0x700的CAN包,它会设置3508电机进入快速设置ID
   * @param[in]      none
@@ -120,15 +90,8 @@ void Can_receive::receive_rc_board_com(uint8_t data[8])
     chassis_receive.ch_2 = (int16_t)(data[2] << 8 | data[3]);
     chassis_receive.ch_1 = (uint16_t)(data[4] << 8 | data[5]);
     chassis_receive.s0 = data[6];
+    chassis_receive.s1 = data[7];
 }
-
-void Can_receive::receive_yaw_motor(uint8_t data[8])
-{
-    chassis_receive.gimbal_yaw_give = (int16_t)(data[0] << 8 | data[1]);
-}
-
-
-
 
 
 void Can_receive::send_cooling_and_id_board_com_1(uint16_t id1_17mm_cooling_limit, uint16_t id1_17mm_cooling_rate, uint16_t id1_17mm_cooling_heat, uint8_t color, uint8_t robot_id)
@@ -182,7 +145,7 @@ void Can_receive::send_cooling_and_id_board_com_2(uint16_t id2_17mm_cooling_limi
     chassis_can_send_data[6] = color;
     chassis_can_send_data[7] = robot_id;
 
-    HAL_CAN_AddTxMessage(&BOARD_COM_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
+    HAL_CAN_AddTxMessage(&hcan2, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
 }
 
 void Can_receive::send_17mm_speed_and_mode_board_com_1(uint16_t id1_17mm_speed_limit, uint16_t id1_bullet_speed, uint8_t chassis_behaviour,uint16_t base_HP)
@@ -232,54 +195,31 @@ void Can_receive::send_17mm_speed_and_mode_board_com_2(uint16_t id2_17mm_speed_l
     chassis_can_send_data[6] = base_HP;
     chassis_can_send_data[7] = 0;
 
-    HAL_CAN_AddTxMessage(&BOARD_COM_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
+    HAL_CAN_AddTxMessage(&hcan2, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
 }
 
-// void Can_receive::send_rc_board_com(int16_t ch_0, int16_t ch_1, int8_t s0){
-//     //数据填充
-//     chassis_send.ch_0 = ch_0;
-//     chassis_send.ch_1 = ch_1;
-//     chassis_send.s0 = s0;
+void Can_receive::send_rc_com(int16_t ch_0, int16_t ch_1, int8_t ch_2, int8_t s0, int8_t s1){
+    //数据填充
+    chassis_send.ch_0 = ch_0;
+    chassis_send.ch_1 = ch_1;
+    chassis_send.ch_2 = ch_2;
+    chassis_send.s0 = s0;
+    chassis_send.s1 = s1;
 
+    uint32_t send_mail_box;
+    chassis_tx_message.StdId = CAN_RC_COM_ID;
+    chassis_tx_message.IDE = CAN_ID_STD;
+    chassis_tx_message.RTR = CAN_RTR_DATA;
+    chassis_tx_message.DLC = 0x08;
+    chassis_can_send_data[0] = ch_0 >> 8;
+    chassis_can_send_data[1] = ch_0;
+    chassis_can_send_data[2] = ch_1 >> 8;
+    chassis_can_send_data[3] = ch_1;
+    chassis_can_send_data[4] = ch_2 >> 8;
+    chassis_can_send_data[5] = ch_2;
+    chassis_can_send_data[6] = s0;
+    chassis_can_send_data[7] = s1;
 
-//     uint32_t send_mail_box;
-//     chassis_tx_message.StdId = CAN_CHASSIS_UNDER;
-//     chassis_tx_message.IDE = CAN_ID_STD;
-//     chassis_tx_message.RTR = CAN_RTR_DATA;
-//     chassis_tx_message.DLC = 0x08;
-//     chassis_can_send_data[0] = ch_0 >> 8;
-//     chassis_can_send_data[1] = ch_0;
-//     chassis_can_send_data[2] = ch_1 >> 8;
-//     chassis_can_send_data[3] = ch_1;
-//     chassis_can_send_data[4] = s0;
-//     chassis_can_send_data[5] = 0;
-//     chassis_can_send_data[6] = 0;
-//     chassis_can_send_data[7] = 0;
+    HAL_CAN_AddTxMessage(&hcan2, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
+}
 
-//     HAL_CAN_AddTxMessage(&BOARD_COM_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
-// }
-
-// void Can_receive::send_yaw_motor(uint16_t ecd, int16_t speed_rpm, int16_t given_current, uint8_t temperate){
-//     //数据填充
-//     chassis_send.ecd = ecd;
-//     chassis_send.speed_rpm = speed_rpm;
-//     chassis_send.give_current = given_current;
-//     chassis_send.temperate = temperate;
-
-
-//     uint32_t send_mail_box;
-//     chassis_tx_message.StdId = CAN_CHASSIS_YAW;
-//     chassis_tx_message.IDE = CAN_ID_STD;
-//     chassis_tx_message.RTR = CAN_RTR_DATA;
-//     chassis_tx_message.DLC = 0x08;
-//     chassis_can_send_data[0] = ecd >> 8;
-//     chassis_can_send_data[1] = ecd;
-//     chassis_can_send_data[2] = speed_rpm >> 8;
-//     chassis_can_send_data[3] = speed_rpm;
-//     chassis_can_send_data[4] = given_current >> 8;
-//     chassis_can_send_data[5] = given_current;
-//     chassis_can_send_data[6] = temperate;
-//     chassis_can_send_data[7] = 0;
-
-//     HAL_CAN_AddTxMessage(&BOARD_COM_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
-// }
