@@ -21,8 +21,8 @@ extern UART_HandleTypeDef huart6;
 
 unpack_data_t referee_unpack_obj;
 
-void Referee::init(){
-
+void Referee::init()
+{
     init_referee_struct_data();
     fifo_s_init(&referee_fifo, referee_fifo_buf, REFEREE_FIFO_BUF_LENGTH);
     usart6_init(usart6_buf[0], usart6_buf[1], USART_RX_BUF_LENGHT);
