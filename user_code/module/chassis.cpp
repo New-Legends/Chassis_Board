@@ -33,7 +33,7 @@ bool_t top_switch = 0;
 // 45度角对敌数据
 fp32 pisa_angle = 0.0f; //保留45度对敌前的云台相对底盘角度
 bool_t pisa_switch = 0;
-
+int UI_123=0;
 //超电控制数据
 extern bool_t super_cap_switch;
 
@@ -320,90 +320,33 @@ void Chassis::power_ctrl()
     uint8_t robot_id = 0;
     referee.get_robot_id(&robot_id);
 
-    //    if (toe_is_error(REFEREE_TOE))
-    //    {
-    //        total_current_limit = NO_JUDGE_TOTAL_CURRENT_LIMIT;
-    //    }
     if (robot_id == 0)
     {
         total_current_limit = NO_JUDGE_TOTAL_CURRENT_LIMIT;
-        can_receive.can_cmd_super_cap_power(12000);
+        can_receive.can_cmd_super_cap_power(4500);
     }
     else
     {
         referee.get_chassis_power_and_buffer(&chassis_power, &chassis_power_buffer);
         cap.read_cap_buff(&chassis_power_cap_buffer);
-        cap.super_number = chassis_power_cap_buffer/1400; //超电百分比
+        cap.super_number = chassis_power_cap_buffer; //超电百分比
         referee.get_chassis_power_limit(&chassis_power_limit);
-        can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit) * 100+1500);
-			  if (chassis_power_buffer < 10.0f){
-						can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit) * 100-300);
-					}
-				//恢复函数后续增加
-//					else if (chassis_power_buffer >30.0f){
-//						can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit) * 100+1500);
-				
-        //当超电能量低于阈值700 将超电关闭
-        if (chassis_power_cap_buffer < 300)
-        {
-            super_cap_switch = FALSE;
-        }
-
-        //开启超电后 对超电设置功率进行修改
-//        if (super_cap_switch == TRUE)
-//        {
-//            can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit) * 100 );
-//        }
-//        if (super_cap_switch == FALSE)
-//        {
-	  
-//        }
-
-        //功率超过上限 和缓冲能量小于30j,因为缓冲能量小于30意味着功率超过上限
-//        if (chassis_power_buffer < WARNING_POWER_BUFF)
-//        {
-//            fp32 power_scale;
-//            if (chassis_power_buffer > 10.0f)
-//            {
-//                //缩小WARNING_POWER_BUFF
-//                power_scale = chassis_power_buffer / WARNING_POWER_BUFF;
-//            }
-//            else
-//            {
-//                // only left 10% of WARNING_POWER_BUFF
-//                power_scale = 5.0f / WARNING_POWER_BUFF;
-//            }
-
-//            //缩小
-            total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT;
-//        }
-//        else
-//        {
-//            //功率大于WARNING_POWER
-//            if (chassis_power > chassis_power_limit - WARNING_POWER_DISTANCE)
-//            {
-//                fp32 power_scale;
-//                //功率小于上限
-//                if (chassis_power < chassis_power_limit)
-//                {
-//                    //缩小
-//                    power_scale = (chassis_power_limit - chassis_power) / (chassis_power_limit - (chassis_power_limit - WARNING_POWER_DISTANCE));
-//                }
-//                //功率大于上限
-//                else
-//                {
-//                    power_scale = 0.0f;
-//                }
-
-//                total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT + POWER_TOTAL_CURRENT_LIMIT * power_scale;
-//            }
-//            //功率小于WARNING_POWER
-//            else
-//            {
-//                total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT + POWER_TOTAL_CURRENT_LIMIT;
-//            }
-//        }
-    }
+			
+      if(top_switch ==true&&chassis_power_buffer > 10.0f){
+				can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit) * 100+100);
+				}else if(top_switch ==false&&chassis_power_buffer > 10.0f){
+				can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit) * 100+1500);
+				}else{
+					can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit) * 100);
+				}
+			}
+		//电流限幅
+		if(super_cap_switch == true ){
+					total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT;
+		}
+		else{
+			total_current_limit = POWER_TOTAL_CURRENT_LIMIT;
+		}
 
     total_current = 0.0f;
     //计算原本电机电流设定
@@ -674,10 +617,11 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
         top_angle = 0;
     }
 /****************************重新绘制UI*********************************************/	
+		
 
-//    if(KEY_UI_UPDATE){
-//	     ui.init(&referee.Judge_Self_ID, &referee.Judge_SelfClient_ID);
-//    }
+    if(KEY_UI_UPDATE){
+	     ui.start();
+    }
 		
     /****************************45度角对敌控制输入*********************************************/
     //单击C,开启45度角对敌;重复操作取消45度角对敌

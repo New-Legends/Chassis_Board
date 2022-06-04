@@ -29,7 +29,6 @@
 #define KEY_PRESSED_CHASSIS_LEFT   'A'
 #define KEY_PRESSED_CHASSIS_RIGHT  'D'
 //初始化UI界面
-#define KEY_PRESSED_UI_UPDATE  'L'
-#define KEY_UI_UPDATE             if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_UI_UPDATE)
+#define KEY_PRESSED_UI_UPDATE      'B'
 
 #endif

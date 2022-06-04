@@ -162,13 +162,10 @@ public:
     Graph_Data G_AUTO_READY;               //自瞄准备状态
     Graph_Data G_AUTO_AIM;                 //自瞄识别状态
     Graph_Data G_SUPER_CAP;                //超电开关
-    Graph_Data G_BLOCK1, G_BLOCK2,
-        G_BLOCK3, G_BLOCK4,
-        G_BLOCK5, G_BLOCK6,
-        G_BLOCK7, G_BLOCK8, G_BLOCK9; //超电能量条
-    Float_Data G_PITCH;               // Pitch轴角度
-    Float_Data G_YAW;                 // Yaw轴角度
-    Float_Data G_SUPER_NUM;           //浮点数据
+    Graph_Data G_COVER;                    //弹仓开关
+    Float_Data G_PITCH;                    // Pitch轴角度
+    Float_Data G_YAW;                      // Yaw轴角度
+    Float_Data G_SUPER_NUM;                //超电百分比
     char shoot_arr[5];//摩擦轮
     char rotate_arr[6];  //小陀螺
     char super_arr[9];//超电
@@ -187,9 +184,11 @@ public:
     void init(uint8_t *Temp_Judge_Self_ID, uint16_t *Temp_Judge_SelfClient_ID);
 
     void run();
+
 /*----------------------------UI功能函数----------------------------------------*/
 		void feedback_update();
 		void draw_super_cap(); //根据超电容量得到UI数据
+		void start();//重置ui
 
 /*----------------------------基础图形绘制函数----------------------------------------*/
     void UI_SendByte(unsigned char ch);

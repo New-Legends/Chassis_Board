@@ -8,7 +8,7 @@ extern Super_Cap cap;
 extern bool_t top_switch;
 bool_t fric_switch;
 bool_t auto_ready_switch;
-bool_t super_cap_switch =1;
+bool_t super_cap_switch =0;
 float pitch_angle =0;
 float super_num =0;
 void Ui::init(uint8_t *Temp_Judge_Self_ID, uint16_t *Temp_Judge_SelfClient_ID)
@@ -22,7 +22,6 @@ void Ui::init(uint8_t *Temp_Judge_Self_ID, uint16_t *Temp_Judge_SelfClient_ID)
     strcpy(super_arr, "SUPER_CAP");
     strcpy(cover_arr, "COVER");
     strcpy(auto_arr, "AUTO");
-    strcpy(mag_arr, "MAGZINE");
 
    memset(&G1, 0, sizeof(G1)); //中心垂线
    memset(&G2, 0, sizeof(G2)); //上击打线
@@ -37,16 +36,7 @@ void Ui::init(uint8_t *Temp_Judge_Self_ID, uint16_t *Temp_Judge_SelfClient_ID)
    memset(&G_AUTO_AIM, 0, sizeof(G_AUTO_AIM));     //自瞄识别状态
 	 memset(&G_SUPER_CAP, 0, sizeof(G_SUPER_CAP));   //超电标识
 	 memset(&G_SUPER_NUM, 0, sizeof(G_SUPER_NUM));   //超电百分比
-   /*超电能量条*/
-   memset(&G_BLOCK1, 0, sizeof(G_BLOCK1));
-   memset(&G_BLOCK2, 0, sizeof(G_BLOCK2));
-   memset(&G_BLOCK3, 0, sizeof(G_BLOCK3));
-   memset(&G_BLOCK4, 0, sizeof(G_BLOCK4));
-   memset(&G_BLOCK5, 0, sizeof(G_BLOCK5));
-   memset(&G_BLOCK6, 0, sizeof(G_BLOCK6));
-   memset(&G_BLOCK7, 0, sizeof(G_BLOCK7));
-   memset(&G_BLOCK8, 0, sizeof(G_BLOCK8));
-   memset(&G_BLOCK9, 0, sizeof(G_BLOCK9));
+	 memset(&G_COVER, 0, sizeof(G_COVER));           //弹仓盖
 
    memset(&G_PITCH, 0, sizeof(G_PITCH)); // Pitch轴角度
    memset(&G_YAW, 0, sizeof(G_YAW));     // Yaw轴角度
@@ -61,24 +51,40 @@ void Ui::init(uint8_t *Temp_Judge_Self_ID, uint16_t *Temp_Judge_SelfClient_ID)
    Rectangle_Draw(&G7, "007", UI_Graph_ADD, 9, UI_Color_White, 10, 955, 455, 965, 465);
   /*绘制功能标识图形符*/
    Rectangle_Draw(&G_SHOOT, "008", UI_Graph_ADD, 8, UI_Color_White,10, 550, 265, 560, 275);//完成
-   Rectangle_Draw(&G_TOP, "009", UI_Graph_ADD, 8, UI_Color_White, 10, 565, 305, 575, 315);//完成
-   Rectangle_Draw(&G_RECOVER, "0010", UI_Graph_ADD, 8, UI_Color_White, 10, 955, 455, 965, 465);
+   Rectangle_Draw(&G_TOP,   "009", UI_Graph_ADD, 8, UI_Color_White, 10, 565, 305, 575, 315);//完成
+   Rectangle_Draw(&G_COVER, "0010", UI_Graph_ADD, 8, UI_Color_White, 10, 550, 425, 560, 435);//完成
    Rectangle_Draw(&G_AUTO_READY, "011", UI_Graph_ADD, 8, UI_Color_White, 10, 540, 345, 550, 355);//完成
-   Rectangle_Draw(&G_AUTO_AIM, "012", UI_Graph_ADD, 8, UI_Color_White, 10, 955, 455, 965, 465);
 	 Rectangle_Draw(&G_SUPER_CAP, "013", UI_Graph_ADD, 8, UI_Color_White, 10, 625, 385, 635, 395);//完成
+	 
+	 //   Rectangle_Draw(&G_AUTO_AIM, "012", UI_Graph_ADD, 8, UI_Color_White, 10, 955, 455, 965, 465);
 	 /*绘制功能标识字符*/
 	 Char_Draw(&CH_SHOOT, "030", UI_Graph_ADD, 9, UI_Color_Yellow, 20, 5, 4, 440, 280, &shoot_arr[0]);
 	 Char_Draw(&CH_ROTATE, "031", UI_Graph_ADD, 9, UI_Color_Yellow, 20, 6, 4, 440, 320, &rotate_arr[0]);
 	 Char_Draw(&CH_AUTO_READY, "032", UI_Graph_ADD, 9, UI_Color_Yellow, 20, 4, 4, 440, 360, &auto_arr[0]);
 	 Char_Draw(&CH_SUPER_CAP, "033", UI_Graph_ADD, 9, UI_Color_Yellow, 20, 9, 4, 440, 400, &super_arr[0]);
+	 Char_Draw(&CH_COVER, "034", UI_Graph_ADD, 9, UI_Color_Yellow, 20, 5, 4, 440, 440, &cover_arr[0]);
   //绘制Pitch，Yaw轴数据
 //    Float_Draw(&G_PITCH, "014", UI_Graph_ADD, 8, UI_Color_White, 20, 3, 4, 300, 600, pitch_angle); 
-		Float_Draw(&G_SUPER_NUM, "014", UI_Graph_ADD, 8, UI_Color_White, 20, 3, 4, 300, 600, super_num); 
+//	 Float_Draw(&G_SUPER_NUM, "015", UI_Graph_ADD, 8, UI_Color_White, 20, 5, 4, 565, 305, super_num);
 
 }
 
+void Ui::start(){
+	for(int i=0;i<=9;i++){
+	UI_Delete(UI_Data_Del_ALL,i);
+	}
+	 Rectangle_Draw(&G_SHOOT, "008", UI_Graph_ADD, 8, UI_Color_White,10, 550, 265, 560, 275);
+   Rectangle_Draw(&G_TOP, "009", UI_Graph_ADD, 8, UI_Color_White, 10, 565, 305, 575, 315);
+   Rectangle_Draw(&G_AUTO_READY, "011", UI_Graph_ADD, 8, UI_Color_White, 10, 540, 345, 550, 355);
+	 Rectangle_Draw(&G_SUPER_CAP, "013", UI_Graph_ADD, 8, UI_Color_White, 10, 625, 385, 635, 395);
+	 Rectangle_Draw(&G_COVER, "010", UI_Graph_ADD, 8, UI_Color_White, 10, 550, 425, 560, 435);
+	 Float_Draw(&G_SUPER_NUM, "015", UI_Graph_ADD, 8, UI_Color_White, 40, 10, 6, 565, 305, super_num);
+	 UI_ReFresh(5, G_TOP,G_SHOOT,G_AUTO_READY,G_SUPER_CAP,G_COVER);
+//    	UI_ReFresh(1, G_SUPER_NUM);
+}
 void Ui::run()  //运行主函数
-{
+{	
+//	 Float_Draw(&G_SUPER_NUM, "015", UI_Graph_Change,8,UI_Color_White, 40, 10, 6, 565, 305, super_num);有问题
 /*-----------------------------------------辅助瞄准线--------------------------------------------*/
 	   UI_ReFresh(7, G1, G2, G3, G4, G5, G6, G7);
 /*-----------------------------------------文字提示----------------------------------------------*/
@@ -86,14 +92,13 @@ void Ui::run()  //运行主函数
 		 Char_ReFresh(CH_AUTO_READY);
 		 Char_ReFresh(CH_ROTATE);
 	   Char_ReFresh(CH_SHOOT);
+	   Char_ReFresh(CH_COVER);
      UI_ReFresh(1, &G_SUPER_NUM);
-	   
-
-	UI_ReFresh(1, G_TOP);
-	UI_ReFresh(1, G_SHOOT);
-	UI_ReFresh(1, G_AUTO_READY);
-	UI_ReFresh(1,G_SUPER_CAP);
-
+   	 UI_ReFresh(1, G_TOP);
+     UI_ReFresh(1, G_SHOOT);
+     UI_ReFresh(1, G_AUTO_READY);
+     UI_ReFresh(1,G_SUPER_CAP);
+     UI_ReFresh(1,G_COVER);
 /*-----------------------------------------数据更新--------------------------------------------*/	
 	feedback_update();
 }
@@ -103,8 +108,9 @@ void Ui::feedback_update(){
 	 fric_switch = can_receive.chassis_receive.fric_state;//摩擦轮标识符
 	 auto_ready_switch = can_receive.chassis_receive.auto_state;//自瞄开启标识符
 //	 pitch_angle = can_receive.chassis_receive.gimbal_pitch_angle;//pitch轴角度获取
-	super_num =cap.super_number ;
-	Float_Draw(&G_SUPER_NUM, "014", UI_Graph_Change, 8, UI_Color_White, 20, 3, 4, 300, 600, super_num); 
+	 super_num =cap.super_number ;
+	 Float_Draw(&G_SUPER_NUM, "015", UI_Graph_Change, 8, UI_Color_White, 20, 3, 2, 300, 600, super_num);
+   UI_ReFresh(1, G_SUPER_NUM);
 	//小陀螺功能
 	   if (top_switch)
    {
@@ -130,12 +136,12 @@ void Ui::feedback_update(){
 	 //自瞄是否准备好
 	 	 	 if(auto_ready_switch)
    {
-     Rectangle_Draw(&G_AUTO_READY, "011", UI_Graph_ADD, 8, UI_Color_White, 10, 540, 345, 550, 355);
+     Rectangle_Draw(&G_AUTO_READY, "011", UI_Graph_Change, 8, UI_Color_White, 10, 540, 345, 550, 355);
 		  UI_ReFresh(1, G_AUTO_READY);
    }
 	 else
 	 {
-		  Rectangle_Draw(&G_AUTO_READY, "011", UI_Graph_ADD, 8, UI_Color_White, 10, 540, 345, 550, 355);
+		  Rectangle_Draw(&G_AUTO_READY, "011", UI_Graph_Change, 8, UI_Color_White, 10, 540, 345, 550, 355);
 		  UI_ReFresh(1, G_AUTO_READY);
 	 }
     //超电

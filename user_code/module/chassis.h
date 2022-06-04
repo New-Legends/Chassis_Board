@@ -86,7 +86,7 @@
 #define KEY_CHASSIS_SWING           if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_SWING)
 #define KEY_CHASSIS_PISA            if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_PISA)
 #define KEY_CHASSIS_SUPER_CAP       if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_SUPER_CAP)
-
+#define KEY_UI_UPDATE               if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_UI_UPDATE)
 
 //m3508转化成底盘速度(m/s)的比例，
 #define M3508_MOTOR_RPM_TO_VECTOR 0.000415809748903494517209f
@@ -160,7 +160,7 @@
 
 #define NO_JUDGE_TOTAL_CURRENT_LIMIT 48000.0f   // 16000 * 4,
 #define BUFFER_TOTAL_CURRENT_LIMIT 50000.0f     //16000
-#define POWER_TOTAL_CURRENT_LIMIT 30000.0f      //20000
+#define POWER_TOTAL_CURRENT_LIMIT 20000.0f      //20000
 
 typedef enum
 {
