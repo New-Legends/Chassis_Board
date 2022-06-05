@@ -216,7 +216,7 @@ public:
 
     First_order_filter chassis_cmd_slow_set_vy;        //使用一阶低通滤波减缓设定值
 
-    Pid chassis_wz_angle_pid;        //底盘角度pid
+    // Pid chassis_wz_angle_pid;        //底盘角度pid
 
     speed_t x;
     speed_t y;

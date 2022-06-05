@@ -100,7 +100,7 @@ typedef struct
   uint16_t id2_17mm_speed_limi;//17mm测速射速上限
   uint16_t id2_bullet_speed;       //17mm测速实时射速
 
-  uint8_t chassis_behaviour;
+  uint16_t bullet_remaining_num_17mm;
   //YAW轴电机数据
   uint16_t ecd;
   int16_t speed_rpm;
@@ -144,7 +144,7 @@ public:
   // 发送枪口1热量及ID
   void send_cooling_and_id_board_com_1(uint16_t id1_17mm_cooling_limit, uint16_t id1_17mm_cooling_rate, uint16_t id1_17mm_cooling_heat, uint8_t color, uint8_t robot_id);
   //发送枪口1速度及底盘模式
-  void send_17mm_speed_and_mode_board_com_1(uint16_t id1_17mm_speed_limit, uint16_t id1_bullet_speed, uint8_t chassis_behaviour, uint16_t base_HP);
+  void send_17mm_speed_and_mode_board_com_1(uint16_t id1_17mm_speed_limit, uint16_t id1_bullet_speed, uint16_t base_HP, uint16_t bullet_remaining_num_17mm);
   // 发送枪口2热量及ID
   void send_cooling_and_id_board_com_2(uint16_t id2_17mm_cooling_limit, uint16_t id2_17mm_cooling_rate, uint16_t id2_17mm_cooling_heat, uint8_t color, uint8_t robot_id);
   //发送枪口2速度及底盘模式

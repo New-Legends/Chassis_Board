@@ -148,12 +148,12 @@ void Can_receive::send_cooling_and_id_board_com_2(uint16_t id2_17mm_cooling_limi
     HAL_CAN_AddTxMessage(&hcan2, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
 }
 
-void Can_receive::send_17mm_speed_and_mode_board_com_1(uint16_t id1_17mm_speed_limit, uint16_t id1_bullet_speed, uint8_t chassis_behaviour,uint16_t base_HP)
+void Can_receive::send_17mm_speed_and_mode_board_com_1(uint16_t id1_17mm_speed_limit, uint16_t id1_bullet_speed,uint16_t base_HP, uint16_t bullet_remaining_num_17mm)
 {
     //数据填充
     chassis_send.id1_17mm_speed_limi = id1_17mm_speed_limit;
     chassis_send.id1_bullet_speed = id1_bullet_speed;
-    chassis_send.chassis_behaviour = chassis_behaviour;
+    chassis_send.bullet_remaining_num_17mm = bullet_remaining_num_17mm;
 
 
     uint32_t send_mail_box;
@@ -165,10 +165,10 @@ void Can_receive::send_17mm_speed_and_mode_board_com_1(uint16_t id1_17mm_speed_l
     chassis_can_send_data[1] = id1_17mm_speed_limit;
     chassis_can_send_data[2] = id1_bullet_speed >> 8;
     chassis_can_send_data[3] = id1_bullet_speed;
-    chassis_can_send_data[4] = chassis_behaviour;
-    chassis_can_send_data[5] = base_HP >> 8;
-    chassis_can_send_data[6] = base_HP;
-    chassis_can_send_data[7] = 0;
+    chassis_can_send_data[4] = base_HP >> 8;
+    chassis_can_send_data[5] = base_HP;
+    chassis_can_send_data[6] = bullet_remaining_num_17mm >> 8;
+    chassis_can_send_data[7] = bullet_remaining_num_17mm;
 
     HAL_CAN_AddTxMessage(&BOARD_COM_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
 }
