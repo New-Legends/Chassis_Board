@@ -228,3 +228,12 @@ void Can_receive::get_super_cap_data(uint8_t data[8])
 
     HAL_CAN_AddTxMessage(&CHASSIS_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
 }
+	
+	void Can_receive::receive_ui_board_com(uint8_t data[8])
+{
+    chassis_receive.auto_state = data[0];
+    chassis_receive.aim_state = data[1];
+    chassis_receive.fric_state = data[2];
+    chassis_receive.gimbal_pitch_angle = (fp32)(int16_t)(data[3] << 8 | data[4]);;
+    chassis_receive.v = (uint16_t)(data[5] << 8 | data[6]);
+}
