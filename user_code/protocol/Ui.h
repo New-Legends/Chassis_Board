@@ -8,6 +8,7 @@
 #include "stm32f4xx.h"
 #include "stdarg.h"
 #include "usart.h"
+#include "Can_receive.h"
 
 #pragma pack(1) //按1字节对齐
 

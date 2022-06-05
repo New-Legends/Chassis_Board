@@ -1,11 +1,9 @@
 #include "Chassis.h"
 #include "Communicate.h"
 #include "cmsis_os.h"
-
 #include "detect_task.h"
-
 #include "arm_math.h"
-
+#include "Ui.h"
 #ifdef __cplusplus //告诉编译器，这部分代码按C语言的格式进行编译，而不是C++的
 extern "C"
 {
@@ -13,7 +11,8 @@ extern "C"
 }
 #endif
 
-
+//ui模块
+extern Ui ui;
 //底盘模块 对象
 Chassis chassis;
 
@@ -23,7 +22,7 @@ Super_Cap cap;
 //扭腰控制数据
 fp32 swing_angle = 0.0f;
 bool_t swing_switch = 0;
-
+uint8_t key_pressed_num_ctrl = 0;
 //小陀螺控制数据
 fp32 top_angle = 0;
 bool_t top_switch = 0;
@@ -33,7 +32,7 @@ fp32 pisa_angle = 0; //保留45度对敌前的云台相对底盘角度
 bool_t pisa_switch = 0;
 
 //超电控制数据
-bool_t super_cap_switch = 0;
+extern bool_t super_cap_switch ;
 
 
 /**
@@ -438,10 +437,13 @@ void Chassis::power_ctrl() {
         {
             super_cap_switch = FALSE;
         }
-        can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit) * 100+1500);
-			  if (chassis_power_buffer < 10.0f){
-						can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit) * 100-300);
-					}
+        if(top_switch ==true&&chassis_power_buffer > 10.0f){
+				can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit) * 100+100);
+				}else if(top_switch ==false&&chassis_power_buffer > 10.0f){
+				can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit) * 100+1500);
+				}else{
+					can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit) * 100);
+				}
 
 		//电流限幅
 		if(super_cap_switch == true ){
@@ -765,7 +767,10 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     // }
 
     static uint16_t last_swing_key_value = 0;
-
+		
+//    if(KEY_UI_UPDATE){
+//	     ui.start();
+//    }
     //单击C开启或关闭扭腰  TODO 有问题 暂时注释
     // if (if_key_singal_pessed(chassis_RC->key.v, last_swing_key_value, KEY_PRESSED_CHASSIS_SWING) && swing_switch == 0) //开启扭腰
     // {
