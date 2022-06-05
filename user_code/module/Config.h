@@ -32,6 +32,7 @@
 #define KEY_PRESSED_CHASSIS_BACK   'S'
 #define KEY_PRESSED_CHASSIS_LEFT   'A'
 #define KEY_PRESSED_CHASSIS_RIGHT  'D'
-
+//初始化UI界面
+#define KEY_PRESSED_UI_UPDATE      'B'
 
 #endif

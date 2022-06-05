@@ -1,15 +1,15 @@
 #ifndef CHASSIS_H
 #define CHASSIS_H
 
-#include "start_task.h"
+#include "system_config.h"
 
+#include "start_task.h"
 #include "struct_typedef.h"
 #include "First_order_filter.h"
 #include "Remote_control.h"
 #include "Motor.h"
 #include "Pid.h"
 #include "Super_cap.h"
-
 #include "Config.h"
 
 #define rc_deadband_limit(input, output, dealine)        \
@@ -80,6 +80,20 @@
 #define M3508_MOTOR_RPM_TO_VECTOR 0.000415809748903494517209f
 #define CHASSIS_MOTOR_RPM_TO_VECTOR_SEN M3508_MOTOR_RPM_TO_VECTOR
 
+/*----------------按键-------------------------*/
+
+//底盘前后左右控制按键WASD
+#define KEY_CHASSIS_FRONT           if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_FRONT)
+#define KEY_CHASSIS_BACK            if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_BACK)
+#define KEY_CHASSIS_LEFT            if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_LEFT)
+#define KEY_CHASSIS_RIGHT           if_key_pessed(chassis_RC, KEY_PRESSED_CHASSIS_RIGHT)
+
+#define KEY_CHASSIS_TOP             if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_TOP)
+#define KEY_CHASSIS_SWING           if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_SWING)
+#define KEY_CHASSIS_PISA            if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_PISA)
+#define KEY_CHASSIS_SUPER_CAP       if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_CHASSIS_SUPER_CAP)
+#define KEY_UI_UPDATE               if_key_singal_pessed(chassis_RC, last_chassis_RC, KEY_PRESSED_UI_UPDATE)
+
 //gm6020转化成底盘速度(m/s)的比例，
 #define GM6020_MOTOR_RPM_TO_VECTOR 0.000415809748903494517209f * 187 / 3591
 
@@ -97,8 +111,6 @@
 #define TOP_WZ_ANGLE_STAND 3.0f
 //移动状态下小陀螺转速
 #define TOP_WZ_ANGLE_MOVE 0.7f
-
-
 //摇摆原地不动摇摆最大角度(rad)
 #define SWING_NO_MOVE_ANGLE 0.7f //0.7
 //摇摆过程底盘运动最大角度(rad)
@@ -212,6 +224,8 @@ class Chassis {
 public:
     const RC_ctrl_t *chassis_RC; //底盘使用的遥控器指针
     RC_ctrl_t *last_chassis_RC; //底盘使用的遥控器指针
+
+    uint16_t chassis_last_key_v;  //遥控器上次按键
 
     chassis_behaviour_e chassis_behaviour_mode; //底盘行为状态机
     chassis_behaviour_e last_chassis_behaviour_mode; //底盘上次行为状态机
