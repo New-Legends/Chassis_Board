@@ -160,24 +160,39 @@ public:
     uint16_t *Cilent_ID; //发送者机器人对应的客户端ID
 
 
-    Graph_Data G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11;
-    String_Data CH_SHOOT;
-    String_Data CH_FLRB;
-    String_Data CH_SUPERCAP;
-    String_Data CH_MODE;
-    String_Data CH_AUTO;
-    String_Data CH_MAG;
-    Float_Data FLOAT_SUPER;
-    char shoot_arr[5];
-    char flrb_arr[4];  
-    char super_arr[6];
-    char mode_arr[6];
+    Graph_Data G1, G2, G3, G4, G5, G6, G7; //瞄准线
+    Graph_Data G_SHOOT;                    //摩擦轮状态
+    Graph_Data G_TOP;                      //小陀螺状态
+    Graph_Data G_RECOVER;                  //无敌状态
+    Graph_Data G_AUTO_READY;               //自瞄准备状态
+    Graph_Data G_AUTO_AIM;                 //自瞄识别状态
+    Graph_Data G_SUPER_CAP;                //超电开关
+    Graph_Data G_COVER;                    //弹仓开关
+    Float_Data G_PITCH;                    // Pitch轴角度
+    Float_Data G_YAW;                      // Yaw轴角度
+    Float_Data G_SUPER_NUM;                //超电百分比
+    char shoot_arr[5];//摩擦轮
+    char rotate_arr[6];  //小陀螺
+    char super_arr[9];//超电
+    char cover_arr[6];//弹仓
     char auto_arr[4];  
     char mag_arr[7] ;
+    String_Data CH_SHOOT;
+    String_Data CH_ROTATE;
+    String_Data CH_SUPER_CAP;
+    String_Data CH_MODE;
+    String_Data CH_AUTO_READY;
+    String_Data CH_MAG;
+    String_Data CH_COVER;
 
     void init(uint8_t *Temp_Judge_Self_ID, uint16_t *Temp_Judge_SelfClient_ID);
 
     void run();
+		
+/*----------------------------UI功能函数----------------------------------------*/
+		void feedback_update();
+		void draw_super_cap(); //根据超电容量得到UI数据
+		void start();//重置ui
 
     //基础图形绘制函数
     void UI_SendByte(unsigned char ch);

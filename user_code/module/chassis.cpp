@@ -16,8 +16,6 @@ extern Ui ui;
 //底盘模块 对象
 Chassis chassis;
 
-//超电模块
-Super_Cap cap;
 
 //扭腰控制数据
 fp32 swing_angle = 0.0f;
@@ -27,12 +25,13 @@ uint8_t key_pressed_num_ctrl = 0;
 fp32 top_angle = 0;
 bool_t top_switch = 0;
 
+Super_Cap cap;
 //45度角对敌数据
 fp32 pisa_angle = 0; //保留45度对敌前的云台相对底盘角度
 bool_t pisa_switch = 0;
 
 //超电控制数据
-bool_t super_cap_switch ;
+extern bool_t super_cap_switch ;
 
 
 /**
@@ -784,7 +783,11 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     // }
 
     last_swing_key_value = chassis_RC->key.v;
-
+		
+/****************************重新绘制UI*********************************************/	
+    if(if_key_pessed(chassis_RC->key.v, KEY_PRESSED_UI_UPDATE)){
+	     ui.start();
+    }
     //判断键盘输入是不是在控制底盘运动，底盘在运动减小摇摆角度
     if (if_key_pessed(chassis_RC->key.v, KEY_PRESSED_CHASSIS_FRONT) || if_key_pessed(chassis_RC->key.v, KEY_PRESSED_CHASSIS_BACK) ||
         if_key_pessed(chassis_RC->key.v, KEY_PRESSED_CHASSIS_LEFT) || if_key_pessed(chassis_RC->key.v, KEY_PRESSED_CHASSIS_RIGHT))

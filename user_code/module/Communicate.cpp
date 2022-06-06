@@ -28,7 +28,7 @@ extern "C"
 #include "Ui.h"
 
 Remote_control remote_control;
-Can_receive can_receive;
+extern Can_receive can_receive;
 Referee referee;
 Ui      ui;
 

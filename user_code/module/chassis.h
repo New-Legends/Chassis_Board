@@ -9,7 +9,6 @@
 #include "Motor.h"
 #include "Pid.h"
 #include "Super_cap.h"
-
 #include "Config.h"
 
 #define rc_deadband_limit(input, output, dealine)        \
