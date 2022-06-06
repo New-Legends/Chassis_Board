@@ -32,7 +32,7 @@ fp32 pisa_angle = 0; //保留45度对敌前的云台相对底盘角度
 bool_t pisa_switch = 0;
 
 //超电控制数据
-extern bool_t super_cap_switch ;
+bool_t super_cap_switch ;
 
 
 /**
