@@ -259,6 +259,14 @@ void Chassis::set_contorl() {
         } 
 
 
+
+
+
+
+
+
+
+
         if(super_cap_switch == TRUE && top_switch == FALSE)
         {
                 x.min_speed = 1.5 * -NORMAL_MAX_CHASSIS_SPEED_X;
@@ -446,7 +454,50 @@ void Chassis::power_ctrl() {
 		}
        }
 
+        //功率超过上限 和缓冲能量小于50j,因为缓冲能量小于50意味着功率超过上限
+//        if (chassis_power_buffer < WARNING_POWER_BUFF)
+//        {
+//            fp32 power_scale;
+//            if (chassis_power_buffer > 5.0f)
+//            {
+//                //缩小WARNING_POWER_BUFF
+//                power_scale = chassis_power_buffer / WARNING_POWER_BUFF;
+//            }
+//            else
+//            {
+//                // only left 10% of WARNING_POWER_BUFF
+//                power_scale = 5.0f / WARNING_POWER_BUFF;
+//            }
 
+
+//            //缩小
+//            total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT * power_scale;
+//        }
+//        else
+//        {
+//            //功率大于WARNING_POWER
+//            if (chassis_power > chassis_power_limit - WARNING_POWER_DISTANCE)
+//            {
+//                fp32 power_scale;
+//                //功率小于上限
+//               }   if (chassis_power < chassis_power_limit)
+//                {
+//                    //缩小
+//                    power_scale = (chassis_power_limit - chassis_power) / (chassis_power_limit - (chassis_power_limit - WARNING_POWER_DISTANCE));
+//              
+//                //功率大于上限
+//                else
+//                {
+//                    power_scale = 0.0f;
+//                }
+
+//                total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT + POWER_TOTAL_CURRENT_LIMIT * power_scale;
+//            }
+//            //功率小于WARNING_POWER
+//            else
+//            {
+//                total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT + POWER_TOTAL_CURRENT_LIMIT;
+//            }
 
 
     total_current = 0.0f;
@@ -716,6 +767,10 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     // }
 
     static uint16_t last_swing_key_value = 0;
+		
+//    if(KEY_UI_UPDATE){
+//	     ui.start();
+//    }
     //单击C开启或关闭扭腰  TODO 有问题 暂时注释
     // if (if_key_singal_pessed(chassis_RC->key.v, last_swing_key_value, KEY_PRESSED_CHASSIS_SWING) && swing_switch == 0) //开启扭腰
     // {
@@ -727,13 +782,7 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     //     miss_flag = MISS_CLOSE;
     //     swing_switch = 0;
     // }
-/****************************重新绘制UI*********************************************/	
-		
 
-    if(if_key_pessed(chassis_RC->key.v, KEY_PRESSED_UI_RESTART)){
-	     ui.start();
-    }
-		
     last_swing_key_value = chassis_RC->key.v;
 
     //判断键盘输入是不是在控制底盘运动，底盘在运动减小摇摆角度

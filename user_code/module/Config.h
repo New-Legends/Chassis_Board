@@ -33,6 +33,5 @@
 #define KEY_PRESSED_CHASSIS_LEFT   'A'
 #define KEY_PRESSED_CHASSIS_RIGHT  'D'
 
-#define KEY_PRESSED_UI_RESTART     'B'
 
 #endif

@@ -53,7 +53,6 @@ typedef enum
   CAN_GIMBAL_BOARD_COM_ID = 0x102,
   CAN_COOLING_BOARM_COM_ID = 0x303,
   CAN_17MM_SPEED_BOARD_COM_ID = 0x304,
-	CAN_UI_COM_ID = 0x305,
 
   //超级电容接收ID
   CAN_SUPER_CAP_ID = 0x211
@@ -93,11 +92,6 @@ typedef struct
   uint8_t s0;
   uint8_t gimbal_behaviour;
   fp32    gimbal_yaw_angle;
-	  // UI状态
-  fp32 gimbal_pitch_angle;
-  bool_t auto_state;
-  bool_t aim_state;
-  bool_t fric_state;
 } chassis_receive_t;
 
 
@@ -170,8 +164,6 @@ public:
   void receive_rc_board_com(uint8_t data[8]);
 
   void receive_gimbal_board_com(uint8_t data[8]);
-	
-  void receive_ui_board_com(uint8_t data[8]);
   
   // 发送枪口热量及ID
   void send_cooling_and_id_board_com(uint16_t id1_17mm_cooling_limit, uint16_t id1_17mm_cooling_rate, uint16_t id1_17mm_cooling_heat, uint8_t color, uint8_t robot_id);

@@ -28,7 +28,7 @@ extern "C"
 #include "Ui.h"
 
 Remote_control remote_control;
-extern Can_receive can_receive;
+Can_receive can_receive;
 Referee referee;
 Ui      ui;
 
@@ -47,7 +47,9 @@ void Communicate::init()
 
     referee.init();
 
+#if UI_OPEN
     ui.init(&referee.Judge_Self_ID, &referee.Judge_SelfClient_ID);
+#endif
 }
 
 void Communicate::run()
@@ -55,8 +57,9 @@ void Communicate::run()
     referee.unpack();
     referee.determine_ID();
 
-
+#if UI_OPEN
     ui.run();
+#endif
 
     //向云台发送裁判数据
     uint16_t temp_id1_17mm_cooling_limit, temp_id1_17mm_cooling_rate, temp_id1_17mm_cooling_heat;
@@ -173,9 +176,7 @@ extern "C"
                 can_receive.receive_gimbal_board_com(rx_data);
                 //detect_hook(BOARD_COM);
                 break;
-            case CAN_UI_COM_ID:
-                can_receive.receive_ui_board_com(rx_data);
-                break;
+
             default:
             {
                 break;
