@@ -150,15 +150,6 @@ void Can_receive::receive_gimbal_board_com(uint8_t data[8])
     chassis_receive.gimbal_yaw_angle = (fp32)(int32_t)(data[2] << 24 | data[3] << 16 | data[4] << 8 | data[5]) / 1000;
 }
 
-void Can_receive::receive_ui_board_com(uint8_t data[8])
-{
-    chassis_receive.auto_state = data[0];
-    chassis_receive.aim_state = data[1];
-    chassis_receive.fric_state = data[2];
-    chassis_receive.gimbal_pitch_angle = (fp32)(int16_t)(data[3] << 8 | data[4]);;
-    chassis_receive.v = (uint16_t)(data[5] << 8 | data[6]);
-}
-
 void Can_receive::send_cooling_and_id_board_com(uint16_t id1_17mm_cooling_limit, uint16_t id1_17mm_cooling_rate, uint16_t id1_17mm_cooling_heat, uint8_t color, uint8_t robot_id)
 {
     //数据填充
