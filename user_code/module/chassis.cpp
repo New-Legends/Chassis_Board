@@ -21,7 +21,7 @@ Super_Cap cap;
 
 //扭腰控制数据
 fp32 swing_angle = 0.0f;
-bool_t swing_switch = 0;
+uint8_t swing_switch = 0;
 uint8_t key_pressed_num_ctrl = 0;
 //小陀螺控制数据
 fp32 top_angle = 0;
@@ -767,10 +767,12 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     // }
 
     static uint16_t last_swing_key_value = 0;
+/****************************重新绘制UI*********************************************/		
+    if(KEY_UI_UPDATE){
+	     ui.start();
+    }
 		
-//    if(KEY_UI_UPDATE){
-//	     ui.start();
-//    }
+		
     //单击C开启或关闭扭腰  TODO 有问题 暂时注释
     // if (if_key_singal_pessed(chassis_RC->key.v, last_swing_key_value, KEY_PRESSED_CHASSIS_SWING) && swing_switch == 0) //开启扭腰
     // {
@@ -786,8 +788,8 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     last_swing_key_value = chassis_RC->key.v;
 
     //判断键盘输入是不是在控制底盘运动，底盘在运动减小摇摆角度
-    if (if_key_pessed(chassis_RC->key.v, KEY_PRESSED_CHASSIS_FRONT) || if_key_pessed(chassis_RC->key.v, KEY_PRESSED_CHASSIS_BACK) ||
-        if_key_pessed(chassis_RC->key.v, KEY_PRESSED_CHASSIS_LEFT) || if_key_pessed(chassis_RC->key.v, KEY_PRESSED_CHASSIS_RIGHT))
+     if (KEY_CHASSIS_FRONT || KEY_CHASSIS_BACK ||
+        KEY_CHASSIS_LEFT || KEY_CHASSIS_RIGHT)
     {
         max_angle = SWING_MOVE_ANGLE;
     }
@@ -815,11 +817,11 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     static uint16_t last_top_key_value = 0;
 
     //单击F开启和关闭小陀螺
-    if (if_key_singal_pessed(chassis_RC->key.v, last_top_key_value, KEY_PRESSED_CHASSIS_TOP) && top_switch == 0) //开启小陀螺
+    if (KEY_CHASSIS_TOP && top_switch == 0) //开启小陀螺
     {
         top_switch = 1;
     }
-    else if (if_key_singal_pessed(chassis_RC->key.v, last_top_key_value, KEY_PRESSED_CHASSIS_TOP) && top_switch == 1) //关闭小陀螺
+    else if (KEY_CHASSIS_TOP && top_switch == 1) //关闭小陀螺
     {
         top_switch = 0;
     }
@@ -864,11 +866,11 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     static uint16_t last_pisa_key_value = 0;
 
     //单击V开启45度角对敌
-    if (if_key_pessed(chassis_RC->key.v, KEY_PRESSED_CHASSIS_PISA) && pisa_switch == 0) //开启小陀螺
+    if (KEY_CHASSIS_PISA && pisa_switch == 0) //开启小陀螺
     {
         pisa_switch = 1;
     }
-    else if (if_key_pessed(chassis_RC->key.v, KEY_PRESSED_CHASSIS_PISA) && pisa_switch == 1) //关闭小陀螺
+    else if (KEY_CHASSIS_PISA && pisa_switch != 0) //关闭小陀螺
     {
         pisa_switch = 0;
     }
@@ -879,11 +881,11 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     static uint16_t last_super_cap_key_value = 0;
 
     //单击shift 开启超电
-    if (if_key_singal_pessed(chassis_RC->key.v, last_super_cap_key_value, KEY_PRESSED_CHASSIS_SUPER_CAP) && super_cap_switch == 0) //开启小陀螺
+    if (KEY_CHASSIS_SUPER_CAP && super_cap_switch == 0) //开启小陀螺
     {
         super_cap_switch = 1;
     }
-    else if (if_key_singal_pessed(chassis_RC->key.v, last_super_cap_key_value, KEY_PRESSED_CHASSIS_SUPER_CAP) && super_cap_switch == 1) //关闭小陀螺
+    else if (KEY_CHASSIS_SUPER_CAP && super_cap_switch != 0) //关闭小陀螺
     {
         super_cap_switch = 0;
     }
@@ -983,20 +985,20 @@ void Chassis::chassis_rc_to_control_vector(fp32 * vx_set, fp32 * vy_set) {
     vy_set_channel = vy_channel * CHASSIS_VY_RC_SEN;
 
     //键盘控制
-    if (if_key_pessed(chassis_RC->key.v, KEY_PRESSED_CHASSIS_RIGHT))
+if (KEY_CHASSIS_FRONT)
     {
         vx_set_channel = x.max_speed;
     }
-    else if (if_key_pessed(chassis_RC->key.v, KEY_PRESSED_CHASSIS_LEFT))
+    else if (KEY_CHASSIS_BACK)
     {
         vx_set_channel = x.min_speed;
     }
 
-    if (if_key_pessed(chassis_RC->key.v, KEY_PRESSED_CHASSIS_FRONT))
+    if (KEY_CHASSIS_LEFT)
     {
         vy_set_channel = y.max_speed;
     }
-    else if (if_key_pessed(chassis_RC->key.v, KEY_PRESSED_CHASSIS_BACK))
+    else if (KEY_CHASSIS_RIGHT)
     {
         vy_set_channel = y.min_speed;
     }

@@ -1,12 +1,8 @@
 #include "communicate.h"
-
 #include "main.h"
 #include "string.h"
-
-
 #include "bsp_usart.h"
 #include "bsp_led.h"
-
 #ifdef __cplusplus
 extern "C"
 {
@@ -28,7 +24,7 @@ extern "C"
 #include "Ui.h"
 
 Remote_control remote_control;
-Can_receive can_receive;
+extern Can_receive can_receive;
 Referee referee;
 Ui      ui;
 
@@ -175,6 +171,9 @@ extern "C"
             case CAN_GIMBAL_BOARD_COM_ID:
                 can_receive.receive_gimbal_board_com(rx_data);
                 //detect_hook(BOARD_COM);
+                break;
+						case CAN_UI_COM_ID:
+                can_receive.receive_ui_board_com(rx_data);
                 break;
 
             default:
