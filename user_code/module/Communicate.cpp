@@ -54,7 +54,7 @@ void Communicate::run()
     referee.unpack();
     referee.determine_ID();
 
-    ui.run();
+    // ui.run();
 
 
     //向云台发送裁判数据
@@ -67,11 +67,9 @@ void Communicate::run()
     uint16_t  temp_blue_base_HP;
     int16_t temp_ch_0,temp_ch_1,temp_ch_2;
     int8_t temp_s0,temp_s1;
-    uint16_t temp_ecd;
-    int16_t temp_speed_rpm;
-    int16_t temp_give_current;
-    uint8_t temp_temperate;
     uint16_t temp_bullet_remaining_num_17mm;
+    uint8_t temp_game_progress;
+    uint8_t temp_HP;
 
     referee.get_shooter_17mm_cooling_limit_and_heat(&temp_id1_17mm_cooling_limit, &temp_id1_17mm_cooling_heat, &temp_id2_17mm_cooling_limit,&temp_id2_17mm_cooling_heat);
     referee.get_shooter_17mm_cooling_rate(&temp_id1_17mm_cooling_rate, &temp_id2_17mm_cooling_rate);
@@ -81,27 +79,40 @@ void Communicate::run()
     temp_bullet_remaining_num_17mm = referee.bullet_remaining_t.bullet_remaining_num_17mm;
     temp_red_base_HP = referee.game_robot_HP_t.red_base_HP;
     temp_blue_base_HP = referee.game_robot_HP_t.blue_base_HP;
+    if(temp_color == RED){
+        if(temp_red_base_HP > 0){
+            temp_HP = 1;
+        }
+        else{
+            temp_HP = 0;
+        }
+    }
+    else if(temp_color == BLUE){
+        if(temp_blue_base_HP > 0){
+            temp_HP = 1;
+        }
+        else{
+            temp_HP = 0;
+        }
+    }
     temp_ch_0 = can_receive.chassis_receive.ch_0;
     temp_ch_1 = can_receive.chassis_receive.ch_1;
     temp_ch_2 = can_receive.chassis_receive.ch_2;
     temp_s0 = can_receive.chassis_receive.s0;
     temp_s1 = can_receive.chassis_receive.s1;
-    temp_ecd = can_receive.chassis_yaw_motor.ecd;
-    temp_speed_rpm = can_receive.chassis_yaw_motor.speed_rpm;
-    temp_give_current = can_receive.chassis_yaw_motor.given_current;
-    temp_temperate = can_receive.chassis_yaw_motor.temperate;
+    temp_game_progress = referee.game_state.game_progress;
 
 
     can_receive.send_cooling_and_id_board_com_1(temp_id1_17mm_cooling_limit, temp_id1_17mm_cooling_rate, temp_id1_17mm_cooling_heat,
-                                              temp_color, temp_robot_id);
+                                              temp_game_progress);
     can_receive.send_cooling_and_id_board_com_2(temp_id2_17mm_cooling_limit, temp_id2_17mm_cooling_rate, temp_id2_17mm_cooling_heat,
                                               temp_color, temp_robot_id);                              
     if(temp_color == RED){
-        can_receive.send_17mm_speed_and_mode_board_com_1(temp_id1_17mm_speed_limit, temp_id1_bullet_speed, temp_red_base_HP, temp_bullet_remaining_num_17mm);
+        can_receive.send_17mm_speed_and_mode_board_com_1(temp_id1_17mm_speed_limit, temp_id1_bullet_speed, temp_HP, temp_bullet_remaining_num_17mm, temp_game_progress);
         can_receive.send_17mm_speed_and_mode_board_com_2(temp_id2_17mm_speed_limit, temp_id2_bullet_speed, temp_red_base_HP, temp_bullet_remaining_num_17mm);
     }
     else if(temp_color == BLUE){
-        can_receive.send_17mm_speed_and_mode_board_com_1(temp_id1_17mm_speed_limit, temp_id1_bullet_speed, temp_blue_base_HP, temp_bullet_remaining_num_17mm);
+        can_receive.send_17mm_speed_and_mode_board_com_1(temp_id1_17mm_speed_limit, temp_id1_bullet_speed, temp_HP, temp_bullet_remaining_num_17mm, temp_game_progress);
         can_receive.send_17mm_speed_and_mode_board_com_2(temp_id2_17mm_speed_limit, temp_id2_bullet_speed, temp_blue_base_HP, temp_bullet_remaining_num_17mm);
     }
     can_receive.send_rc_com(temp_ch_0,temp_ch_1,temp_ch_2,temp_s0,temp_s1);

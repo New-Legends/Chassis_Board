@@ -106,6 +106,8 @@ typedef struct
   int16_t speed_rpm;
   int16_t give_current;
   uint8_t temperate;
+  uint8_t game_progress;
+  uint16_t stage_remain_time;
 
 } chassis_send_t;
 
@@ -142,13 +144,13 @@ public:
   void receive_rc_board_com(uint8_t data[8]);
 
   // 发送枪口1热量及ID
-  void send_cooling_and_id_board_com_1(uint16_t id1_17mm_cooling_limit, uint16_t id1_17mm_cooling_rate, uint16_t id1_17mm_cooling_heat, uint8_t color, uint8_t robot_id);
+  void send_cooling_and_id_board_com_1(uint16_t id1_17mm_cooling_limit, uint16_t id1_17mm_cooling_rate, uint16_t id1_17mm_cooling_heat, uint16_t stage_remain_time);
   //发送枪口1速度及底盘模式
-  void send_17mm_speed_and_mode_board_com_1(uint16_t id1_17mm_speed_limit, uint16_t id1_bullet_speed, uint16_t base_HP, uint16_t bullet_remaining_num_17mm);
+  void send_17mm_speed_and_mode_board_com_1(uint16_t id1_17mm_speed_limit, uint16_t id1_bullet_speed, uint8_t HP, uint16_t bullet_remaining_num_17mm, uint8_t game_progress);
   // 发送枪口2热量及ID
   void send_cooling_and_id_board_com_2(uint16_t id2_17mm_cooling_limit, uint16_t id2_17mm_cooling_rate, uint16_t id2_17mm_cooling_heat, uint8_t color, uint8_t robot_id);
   //发送枪口2速度及底盘模式
-  void send_17mm_speed_and_mode_board_com_2(uint16_t id2_17mm_speed_limit, uint16_t id2_bullet_speed, uint8_t chassis_behaviour, uint16_t base_HP);
+  void send_17mm_speed_and_mode_board_com_2(uint16_t id2_17mm_speed_limit, uint16_t id2_bullet_speed, uint16_t base_HP, uint16_t bullet_remaining_num_17mm);
   //发送下云台遥控器数据
   void send_rc_com(int16_t ch_0, int16_t ch_1 , int8_t ch_2, int8_t s0, int8_t s1);
 
