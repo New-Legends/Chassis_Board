@@ -162,7 +162,7 @@ void Chassis::set_contorl() {
     fp32  vy_set = 0.0f;
 
     //获取控制设置值
-    chassis_behaviour_control_set(&vy_set);
+    chassis_behaviour_control_set( &vy_set);
 
     if (chassis_mode == CHASSIS_VECTOR_NO_FOLLOW_YAW)
     {
@@ -526,8 +526,7 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
 
         *vy_set = chassis_cmd_slow_set_vy.out;
     }
-    else if(chassis_control_way==AUTO)
-    {
+    else if(chassis_control_way==AUTO){
         int change_time = 0;    //变向时间
         int change_flag = 0;    //变向开关
         CHASSIS_MAX_SPEED = CHASSIS_MID_SPEED;
@@ -543,9 +542,10 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
             }  
         }
         chassis_motor_count_init(vy_set);
-        if(biaozhi == 1)
-        {
-        // referee.output_state();
+        if(biaozhi == 1){
+            can_receive.chassis_motive_motor.round = 0;
+
+        referee.output_state();
         // if(referee.field_event_outpost == 1){//前哨站存活,停在右边
         //     if(left_light_sensor == TRUE && right_light_sensor == TRUE)
         //     {
@@ -564,8 +564,8 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
         //         direction = direction ;
         //     }
         // }
-        // if(referee.field_event_outpost == 0)
-        //{//前哨站被击毁，开始巡逻
+        if(referee.field_event_outpost == 0)
+        {//前哨站被击毁，开始巡逻
             //底盘基础巡逻轨迹
             /*
             左边识别 右边识别    静止不动
@@ -579,17 +579,17 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
             //     *vy_set = 0;
             // }
             int16_t jiquan = abs(can_receive.chassis_motive_motor.round);
-            if(jiquan < guidao /5)
+            if(jiquan < guidao/10)
             {
                 direction = LEFT;
                 *vy_set = CHASSIS_MAX_SPEED;
             }
-            else if(jiquan > guidao *4/5)
+            else if(jiquan > guidao*9/10)
             {
                 direction = RIGHT;
                 *vy_set = CHASSIS_MAX_SPEED;
             }
-            else if(jiquan >= guidao /5 && jiquan <= guidao *4/5)
+            else if(jiquan >= guidao/10 && jiquan <= guidao*9/10)
             {
                   
                 //不规则运动
@@ -655,8 +655,7 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
                     }
                 }
 
-                if(!referee.if_hit())
-                {
+                if(!referee.if_hit()){
                     if(speed_flag){
                         up_time++;
                     }
@@ -667,17 +666,17 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
                 direction = direction;
                 
             }
+            //根据方向设置输出
+            if(direction == LEFT)
+                *vy_set = *vy_set;
+            else if(direction == RIGHT)
+                *vy_set = -*vy_set;
+            else if(direction == NO_MOVE)
+                *vy_set = 0;
+        }       
+
+
         }
-        //根据方向设置输出
-        if(direction == LEFT)
-            *vy_set = *vy_set;
-        else if(direction == RIGHT)
-            *vy_set = -*vy_set;
-        else if(direction == NO_MOVE)
-            *vy_set = 0;       
-
-
-        // }
         
     }    
     
@@ -708,33 +707,30 @@ fp32 Chassis::motor_ecd_to_angle_change(uint16_t ecd, uint16_t offset_ecd)
 
 void Chassis::chassis_motor_count_init(fp32 *vy_set)
 {
-    if(biaozhi == 0){
-        // #if guangdian
-        *vy_set = CHASSIS_LOW_SPEED;
+
+   #if guangdian
         if (init_flag == chushihua)
-        {           
-            direction = LEFT;
+        {
+            *vy_set = CHASSIS_LOW_SPEED;
             if(left_light_sensor == TRUE && right_light_sensor == FALSE)
             {
-                direction = NO_MOVE; 
+                //*vy_set = 0; 
                 can_receive.chassis_motive_motor.round = 0;
-                init_flag = jigui;
             }
-            
+            init_flag = jigui;
         }
         else if(init_flag == jigui)
         {
-            direction = RIGHT;
+            *vy_set = -CHASSIS_LOW_SPEED;
             if(left_light_sensor == FALSE && right_light_sensor == TRUE)
             {
-                direction = NO_MOVE;  
+                *vy_set = 0; 
                 guidao = abs(can_receive.chassis_motive_motor.round);
                 biaozhi = 1;
                 init_flag = wancheng;
-                can_receive.chassis_motive_motor.round = 0;
             }
         }
-    // #else
+    #else
     //没有光电用碰撞初始化
     // if (init_flag == chushihua)
     // {
@@ -757,10 +753,6 @@ void Chassis::chassis_motor_count_init(fp32 *vy_set)
     //          init_flag = wancheng;
     //     }
     // }
-    // #endif
-
-    }
-
-   
+    #endif
 
 }
