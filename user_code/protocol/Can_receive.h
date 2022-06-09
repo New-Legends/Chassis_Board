@@ -9,7 +9,7 @@ extern CAN_HandleTypeDef hcan1;
 extern CAN_HandleTypeDef hcan2;
 
 #define CHASSIS_CAN hcan2
-#define BOARD_COM_CAN hcan1
+#define BOARD_COM_CAN hcan2
 
 //底盘动力电机编号
 enum motive_chassis_motor_id_e
@@ -27,12 +27,12 @@ typedef enum
   CAN_CHASSIS_MOTIVE_ALL_ID = 0x200,
 
   //板间通信ID
-  CAN_RC_BOARM_COM_ID = 0x101,
-  CAN_RC_COM_ID = 0X102,
-  CAN_COOLING_BOARM_COM_1_ID = 0x303,
-  CAN_17MM_SPEED_BOARD_COM_1_ID = 0x304,
-  CAN_COOLING_BOARM_COM_2_ID = 0x305,
-  CAN_17MM_SPEED_BOARD_COM_2_ID = 0x306,
+  // CAN_RC_BOARM_COM_ID = 0x101,
+  CAN_RC_COM_ID = 0X101,
+  // CAN_COOLING_BOARM_COM_1_ID = 0x303,
+  // CAN_17MM_SPEED_BOARD_COM_1_ID = 0x304,
+  CAN_COOLING_BOARM_COM_2_ID = 0x302,
+  CAN_17MM_SPEED_BOARD_COM_2_ID = 0x303,
 
 } can_msg_id_e;
 
@@ -44,6 +44,7 @@ typedef struct
     int16_t given_current;
     uint8_t temperate;
     int16_t last_ecd;
+    int16_t round;
 } motor_measure_t;
 
 //TODO 超电还未对接
@@ -108,6 +109,7 @@ typedef struct
   uint8_t temperate;
   uint8_t game_progress;
   uint16_t stage_remain_time;
+  uint8_t biaozhi;
 
 } chassis_send_t;
 
@@ -116,8 +118,6 @@ class Can_receive {
 public: 
   //动力电机反馈数据结构体
   motor_measure_t chassis_motive_motor;
-
-  motor_measure_t chassis_yaw_motor;
 
   //发送数据结构体
   CAN_TxHeaderTypeDef chassis_tx_message;
@@ -150,13 +150,13 @@ public:
   // 发送枪口2热量及ID
   void send_cooling_and_id_board_com_2(uint16_t id2_17mm_cooling_limit, uint16_t id2_17mm_cooling_rate, uint16_t id2_17mm_cooling_heat, uint8_t color, uint8_t robot_id);
   //发送枪口2速度及底盘模式
-  void send_17mm_speed_and_mode_board_com_2(uint16_t id2_17mm_speed_limit, uint16_t id2_bullet_speed, uint16_t base_HP, uint16_t bullet_remaining_num_17mm);
+  void send_17mm_speed_and_mode_board_com_2(uint16_t id2_17mm_speed_limit, uint16_t id2_bullet_speed, uint8_t HP, uint16_t bullet_remaining_num_17mm, uint8_t biaozhi);
   //发送下云台遥控器数据
-  void send_rc_com(int16_t ch_0, int16_t ch_1 , int8_t ch_2, int8_t s0, int8_t s1);
+  // void send_rc_com(int16_t ch_0, int16_t ch_1 , int8_t ch_2, int8_t s0, int8_t s1);
 
 
 };
 
-
+extern Can_receive can_receive;
 
 #endif

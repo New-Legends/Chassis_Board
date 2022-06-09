@@ -11,6 +11,8 @@
 extern CAN_HandleTypeDef hcan1;
 extern CAN_HandleTypeDef hcan2;
 
+Can_receive can_receive;
+
 void Can_receive::init()
 {
     can_filter_init();
@@ -94,31 +96,31 @@ void Can_receive::receive_rc_board_com(uint8_t data[8])
 }
 
 
-void Can_receive::send_cooling_and_id_board_com_1(uint16_t id1_17mm_cooling_limit, uint16_t id1_17mm_cooling_rate, uint16_t id1_17mm_cooling_heat, uint16_t stage_remain_time)
-{
-    //数据填充
-    chassis_send.id1_17mm_cooling_limit = id1_17mm_cooling_limit;
-    chassis_send.id1_17mm_cooling_rate = id1_17mm_cooling_rate;
-    chassis_send.id1_17mm_cooling_heat = id1_17mm_cooling_heat;
-    chassis_send.stage_remain_time = stage_remain_time;
+// void Can_receive::send_cooling_and_id_board_com_1(uint16_t id1_17mm_cooling_limit, uint16_t id1_17mm_cooling_rate, uint16_t id1_17mm_cooling_heat, uint16_t stage_remain_time)
+// {
+//     //数据填充
+//     chassis_send.id1_17mm_cooling_limit = id1_17mm_cooling_limit;
+//     chassis_send.id1_17mm_cooling_rate = id1_17mm_cooling_rate;
+//     chassis_send.id1_17mm_cooling_heat = id1_17mm_cooling_heat;
+//     chassis_send.stage_remain_time = stage_remain_time;
 
 
-    uint32_t send_mail_box;
-    chassis_tx_message.StdId = CAN_COOLING_BOARM_COM_1_ID;
-    chassis_tx_message.IDE = CAN_ID_STD;
-    chassis_tx_message.RTR = CAN_RTR_DATA;
-    chassis_tx_message.DLC = 0x08;
-    chassis_can_send_data[0] = id1_17mm_cooling_limit >> 8;
-    chassis_can_send_data[1] = id1_17mm_cooling_limit;
-    chassis_can_send_data[2] = id1_17mm_cooling_rate >> 8;
-    chassis_can_send_data[3] = id1_17mm_cooling_rate;
-    chassis_can_send_data[4] = id1_17mm_cooling_heat >> 8;
-    chassis_can_send_data[5] = id1_17mm_cooling_heat;
-    chassis_can_send_data[6] = stage_remain_time >> 8;
-    chassis_can_send_data[7] = stage_remain_time;
+//     uint32_t send_mail_box;
+//     chassis_tx_message.StdId = CAN_COOLING_BOARM_COM_1_ID;
+//     chassis_tx_message.IDE = CAN_ID_STD;
+//     chassis_tx_message.RTR = CAN_RTR_DATA;
+//     chassis_tx_message.DLC = 0x08;
+//     chassis_can_send_data[0] = id1_17mm_cooling_limit >> 8;
+//     chassis_can_send_data[1] = id1_17mm_cooling_limit;
+//     chassis_can_send_data[2] = id1_17mm_cooling_rate >> 8;
+//     chassis_can_send_data[3] = id1_17mm_cooling_rate;
+//     chassis_can_send_data[4] = id1_17mm_cooling_heat >> 8;
+//     chassis_can_send_data[5] = id1_17mm_cooling_heat;
+//     chassis_can_send_data[6] = stage_remain_time >> 8;
+//     chassis_can_send_data[7] = stage_remain_time;
 
-    HAL_CAN_AddTxMessage(&BOARD_COM_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
-}
+//     HAL_CAN_AddTxMessage(&BOARD_COM_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
+// }
 
 void Can_receive::send_cooling_and_id_board_com_2(uint16_t id2_17mm_cooling_limit, uint16_t id2_17mm_cooling_rate, uint16_t id2_17mm_cooling_heat, uint8_t color, uint8_t robot_id)
 {
@@ -147,37 +149,38 @@ void Can_receive::send_cooling_and_id_board_com_2(uint16_t id2_17mm_cooling_limi
     HAL_CAN_AddTxMessage(&hcan2, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
 }
 
-void Can_receive::send_17mm_speed_and_mode_board_com_1(uint16_t id1_17mm_speed_limit, uint16_t id1_bullet_speed, uint8_t HP, uint16_t bullet_remaining_num_17mm, uint8_t game_progress)
-{
-    //数据填充
-    chassis_send.id1_17mm_speed_limi = id1_17mm_speed_limit;
-    chassis_send.id1_bullet_speed = id1_bullet_speed;
-    chassis_send.bullet_remaining_num_17mm = bullet_remaining_num_17mm;
-    chassis_send.game_progress = game_progress;
+// void Can_receive::send_17mm_speed_and_mode_board_com_1(uint16_t id1_17mm_speed_limit, uint16_t id1_bullet_speed, uint8_t HP, uint16_t bullet_remaining_num_17mm, uint8_t game_progress)
+// {
+//     //数据填充
+//     chassis_send.id1_17mm_speed_limi = id1_17mm_speed_limit;
+//     chassis_send.id1_bullet_speed = id1_bullet_speed;
+//     chassis_send.bullet_remaining_num_17mm = bullet_remaining_num_17mm;
+//     chassis_send.game_progress = game_progress;
 
 
-    uint32_t send_mail_box;
-    chassis_tx_message.StdId = CAN_17MM_SPEED_BOARD_COM_1_ID;
-    chassis_tx_message.IDE = CAN_ID_STD;
-    chassis_tx_message.RTR = CAN_RTR_DATA;
-    chassis_tx_message.DLC = 0x08;
-    chassis_can_send_data[0] = id1_17mm_speed_limit >> 8;
-    chassis_can_send_data[1] = id1_17mm_speed_limit;
-    chassis_can_send_data[2] = id1_bullet_speed >> 8;
-    chassis_can_send_data[3] = id1_bullet_speed;
-    chassis_can_send_data[4] = HP;
-    chassis_can_send_data[5] = bullet_remaining_num_17mm >> 8;
-    chassis_can_send_data[6] = bullet_remaining_num_17mm;
-    chassis_can_send_data[7] = game_progress;
+//     uint32_t send_mail_box;
+//     chassis_tx_message.StdId = CAN_17MM_SPEED_BOARD_COM_1_ID;
+//     chassis_tx_message.IDE = CAN_ID_STD;
+//     chassis_tx_message.RTR = CAN_RTR_DATA;
+//     chassis_tx_message.DLC = 0x08;
+//     chassis_can_send_data[0] = id1_17mm_speed_limit >> 8;
+//     chassis_can_send_data[1] = id1_17mm_speed_limit;
+//     chassis_can_send_data[2] = id1_bullet_speed >> 8;
+//     chassis_can_send_data[3] = id1_bullet_speed;
+//     chassis_can_send_data[4] = HP;
+//     chassis_can_send_data[5] = bullet_remaining_num_17mm >> 8;
+//     chassis_can_send_data[6] = bullet_remaining_num_17mm;
+//     chassis_can_send_data[7] = game_progress;
 
-    HAL_CAN_AddTxMessage(&BOARD_COM_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
-}
+//     HAL_CAN_AddTxMessage(&BOARD_COM_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
+// }
 
-void Can_receive::send_17mm_speed_and_mode_board_com_2(uint16_t id2_17mm_speed_limit, uint16_t id2_bullet_speed, uint16_t base_HP, uint16_t bullet_remaining_num_17mm)
+void Can_receive::send_17mm_speed_and_mode_board_com_2(uint16_t id2_17mm_speed_limit, uint16_t id2_bullet_speed, uint8_t HP, uint16_t bullet_remaining_num_17mm, uint8_t biaozhi)
 {
     //数据填充
     chassis_send.id2_17mm_speed_limi = id2_17mm_speed_limit;
     chassis_send.id2_bullet_speed = id2_bullet_speed;
+    chassis_send.biaozhi = biaozhi;
 
     uint32_t send_mail_box;
     chassis_tx_message.StdId = CAN_17MM_SPEED_BOARD_COM_2_ID;
@@ -188,36 +191,36 @@ void Can_receive::send_17mm_speed_and_mode_board_com_2(uint16_t id2_17mm_speed_l
     chassis_can_send_data[1] = id2_17mm_speed_limit;
     chassis_can_send_data[2] = id2_bullet_speed >> 8;
     chassis_can_send_data[3] = id2_bullet_speed;
-    chassis_can_send_data[4] = base_HP >> 8;
-    chassis_can_send_data[5] = base_HP;
-    chassis_can_send_data[6] = bullet_remaining_num_17mm >> 8 ;
-    chassis_can_send_data[7] = bullet_remaining_num_17mm;
+    chassis_can_send_data[4] = HP;
+    chassis_can_send_data[5] = bullet_remaining_num_17mm >> 8;
+    chassis_can_send_data[6] = bullet_remaining_num_17mm;
+    chassis_can_send_data[7] = biaozhi;
 
     HAL_CAN_AddTxMessage(&hcan2, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
 }
 
-void Can_receive::send_rc_com(int16_t ch_0, int16_t ch_1, int8_t ch_2, int8_t s0, int8_t s1){
-    //数据填充
-    chassis_send.ch_0 = ch_0;
-    chassis_send.ch_1 = ch_1;
-    chassis_send.ch_2 = ch_2;
-    chassis_send.s0 = s0;
-    chassis_send.s1 = s1;
+// void Can_receive::send_rc_com(int16_t ch_0, int16_t ch_1, int8_t ch_2, int8_t s0, int8_t s1){
+//     //数据填充
+//     chassis_send.ch_0 = ch_0;
+//     chassis_send.ch_1 = ch_1;
+//     chassis_send.ch_2 = ch_2;
+//     chassis_send.s0 = s0;
+//     chassis_send.s1 = s1;
 
-    uint32_t send_mail_box;
-    chassis_tx_message.StdId = CAN_RC_COM_ID;
-    chassis_tx_message.IDE = CAN_ID_STD;
-    chassis_tx_message.RTR = CAN_RTR_DATA;
-    chassis_tx_message.DLC = 0x08;
-    chassis_can_send_data[0] = ch_0 >> 8;
-    chassis_can_send_data[1] = ch_0;
-    chassis_can_send_data[2] = ch_1 >> 8;
-    chassis_can_send_data[3] = ch_1;
-    chassis_can_send_data[4] = ch_2 >> 8;
-    chassis_can_send_data[5] = ch_2;
-    chassis_can_send_data[6] = s0;
-    chassis_can_send_data[7] = s1;
+//     uint32_t send_mail_box;
+//     chassis_tx_message.StdId = CAN_RC_COM_ID;
+//     chassis_tx_message.IDE = CAN_ID_STD;
+//     chassis_tx_message.RTR = CAN_RTR_DATA;
+//     chassis_tx_message.DLC = 0x08;
+//     chassis_can_send_data[0] = ch_0 >> 8;
+//     chassis_can_send_data[1] = ch_0;
+//     chassis_can_send_data[2] = ch_1 >> 8;
+//     chassis_can_send_data[3] = ch_1;
+//     chassis_can_send_data[4] = ch_2 >> 8;
+//     chassis_can_send_data[5] = ch_2;
+//     chassis_can_send_data[6] = s0;
+//     chassis_can_send_data[7] = s1;
 
-    HAL_CAN_AddTxMessage(&hcan2, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
-}
+//     HAL_CAN_AddTxMessage(&hcan2, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
+// }
 

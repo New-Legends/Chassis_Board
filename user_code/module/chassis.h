@@ -32,6 +32,9 @@
 #define RIGHT 1
 #define NO_MOVE 2
 
+//有无光电
+#define guangdian 1
+
 //底盘动力电机无电流输出
 #define CHASSIS_MOTIVE_MOTOR_NO_CURRENT 0
 //底盘舵向电机无电流输出
@@ -107,9 +110,9 @@
 //底盘运动过程最大平移速度
 #define NORMAL_MAX_CHASSIS_SPEED_Y 2.0f //1.5
 //底盘巡逻速度等级
-#define CHASSIS_LOW_SPEED 0.6*NORMAL_MAX_CHASSIS_SPEED_Y
-#define CHASSIS_MID_SPEED 1.1*NORMAL_MAX_CHASSIS_SPEED_Y
-#define CHASSIS_HIGH_SPEED 1.5*NORMAL_MAX_CHASSIS_SPEED_Y
+#define CHASSIS_LOW_SPEED 0.5*NORMAL_MAX_CHASSIS_SPEED_Y
+#define CHASSIS_MID_SPEED 0.8*NORMAL_MAX_CHASSIS_SPEED_Y
+#define CHASSIS_HIGH_SPEED 1.2*NORMAL_MAX_CHASSIS_SPEED_Y
 
 
 #define right_light_sensor_Pin GPIO_PIN_9
@@ -188,6 +191,13 @@ typedef enum
 
 } chassis_mode_e;
 
+typedef enum
+{
+    chushihua,  //初始化跑到最左边
+    jigui, //记录轨道长度
+    wancheng,
+} Chushijigui;
+
 
 struct speed_t
 {
@@ -207,6 +217,7 @@ public:
 
     chassis_behaviour_e chassis_behaviour_mode; //底盘行为状态机
     chassis_behaviour_e last_chassis_behaviour_mode; //底盘上次行为状态机
+    Chushijigui chushijigui;//记录轨道长度
 
     chassis_mode_e chassis_mode; //底盘控制状态机
     chassis_mode_e last_chassis_mode; //底盘上次控制状态机
@@ -240,6 +251,9 @@ public:
     fp32 CHASSIS_MAX_SPEED;
     int speed_flag;
     int up_time ;        //加速时间
+    int16_t guidao;      //轨道长度
+    int16_t biaozhi;
+    int8_t init_flag;
 
 
 
@@ -279,11 +293,12 @@ public:
 
     fp32 motor_ecd_to_angle_change(uint16_t ecd, uint16_t offset_ecd);
 
+    void chassis_motor_count_init(fp32 *vy_set);
+
 };
 
 
 extern Chassis chassis;
-
 
 
 #endif

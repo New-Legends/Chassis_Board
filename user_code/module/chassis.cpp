@@ -147,11 +147,6 @@ void Chassis::feedback_update()
     //TODO 还未完善
     //底盘相对于云台的角度,由云台发送过来
     chassis_relative_angle = can_receive.chassis_receive.gimbal_yaw_angle;
-
-    // //计算底盘姿态角度, 如果底盘上有陀螺仪请更改这部分代码
-    // chassis_yaw = rad_format(*(chassis_INS_angle + INS_YAW_ADDRESS_OFFSET) - chassis_yaw_motor->relative_angle);
-    // chassis_pitch = rad_format(*(chassis_INS_angle + INS_PITCH_ADDRESS_OFFSET) - chassis_pitch_motor->relative_angle);
-    // chassis_roll = *(chassis_INS_angle + INS_ROLL_ADDRESS_OFFSET);
     
     //更新光电数据
     left_light_sensor = !(HAL_GPIO_ReadPin(left_light_sensor_GPIO_Port, left_light_sensor_Pin));
@@ -546,27 +541,31 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
                 change_flag = 1;
             }  
         }
+        chassis_motor_count_init(vy_set);
+        if(biaozhi == 1){
+            can_receive.chassis_motive_motor.round = 0;
 
         referee.output_state();
-        if(referee.field_event_outpost == 1){//前哨站存活,停在右边
-            if(left_light_sensor == TRUE && right_light_sensor == TRUE)
-            {
-                direction = NO_MOVE;
-            }
-            else if(left_light_sensor == FALSE && right_light_sensor == TRUE)
-            {
-                direction = NO_MOVE;
-            }
-            else if(left_light_sensor == TRUE && right_light_sensor == FALSE)
-            {
-                direction = RIGHT;
-            }
-            else if(left_light_sensor == FALSE && right_light_sensor == FALSE)
-            {
-                direction = direction ;
-            }
-        }
-        if(referee.field_event_outpost == 0){//前哨站被击毁，开始巡逻
+        // if(referee.field_event_outpost == 1){//前哨站存活,停在右边
+        //     if(left_light_sensor == TRUE && right_light_sensor == TRUE)
+        //     {
+        //         direction = NO_MOVE;
+        //     }
+        //     else if(left_light_sensor == FALSE && right_light_sensor == TRUE)
+        //     {
+        //         direction = NO_MOVE;
+        //     }
+        //     else if(left_light_sensor == TRUE && right_light_sensor == FALSE)
+        //     {
+        //         direction = RIGHT;
+        //     }
+        //     else if(left_light_sensor == FALSE && right_light_sensor == FALSE)
+        //     {
+        //         direction = direction ;
+        //     }
+        // }
+        if(referee.field_event_outpost == 0)
+        {//前哨站被击毁，开始巡逻
             //底盘基础巡逻轨迹
             /*
             左边识别 右边识别    静止不动
@@ -574,22 +573,23 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
             左边识别 右边未识别  方向向右
             左边未识别 右边未识别 保持原状态
             */
-            if(left_light_sensor == TRUE && right_light_sensor == TRUE)
-            {
-                direction = NO_MOVE;
-                *vy_set = 0;
-            }
-            else if(left_light_sensor == FALSE && right_light_sensor == TRUE)
+            // if(left_light_sensor == TRUE && right_light_sensor == TRUE)
+            // {
+            //     direction = NO_MOVE;
+            //     *vy_set = 0;
+            // }
+            int16_t jiquan = abs(can_receive.chassis_motive_motor.round);
+            if(jiquan < guidao/10)
             {
                 direction = LEFT;
                 *vy_set = CHASSIS_MAX_SPEED;
             }
-            else if(left_light_sensor == TRUE && right_light_sensor == FALSE)
+            else if(jiquan > guidao*9/10)
             {
                 direction = RIGHT;
                 *vy_set = CHASSIS_MAX_SPEED;
             }
-            else if(left_light_sensor == FALSE && right_light_sensor == FALSE)
+            else if(jiquan >= guidao/10 && jiquan <= guidao*9/10)
             {
                   
                 //不规则运动
@@ -666,18 +666,18 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set) {
                 direction = direction;
                 
             }
-        }        
+            //根据方向设置输出
+            if(direction == LEFT)
+                *vy_set = *vy_set;
+            else if(direction == RIGHT)
+                *vy_set = -*vy_set;
+            else if(direction == NO_MOVE)
+                *vy_set = 0;
+        }       
 
+
+        }
         
-
-        //根据方向设置输出
-        if(direction == LEFT)
-            *vy_set = *vy_set;
-        else if(direction == RIGHT)
-            *vy_set = -*vy_set;
-        else if(direction == NO_MOVE)
-            *vy_set = 0;
-
     }    
     
     
@@ -703,4 +703,56 @@ fp32 Chassis::motor_ecd_to_angle_change(uint16_t ecd, uint16_t offset_ecd)
     }
 
     return relative_ecd * MOTOR_ECD_TO_RAD;
+}
+
+void Chassis::chassis_motor_count_init(fp32 *vy_set)
+{
+
+   #if guangdian
+        if (init_flag == chushihua)
+        {
+            *vy_set = CHASSIS_LOW_SPEED;
+            if(left_light_sensor == TRUE && right_light_sensor == FALSE)
+            {
+                //*vy_set = 0; 
+                can_receive.chassis_motive_motor.round = 0;
+            }
+            init_flag = jigui;
+        }
+        else if(init_flag == jigui)
+        {
+            *vy_set = -CHASSIS_LOW_SPEED;
+            if(left_light_sensor == FALSE && right_light_sensor == TRUE)
+            {
+                *vy_set = 0; 
+                guidao = abs(can_receive.chassis_motive_motor.round);
+                biaozhi = 1;
+                init_flag = wancheng;
+            }
+        }
+    #else
+    //没有光电用碰撞初始化
+    // if (init_flag == chushihua)
+    // {
+    //     *vy_set = CHASSIS_LOW_SPEED/2;
+    //     if(can_receive.chassis_motive_motor.ecd == can_receive.chassis_motive_motor.last_ecd)
+    //     {
+    //         *vy_set = 0; 
+    //         can_receive.chassis_motive_motor.round = 0;
+    //     }
+    //     init_flag = jigui;
+    // }
+    // if(init_flag == jigui)
+    // {
+    //     *vy_set = -CHASSIS_LOW_SPEED;
+    //     if(can_receive.chassis_motive_motor.ecd == can_receive.chassis_motive_motor.last_ecd)
+    //     {
+    //         *vy_set = 0; 
+    //         guidao = abs(can_receive.chassis_motive_motor.round);
+    //         biaozhi = 1;
+    //          init_flag = wancheng;
+    //     }
+    // }
+    #endif
+
 }

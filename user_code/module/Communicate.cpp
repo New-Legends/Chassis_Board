@@ -28,7 +28,6 @@ extern "C"
 #include "Ui.h"
 
 Remote_control remote_control;
-Can_receive can_receive;
 Ui      ui;
 Communicate communicate;
 
@@ -69,7 +68,7 @@ void Communicate::run()
     int8_t temp_s0,temp_s1;
     uint16_t temp_bullet_remaining_num_17mm;
     uint8_t temp_game_progress;
-    uint8_t temp_HP;
+    uint8_t temp_HP, temp_biaozhi;
 
     referee.get_shooter_17mm_cooling_limit_and_heat(&temp_id1_17mm_cooling_limit, &temp_id1_17mm_cooling_heat, &temp_id2_17mm_cooling_limit,&temp_id2_17mm_cooling_heat);
     referee.get_shooter_17mm_cooling_rate(&temp_id1_17mm_cooling_rate, &temp_id2_17mm_cooling_rate);
@@ -101,21 +100,22 @@ void Communicate::run()
     temp_s0 = can_receive.chassis_receive.s0;
     temp_s1 = can_receive.chassis_receive.s1;
     temp_game_progress = referee.game_state.game_progress;
+    temp_biaozhi = chassis.biaozhi;
 
 
-    can_receive.send_cooling_and_id_board_com_1(temp_id1_17mm_cooling_limit, temp_id1_17mm_cooling_rate, temp_id1_17mm_cooling_heat,
-                                              temp_game_progress);
+    // can_receive.send_cooling_and_id_board_com_1(temp_id1_17mm_cooling_limit, temp_id1_17mm_cooling_rate, temp_id1_17mm_cooling_heat,
+    //                                           temp_game_progress);
     can_receive.send_cooling_and_id_board_com_2(temp_id2_17mm_cooling_limit, temp_id2_17mm_cooling_rate, temp_id2_17mm_cooling_heat,
                                               temp_color, temp_robot_id);                              
-    if(temp_color == RED){
-        can_receive.send_17mm_speed_and_mode_board_com_1(temp_id1_17mm_speed_limit, temp_id1_bullet_speed, temp_HP, temp_bullet_remaining_num_17mm, temp_game_progress);
-        can_receive.send_17mm_speed_and_mode_board_com_2(temp_id2_17mm_speed_limit, temp_id2_bullet_speed, temp_red_base_HP, temp_bullet_remaining_num_17mm);
-    }
-    else if(temp_color == BLUE){
-        can_receive.send_17mm_speed_and_mode_board_com_1(temp_id1_17mm_speed_limit, temp_id1_bullet_speed, temp_HP, temp_bullet_remaining_num_17mm, temp_game_progress);
-        can_receive.send_17mm_speed_and_mode_board_com_2(temp_id2_17mm_speed_limit, temp_id2_bullet_speed, temp_blue_base_HP, temp_bullet_remaining_num_17mm);
-    }
-    can_receive.send_rc_com(temp_ch_0,temp_ch_1,temp_ch_2,temp_s0,temp_s1);
+    // if(temp_color == RED){
+        // can_receive.send_17mm_speed_and_mode_board_com_1(temp_id1_17mm_speed_limit, temp_id1_bullet_speed, temp_HP, temp_bullet_remaining_num_17mm, temp_game_progress);
+    can_receive.send_17mm_speed_and_mode_board_com_2(temp_id2_17mm_speed_limit, temp_id2_bullet_speed, temp_HP, temp_bullet_remaining_num_17mm, temp_biaozhi);
+    // }
+    // else if(temp_color == BLUE){
+        // can_receive.send_17mm_speed_and_mode_board_com_1(temp_id1_17mm_speed_limit, temp_id1_bullet_speed, temp_HP, temp_bullet_remaining_num_17mm, temp_game_progress);
+        // can_receive.send_17mm_speed_and_mode_board_com_2(temp_id2_17mm_speed_limit, temp_id2_bullet_speed, temp_HP, temp_bullet_remaining_num_17mm, temp_biaozhi);
+    // }
+    // can_receive.send_rc_com(temp_ch_0,temp_ch_1,temp_ch_2,temp_s0,temp_s1);
 
 
 //TODO 这里最好使用指针赋值,减少计算量,后续需修改
@@ -148,20 +148,17 @@ extern "C"
                 case CAN_MOTIVE:
                     can_receive.get_motive_motor_measure(rx_data);
                     //detect_hook(CHASSIS_MOTIVE_FR_MOTOR_TOE);
+                    if(can_receive.chassis_motive_motor.ecd - can_receive.chassis_motive_motor.last_ecd > 5000)
+                    {
+                        can_receive.chassis_motive_motor.round--;
+                    }
+                    if(can_receive.chassis_motive_motor.ecd - can_receive.chassis_motive_motor.last_ecd < -5000)
+                    {
+                        can_receive.chassis_motive_motor.round++;
+                    }
                     break;
 
-                default:
-                {
-                    break;
-                }
-            }
-        }
-        else if(hcan == &BOARD_COM_CAN)
-        {
-            HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rx_header, rx_data);
-            switch (rx_header.StdId)
-            {
-                case CAN_RC_BOARM_COM_ID:
+                case CAN_RC_COM_ID:
                     can_receive.receive_rc_board_com(rx_data);
                     //detect_hook(BOARD_COM);
                     break;
@@ -172,6 +169,22 @@ extern "C"
                 }
             }
         }
+        // else if(hcan == &BOARD_COM_CAN)
+        // {
+        //     HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rx_header, rx_data);
+        //     switch (rx_header.StdId)
+        //     {
+        //         case CAN_RC_BOARM_COM_ID:
+        //             can_receive.receive_rc_board_com(rx_data);
+        //             //detect_hook(BOARD_COM);
+        //             break;
+
+        //         default:
+        //         {
+        //             break;
+        //         }
+        //     }
+        // }
     }
     // TODO 设备检查未更新
     //遥控器串口
