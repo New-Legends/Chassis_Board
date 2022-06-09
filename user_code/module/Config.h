@@ -2,17 +2,18 @@
 #define CONFIG_H
 
 /*----------------------底盘---------------------------*/
-//底盘动力电机有电流输出
-#define CHASSIS_MOTIVE_MOTOR_HAVE_CURRENT 1
-//底盘舵向电机有电流输出
-#define CHASSIS_RUDDER_MOTOR_HAVE_CURRENT 1
+//底盘动力电机无电流输出
+#define CHASSIS_MOTIVE_MOTOR_NO_CURRENT 0
+
+//底盘舵向电机无电流输出
+#define CHASSIS_RUDDER_MOTOR_NO_CURRENT 0
 
 
 /*---------------------通信-----------------------------*/
-//底盘独立遥控器是否开启 下板通信时关闭设置为0
-#define CHASSIS_REMOTE_OPEN 0
-//UI 是否开启
-#define UI_OPEN 0
+//底盘遥控器是否开启 正常上下板通信是开启状态的
+#define CHASSIS_REMOTE_OPEN 1
+
+
 
 /*---------------------按键---------------------------*/
 //底盘小陀螺 单击F
@@ -23,9 +24,6 @@
 
 //底盘45度角 单击V
 #define KEY_PRESSED_CHASSIS_PISA    'V'
-
-//底盘超级电容加速 单击SHIFT !代表shift
-#define KEY_PRESSED_CHASSIS_SUPER_CAP    '!'
 
 //底盘前后左右控制按键
 #define KEY_PRESSED_CHASSIS_FRONT  'W'

@@ -1,16 +1,15 @@
 #ifndef CHASSIS_H
 #define CHASSIS_H
 
-#include "start_task.h"
+#include "system_config.h"
 
 #include "struct_typedef.h"
 #include "First_order_filter.h"
 #include "Remote_control.h"
 #include "Motor.h"
 #include "Pid.h"
-#include "Super_cap.h"
+#include "Referee.h"
 
-#include "Config.h"
 
 #define rc_deadband_limit(input, output, dealine)        \
     {                                                    \
@@ -24,14 +23,34 @@
         }                                                \
     }
 
+//遥控器控制
+#define RC   0  
+//自动程序控制
+#define AUTO 1  
+//底盘运动方向
+#define LEFT 0
+#define RIGHT 1
+#define NO_MOVE 2
+
+//有无光电
+#define guangdian 1
+
+//跑轨时间
+#define time_gui 1500
+
+//底盘动力电机无电流输出
+#define CHASSIS_MOTIVE_MOTOR_NO_CURRENT 0
+//底盘舵向电机无电流输出
+#define CHASSIS_RUDDER_MOTOR_NO_CURRENT 0
+
 //任务开始空闲一段时间
 #define CHASSIS_TASK_INIT_TIME 357
 
-//左右的遥控器通道号码
-#define CHASSIS_X_CHANNEL 2
-
 //前后的遥控器通道号码
-#define CHASSIS_Y_CHANNEL 3
+#define CHASSIS_X_CHANNEL 3
+
+//左右的遥控器通道号码
+#define CHASSIS_Y_CHANNEL 2
 
 //在特殊模式下，可以通过遥控器控制旋转
 #define CHASSIS_WZ_CHANNEL 0
@@ -54,7 +73,6 @@
 //不跟随云台的时候 遥控器的yaw遥杆（max 660）转化成车体旋转速度的比例
 #define CHASSIS_WZ_RC_SEN 0.01f
 
-//一阶低通滤波参数
 #define CHASSIS_ACCEL_X_NUM 0.1666666667f
 #define CHASSIS_ACCEL_Y_NUM 0.3333333333f
 
@@ -75,42 +93,36 @@
 #define CHASSIS_CONTROL_FREQUENCE 500.0f
 //底盘3508最大can发送电流值
 #define MAX_MOTOR_CAN_CURRENT 16000.0f
+//底盘摇摆按键
+#define SWING_KEY KEY_PRESSED_OFFSET_CTRL
+//底盘小陀螺按键
+#define TOP_KEY KEY_PRESSED_OFFSET_F
+
+//底盘前后左右控制按键
+#define CHASSIS_FRONT_KEY KEY_PRESSED_OFFSET_W
+#define CHASSIS_BACK_KEY KEY_PRESSED_OFFSET_S
+#define CHASSIS_LEFT_KEY KEY_PRESSED_OFFSET_A
+#define CHASSIS_RIGHT_KEY KEY_PRESSED_OFFSET_D
 
 //m3508转化成底盘速度(m/s)的比例，
 #define M3508_MOTOR_RPM_TO_VECTOR 0.000415809748903494517209f
 #define CHASSIS_MOTOR_RPM_TO_VECTOR_SEN M3508_MOTOR_RPM_TO_VECTOR
 
-//gm6020转化成底盘速度(m/s)的比例，
-#define GM6020_MOTOR_RPM_TO_VECTOR 0.000415809748903494517209f * 187 / 3591
-
 //单个底盘电机最大速度
-#define MAX_WHEEL_SPEED 6.0f 
-//底盘运动过程最大前进速度
-#define NORMAL_MAX_CHASSIS_SPEED_Y 6.0f 
+#define MAX_WHEEL_SPEED 4.0f //4
 //底盘运动过程最大平移速度
-#define NORMAL_MAX_CHASSIS_SPEED_X 5.0f 
-//底盘运动过程最大旋转速度
-#define NORMAL_MAX_CHASSIS_SPEED_Z 12.0f
+#define NORMAL_MAX_CHASSIS_SPEED_Y 1.5f //1.5
+//底盘巡逻速度等级
+#define CHASSIS_LOW_SPEED 0.4*NORMAL_MAX_CHASSIS_SPEED_Y
+#define CHASSIS_MID_SPEED 0.8*NORMAL_MAX_CHASSIS_SPEED_Y
+#define CHASSIS_HIGH_SPEED 1.2*NORMAL_MAX_CHASSIS_SPEED_Y
 
 
-//原地旋转小陀螺下Z轴转速
-#define TOP_WZ_ANGLE_STAND 3.0f
-//移动状态下小陀螺转速
-#define TOP_WZ_ANGLE_MOVE 0.7f
+#define right_light_sensor_Pin GPIO_PIN_9
+#define right_light_sensor_GPIO_Port GPIOE
+#define left_light_sensor_Pin GPIO_PIN_11
+#define left_light_sensor_GPIO_Port GPIOE
 
-
-//摇摆原地不动摇摆最大角度(rad)
-#define SWING_NO_MOVE_ANGLE 0.7f //0.7
-//摇摆过程底盘运动最大角度(rad)
-#define SWING_MOVE_ANGLE 0.31415926535897932384626433832795f
-
-#define RUDDER_RADIUS 0.2f //轮中心距
-
-//舵向电机初试位置拨码值
-#define RUDDER_OFFSET_0 4780
-#define RUDDER_OFFSET_1 4780
-#define RUDDER_OFFSET_2 2082 //编码器
-#define RUDDER_OFFSET_3 4780
 
 //电机反馈码盘值范围
 #define HALF_ECD_RANGE 4096
@@ -119,72 +131,58 @@
 //电机编码值转化成角度值
 #define MOTOR_ECD_TO_RAD 0.000766990394f //      2*  PI  /8192
 
-#define MIN_RUDDER_ANGLE -2*PI
-#define MID_RUDDER_ANGLE 0.0f
-#define MAX_RUDDER_ANGLE 2*PI
+#define SWING_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_C) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_C))
+#define PISA_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_X) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_X))
+#define SWING_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_C) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_C))
+#define PISA_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_X) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_X))
 
-#define ACCEL_RUDDER_NUM 0.002f
+// #define TOP_KEY ((chassis_RC->key.v & KEY_PRESSED_OFFSET_F) && !(chassis_last_key_v & KEY_PRESSED_OFFSET_F))
 
-#define MISS_CLOSE 0
-#define MISS_BEGIN 1
-#define MISS_OVER 2
 
 #define PISA_DELAY_TIME 500
 #define CHASSIS_OPEN_RC_SCALE 10 // in CHASSIS_OPEN mode, multiply the value. 在chassis_open 模型下，遥控器乘以该比例发送到can上
 
+
+
 //chassis motor speed PID
 //底盘电机速度环PID
-#define MOTIVE_MOTOR_SPEED_PID_KP 2000.0f
+#define MOTIVE_MOTOR_SPEED_PID_KP 6000.0f
 #define MOTIVE_MOTOR_SPEED_PID_KI 0.0f
-#define MOTIVE_MOTOR_SPEED_PID_KD 0.0f
+#define MOTIVE_MOTOR_SPEED_PID_KD 2.0f
 #define MOTIVE_MOTOR_SPEED_PID_MAX_IOUT 2000.0f
 #define MOTIVE_MOTOR_SPEED_PID_MAX_OUT 6000.0f
 
 //chassis follow angle PID
 //底盘旋转跟随PID
-#define CHASSIS_FOLLOW_GIMBAL_PID_KP 10.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_KI 0.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_KD 8.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT 2.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT 20.0f
-
-//底盘舵向电机 速度环 PID参数以及 PID最大输出，积分输出
-#define RUDDER_MOTOR_SPEED_PID_KP 2900.0f //2900
-#define RUDDER_MOTOR_SPEED_PID_KI 0.0f
-#define RUDDER_MOTOR_SPEED_PID_KD 0.0f
-#define RUDDER_MOTOR_SPEED_PID_MAX_IOUT 10000.0f
-#define RUDDER_MOTOR_SPEED_PID_MAX_OUT 30000.0f
-
-//底盘舵向电机 角度环 角度由编码器解算 PID参数以及 PID最大输出，积分输出
-#define RUDDER_MATOR_ANGLE_PID_KP 20.0f //15
-#define RUDDER_MATOR_ANGLE_PID_KI 0.0f
-#define RUDDER_MATOR_ANGLE_PID_KD 1.0f
-#define RUDDER_MATOR_ANGLE_PID_MAX_IOUT 0.0f
-#define RUDDER_MATOR_ANGLE_PID_MAX_OUT 6.0f
+// #define CHASSIS_FOLLOW_GIMBAL_PID_KP 11.0f
+// #define CHASSIS_FOLLOW_GIMBAL_PID_KI 0.0f
+// #define CHASSIS_FOLLOW_GIMBAL_PID_KD 0.0f
+// #define CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT 2.0f
+// #define CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT 10.0f
 
 //功率控制参数
-#define POWER_DEFAULT_LIMIT 50.0f  //默认功率限制
+#define POWER_DEFAULT_LIMIT 30.0f  //默认功率限制
 #define WARNING_POWER_DISTANCE 10.0f //距离超过率的距离
-#define WARNING_POWER_BUFF 30.0f   
- //警告能量缓冲  通过计算超级电容 电压低于12v得到的值
+#define WARNING_POWER_BUFF 150.0f    //警告缓存
 
 #define NO_JUDGE_TOTAL_CURRENT_LIMIT 64000.0f // 16000 * 4,
 #define BUFFER_TOTAL_CURRENT_LIMIT 16000.0f
 #define POWER_TOTAL_CURRENT_LIMIT 20000.0f
 
-typedef enum {
-    CHASSIS_ZERO_FORCE,                  // chassis will be like no power,底盘无力, 跟没上电那样
-    CHASSIS_NO_MOVE,                     // chassis will be stop,底盘保持不动
-    CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW,  // chassis will follow gimbal, usually in infantry,正常步兵底盘跟随云台
-    CHASSIS_ENGINEER_FOLLOW_CHASSIS_YAW, // chassis will follow chassis yaw angle, usually in engineer,
-                                         // because chassis does have gyro sensor, its yaw angle is calculed by gyro in gimbal and gimbal motor angle,
-                                         // if you have a gyro sensor in chassis, please updata yaw, pitch, roll angle in "chassis_feedback_update"  function
+typedef enum
+{
+    CHASSIS_ZERO_FORCE,                  //chassis will be like no power,底盘无力, 跟没上电那样
+    CHASSIS_NO_MOVE,                     //chassis will be stop,底盘保持不动
+    CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW,  //chassis will follow gimbal, usually in infantry,正常步兵底盘跟随云台
+    CHASSIS_ENGINEER_FOLLOW_CHASSIS_YAW, //chassis will follow chassis yaw angle, usually in engineer,
+                                         //because chassis does have gyro sensor, its yaw angle is calculed by gyro in gimbal and gimbal motor angle,
+                                         //if you have a gyro sensor in chassis, please updata yaw, pitch, roll angle in "chassis_feedback_update"  function
                                          //工程底盘角度控制底盘，由于底盘未有陀螺仪，故而角度是减去云台角度而得到，
                                          //如果有底盘陀螺仪请更新底盘的yaw，pitch，roll角度 在chassis_feedback_update函数中
-    CHASSIS_NO_FOLLOW_YAW, // chassis does not follow angle, angle is open-loop,but wheels have closed-loop speed
-                           //底盘不跟随角度，角度是开环的，但轮子是有速度环
-    CHASSIS_OPEN, // the value of remote control will mulitiply a value, get current value that will be sent to can bus
-                  //  遥控器的值乘以比例成电流值 直接发送到can总线上
+    CHASSIS_NO_FOLLOW_YAW,               //chassis does not follow angle, angle is open-loop,but wheels have closed-loop speed
+                                         //底盘不跟随角度，角度是开环的，但轮子是有速度环
+    CHASSIS_OPEN,                        //the value of remote control will mulitiply a value, get current value that will be sent to can bus
+                                         // 遥控器的值乘以比例成电流值 直接发送到can总线上
 } chassis_behaviour_e;
 
 typedef enum
@@ -195,6 +193,13 @@ typedef enum
     CHASSIS_VECTOR_RAW,                //电流之间控制,开环
 
 } chassis_mode_e;
+
+typedef enum
+{
+    chushihua,  //初始化跑到最左边
+    jigui, //记录轨道长度
+    wancheng,
+} Chushijigui;
 
 
 struct speed_t
@@ -211,21 +216,21 @@ struct speed_t
 class Chassis {
 public:
     const RC_ctrl_t *chassis_RC; //底盘使用的遥控器指针
-    RC_ctrl_t *last_chassis_RC; //底盘使用的遥控器指针
+    uint16_t chassis_last_key_v;  //遥控器上次按键
 
     chassis_behaviour_e chassis_behaviour_mode; //底盘行为状态机
     chassis_behaviour_e last_chassis_behaviour_mode; //底盘上次行为状态机
+    Chushijigui chushijigui;//记录轨道长度
 
     chassis_mode_e chassis_mode; //底盘控制状态机
     chassis_mode_e last_chassis_mode; //底盘上次控制状态机
 
-    M3508_motor chassis_motive_motor[4]; //底盘动力电机数据
-    G6020_motor chassis_rudder_motor[4]; //底盘舵向电机数据
+    M3508_motor chassis_motive_motor; //底盘动力电机数据
 
-    First_order_filter chassis_cmd_slow_set_vx;        //使用一阶低通滤波减缓设定值
+
     First_order_filter chassis_cmd_slow_set_vy;        //使用一阶低通滤波减缓设定值
 
-    Pid chassis_wz_angle_pid;        //底盘角度pid
+    // Pid chassis_wz_angle_pid;        //底盘角度pid
 
     speed_t x;
     speed_t y;
@@ -239,11 +244,29 @@ public:
     fp32 chassis_pitch; //.陀螺仪和云台电机叠加的pitch角度
     fp32 chassis_roll;  //陀螺仪和云台电机叠加的roll角度
 
+    //巡逻会用到的数据
+    bool_t chassis_control_way; //底盘控制方式
+    bool_t left_light_sensor;  //左侧光电传感器 0为未感应到 1为感应到
+    bool_t right_light_sensor;  //右侧光电传感器 0为未感应到 1为感应到
+    uint16_t left_light_sensor_update_time; //光电传感器数据更新时间
+    uint16_t right_light_sensor_update_time; //光电传感器数据更新时间
+    uint8_t direction;          //底盘移动方向 分为NO_MOVE LEFT RIGHT 
+    fp32 CHASSIS_MAX_SPEED;
+    int speed_flag;
+    int up_time ;        //加速时间
+    int16_t guidao;      //轨道长度
+    int16_t biaozhi;
+    int8_t init_flag;
+    int16_t shijian;
+
+
 
     //任务流程
     void init();
 
     void set_mode();
+
+    void mode_change_control_transit();
 
     void feedback_update();
 
@@ -259,35 +282,27 @@ public:
 
     void chassis_behaviour_mode_set();
 
-    void chassis_behaviour_control_set(fp32 *vx_set_, fp32 *vy_set_, fp32 *angle_set);
+    void chassis_behaviour_control_set(fp32 *vy_set);
 
-    void chassis_zero_force_control(fp32 *vx_can_set, fp32 *vy_can_set, fp32 *wz_can_set);
+    void chassis_zero_force_control(fp32 *vy_can_set);
 
-    void chassis_no_move_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set);
+    void chassis_no_move_control(fp32 *vy_set);
 
-    void chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *angle_set);
+    void chassis_no_follow_yaw_control(fp32 *vy_set);
 
-    void chassis_engineer_follow_chassis_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *angle_set);
-
-    void chassis_no_follow_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set);
-
-    void chassis_open_set_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set);
+    void chassis_open_set_control(fp32 *vy_set);
 
     //功能性函数
-    void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set);
-
-    void chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4], fp32 rudder_angle[4]);
+    void chassis_rc_to_control_vector(fp32 *vy_set);
 
     fp32 motor_ecd_to_angle_change(uint16_t ecd, uint16_t offset_ecd);
 
+    void chassis_motor_count_init(fp32 *vy_set);
 
 };
 
 
 extern Chassis chassis;
 
-
-//超电模块
-extern Super_Cap cap;
 
 #endif
