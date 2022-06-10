@@ -25,10 +25,8 @@ extern "C"
 #include "Remote_control.h"
 #include "Can_receive.h"
 #include "Referee.h"
-#include "Ui.h"
 
 Remote_control remote_control;
-Ui      ui;
 Communicate communicate;
 
 void Communicate::init()
@@ -44,8 +42,6 @@ void Communicate::init()
     can_receive.init();
 
     referee.init();
-
-    ui.init(&referee.Judge_Self_ID, &referee.Judge_SelfClient_ID);
 }
 
 void Communicate::run()

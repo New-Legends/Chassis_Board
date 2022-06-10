@@ -525,11 +525,24 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set)
         {
             chassis_cmd_slow_set_vy.out = 0.0f;
         }
-
         *vy_set = chassis_cmd_slow_set_vy.out;
     }
     else if(chassis_control_way==AUTO)
     {
+        int change_time = 0;    //变向时间
+        int change_flag = 0;    //变向开关
+        CHASSIS_MAX_SPEED = CHASSIS_MID_SPEED;
+        if(referee.if_hit())
+        {
+            speed_flag = 1;
+        }
+        if(referee.if_hit())
+        {
+            if(change_flag == 0 && change_time == 0)
+            {
+                change_flag = 1;
+            }  
+        }
         *vy_set = CHASSIS_MID_SPEED;
         if(left_light_sensor == TRUE && right_light_sensor == TRUE)
         {
@@ -545,6 +558,39 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set)
         }
         else if(left_light_sensor == FALSE && right_light_sensor == FALSE)
         {
+            if(change_flag)
+            {                   
+                if(direction == LEFT)
+                {
+                    direction = RIGHT;
+                }
+                else if(direction == RIGHT)
+                {
+                    direction = LEFT;
+                }
+                change_flag = 0;
+                change_time = 1;
+            }
+            if(change_flag == 0 && change_time != 0)
+            {
+                change_time ++;
+                if(change_time >= 1000)
+                {
+                    change_time = 0;
+                }
+            }
+
+            if(!referee.if_hit())
+            {
+                if(speed_flag)
+                {
+                    up_time++;
+                }
+                if(up_time >= 2000)
+                {
+                    speed_flag = 0;
+                }
+            }
             direction = direction ;
         }    
         //根据方向设置输出
