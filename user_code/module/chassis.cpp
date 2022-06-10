@@ -531,23 +531,22 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set)
     else if(chassis_control_way==AUTO)
     {
         *vy_set = CHASSIS_MID_SPEED;
-        if(shijian > time_gui *2/3)
+        if(left_light_sensor == TRUE && right_light_sensor == TRUE)
         {
-            if(direction == RIGHT)
-            {
-                direction = LEFT;
-            }
-            else if(direction == LEFT)
-            {
-                direction = RIGHT;
-            }
-						shijian = 0;
+            direction = NO_MOVE;
         }
-        else
+        else if(left_light_sensor == FALSE && right_light_sensor == TRUE)
         {
-            direction = direction;
-            shijian++;
-        }      
+            direction = LEFT;
+        }
+        else if(left_light_sensor == TRUE && right_light_sensor == FALSE)
+        {
+            direction = RIGHT;
+        }
+        else if(left_light_sensor == FALSE && right_light_sensor == FALSE)
+        {
+            direction = direction ;
+        }    
         //根据方向设置输出
         if(direction == LEFT)
             *vy_set = *vy_set;
@@ -585,60 +584,60 @@ fp32 Chassis::motor_ecd_to_angle_change(uint16_t ecd, uint16_t offset_ecd)
     return relative_ecd * MOTOR_ECD_TO_RAD;
 }
 
-void Chassis::chassis_motor_count_init(fp32 *vy_set)
-{
-    if(biaozhi == 0){
-        //    #if guangdian
-        *vy_set = CHASSIS_LOW_SPEED;
-        if (init_flag == chushihua)
-        {
-            direction = LEFT;
-            if(left_light_sensor == TRUE && right_light_sensor == FALSE)
-            {
-                direction = NO_MOVE; 
-                can_receive.chassis_motive_motor.round = 0;
-                init_flag = jigui;
-            }
-        }
-        else if(init_flag == jigui)
-        {
-            direction = RIGHT;
-            if(left_light_sensor == FALSE && right_light_sensor == TRUE)
-            {
-                direction = NO_MOVE; 
-                guidao = abs(can_receive.chassis_motive_motor.round);
-                biaozhi = 1;
-                init_flag = wancheng;
-                can_receive.chassis_motive_motor.round = 0;
-            }
-        }
-    // #else
-    //没有光电用碰撞初始化
-    // if (init_flag == chushihua)
-    // {
-    //     *vy_set = CHASSIS_LOW_SPEED/2;
-    //     if(can_receive.chassis_motive_motor.ecd == can_receive.chassis_motive_motor.last_ecd)
-    //     {
-    //         *vy_set = 0; 
-    //         can_receive.chassis_motive_motor.round = 0;
-    //     }
-    //     init_flag = jigui;
-    // }
-    // if(init_flag == jigui)
-    // {
-    //     *vy_set = -CHASSIS_LOW_SPEED;
-    //     if(can_receive.chassis_motive_motor.ecd == can_receive.chassis_motive_motor.last_ecd)
-    //     {
-    //         *vy_set = 0; 
-    //         guidao = abs(can_receive.chassis_motive_motor.round);
-    //         biaozhi = 1;
-    //          init_flag = wancheng;
-    //     }
-    // }
-    // #endif
+// void Chassis::chassis_motor_count_init(fp32 *vy_set)
+// {
+//     if(biaozhi == 0){
+//         //    #if guangdian
+//         *vy_set = CHASSIS_LOW_SPEED;
+//         if (init_flag == chushihua)
+//         {
+//             direction = LEFT;
+//             if(left_light_sensor == TRUE && right_light_sensor == FALSE)
+//             {
+//                 direction = NO_MOVE; 
+//                 can_receive.chassis_motive_motor.round = 0;
+//                 init_flag = jigui;
+//             }
+//         }
+//         else if(init_flag == jigui)
+//         {
+//             direction = RIGHT;
+//             if(left_light_sensor == FALSE && right_light_sensor == TRUE)
+//             {
+//                 direction = NO_MOVE; 
+//                 guidao = abs(can_receive.chassis_motive_motor.round);
+//                 biaozhi = 1;
+//                 init_flag = wancheng;
+//                 can_receive.chassis_motive_motor.round = 0;
+//             }
+//         }
+//     // #else
+//     //没有光电用碰撞初始化
+//     // if (init_flag == chushihua)
+//     // {
+//     //     *vy_set = CHASSIS_LOW_SPEED/2;
+//     //     if(can_receive.chassis_motive_motor.ecd == can_receive.chassis_motive_motor.last_ecd)
+//     //     {
+//     //         *vy_set = 0; 
+//     //         can_receive.chassis_motive_motor.round = 0;
+//     //     }
+//     //     init_flag = jigui;
+//     // }
+//     // if(init_flag == jigui)
+//     // {
+//     //     *vy_set = -CHASSIS_LOW_SPEED;
+//     //     if(can_receive.chassis_motive_motor.ecd == can_receive.chassis_motive_motor.last_ecd)
+//     //     {
+//     //         *vy_set = 0; 
+//     //         guidao = abs(can_receive.chassis_motive_motor.round);
+//     //         biaozhi = 1;
+//     //          init_flag = wancheng;
+//     //     }
+//     // }
+//     // #endif
 
-    }
+//     }
 
 
 
-}
+// }
