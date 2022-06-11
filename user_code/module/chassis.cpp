@@ -525,7 +525,6 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set)
         {
             chassis_cmd_slow_set_vy.out = 0.0f;
         }
-
         *vy_set = chassis_cmd_slow_set_vy.out;
     }
     else if(chassis_control_way==AUTO)
@@ -533,15 +532,49 @@ void Chassis::chassis_rc_to_control_vector( fp32 * vy_set)
         *vy_set = CHASSIS_MID_SPEED;
         if(shijian > time_gui *2/3)
         {
-            if(direction == RIGHT)
-            {
-                direction = LEFT;
+            // int8_t bian_flag;
+            // switch(bian_flag)
+            // {
+            //     case jiansu :
+            //     {
+            //         *vy_set = 0;
+            //         bian_flag = jiasu;
+            //         break;
+            //     }
+
+            //     case jiasu :
+            //     {
+            //         if(direction == RIGHT)
+            //         {
+            //             direction = LEFT;
+            //         }
+            //         else if(direction == LEFT)
+            //         {
+            //             direction = RIGHT;
+            //         }
+            //         bian_flag = jieshu;
+            //         break;
+            //     }
+            // }           
+            if(bian_flag == jiansu){
+                *vy_set = 0;
+                bian_flag = jiasu;
             }
-            else if(direction == LEFT)
+            else if (bian_flag == jiasu)
             {
-                direction = RIGHT;
-            }
-						shijian = 0;
+							  *vy_set = CHASSIS_MID_SPEED;
+                if(direction == RIGHT)
+                {
+                    direction = LEFT;
+                }
+                else if(direction == LEFT)
+                {
+                    direction = RIGHT;
+                }
+                bian_flag = jiansu;
+            }           
+			shijian = 0;
+            biaozhi = 1;
         }
         else
         {

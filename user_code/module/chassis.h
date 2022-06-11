@@ -36,7 +36,7 @@
 #define guangdian 1
 
 //跑轨时间
-#define time_gui 1500
+#define time_gui 1200
 
 //底盘动力电机无电流输出
 #define CHASSIS_MOTIVE_MOTOR_NO_CURRENT 0
@@ -114,8 +114,8 @@
 #define NORMAL_MAX_CHASSIS_SPEED_Y 1.5f //1.5
 //底盘巡逻速度等级
 #define CHASSIS_LOW_SPEED 0.4*NORMAL_MAX_CHASSIS_SPEED_Y
-#define CHASSIS_MID_SPEED 0.8*NORMAL_MAX_CHASSIS_SPEED_Y
-#define CHASSIS_HIGH_SPEED 1.2*NORMAL_MAX_CHASSIS_SPEED_Y
+#define CHASSIS_MID_SPEED 1.1*NORMAL_MAX_CHASSIS_SPEED_Y
+#define CHASSIS_HIGH_SPEED 1.6*NORMAL_MAX_CHASSIS_SPEED_Y
 
 
 #define right_light_sensor_Pin GPIO_PIN_9
@@ -201,6 +201,12 @@ typedef enum
     wancheng,
 } Chushijigui;
 
+typedef enum
+{
+    jiansu,  //减速到0
+    jiasu, //反向加速
+    jieshu,//结束
+} bianxiang;
 
 struct speed_t
 {
@@ -258,6 +264,7 @@ public:
     int16_t biaozhi;
     int8_t init_flag;
     int16_t shijian;
+    int8_t bian_flag;
 
 
 
