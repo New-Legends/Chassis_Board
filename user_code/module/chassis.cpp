@@ -204,10 +204,10 @@ void Chassis::set_contorl()
 
         if (super_cap_switch == TRUE && top_switch == FALSE)
         {
-            x.min_speed = -20 * NORMAL_MAX_CHASSIS_SPEED_X;
-            x.max_speed = 20 * NORMAL_MAX_CHASSIS_SPEED_X;
-            y.min_speed = -20 * NORMAL_MAX_CHASSIS_SPEED_Y;
-            y.max_speed = 20 * NORMAL_MAX_CHASSIS_SPEED_Y;
+            x.min_speed = -3.5 * NORMAL_MAX_CHASSIS_SPEED_X;
+            x.max_speed = 3.5 * NORMAL_MAX_CHASSIS_SPEED_X;
+            y.min_speed = -3.5 * NORMAL_MAX_CHASSIS_SPEED_Y;
+            y.max_speed = 3.5 * NORMAL_MAX_CHASSIS_SPEED_Y;
         }
         else
         {
@@ -331,7 +331,7 @@ void Chassis::power_ctrl()
         referee.get_chassis_power_limit(&chassis_power_limit);
 
         //当超电能量低于阈值700 将超电关闭
-        if (chassis_power_cap_buffer < 300)
+        if (chassis_power_cap_buffer < 400)
         {
             super_cap_switch = FALSE;
         }
@@ -570,70 +570,70 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     chassis_rc_to_control_vector(vx_set, vy_set);
 
     /**************************扭腰和自动闪避控制输入*******************************/
-    //判断是否要摇摆  当键盘单击C            (或者装甲板受到伤害摇摆 这个暂时有问题)
+    // //判断是否要摇摆  当键盘单击C            (或者装甲板受到伤害摇摆 这个暂时有问题)
 
-    //摇摆角度是利用sin函数生成，swing_time 是sin函数的输入值
-    static fp32 swing_time = 0.0f;
+    // //摇摆角度是利用sin函数生成，swing_time 是sin函数的输入值
+    // static fp32 swing_time = 0.0f;
 
-    // max_angle是sin函数的幅值
-    static fp32 max_angle = SWING_NO_MOVE_ANGLE;
-    //在一个控制周期内，加上 add_time
-    static fp32 const add_time = 2 * PI * 0.5f * configTICK_RATE_HZ / CHASSIS_CONTROL_TIME_MS;
+    // // max_angle是sin函数的幅值
+    // static fp32 max_angle = SWING_NO_MOVE_ANGLE;
+    // //在一个控制周期内，加上 add_time
+    // static fp32 const add_time = 2 * PI * 0.5f * configTICK_RATE_HZ / CHASSIS_CONTROL_TIME_MS;
 
-    //闪避摇摆时间
-    static uint16_t miss_swing_time = 700;
-    // 0表示未开始闪避 1表示正在闪避 2表示闪避已结束
-    static uint8_t miss_flag = MISS_CLOSE;
-    // //开始自动闪避,扭腰倒计时开始
-    // if (if_hit() == TRUE)
+    // //闪避摇摆时间
+    // static uint16_t miss_swing_time = 700;
+    // // 0表示未开始闪避 1表示正在闪避 2表示闪避已结束
+    // static uint8_t miss_flag = MISS_CLOSE;
+    // // //开始自动闪避,扭腰倒计时开始
+    // // if (if_hit() == TRUE)
+    // // {
+    // //     miss_flag = MISS_BEGIN;
+    // //     miss_swing_time--;
+    // // }
+    // // //结束并退出扭腰
+    // // if (miss_swing_time == 0)
+    // // {
+    // //     miss_flag = MISS_OVER;
+    // //     miss_swing_time = 700;
+    // // }
+
+    // //开启扭腰
+    // if ((KEY_CHASSIS_SWING || miss_flag == MISS_BEGIN) && swing_switch == FALSE)
     // {
-    //     miss_flag = MISS_BEGIN;
-    //     miss_swing_time--;
+    //     swing_switch = TRUE;
+    //     swing_time = 0.0f;
     // }
-    // //结束并退出扭腰
-    // if (miss_swing_time == 0)
+    // else if ((KEY_CHASSIS_SWING || miss_flag == MISS_OVER) && swing_switch == TRUE) //关闭扭腰
     // {
-    //     miss_flag = MISS_OVER;
-    //     miss_swing_time = 700;
+    //     miss_flag = MISS_CLOSE;
+    //     swing_switch = 0;
     // }
 
-    //开启扭腰
-    if ((KEY_CHASSIS_SWING || miss_flag == MISS_BEGIN) && swing_switch == FALSE)
-    {
-        swing_switch = TRUE;
-        swing_time = 0.0f;
-    }
-    else if ((KEY_CHASSIS_SWING || miss_flag == MISS_OVER) && swing_switch == TRUE) //关闭扭腰
-    {
-        miss_flag = MISS_CLOSE;
-        swing_switch = 0;
-    }
+    // //判断键盘输入是不是在控制底盘运动，底盘在运动减小摇摆角度
+    // if (KEY_CHASSIS_FRONT || KEY_CHASSIS_BACK ||
+    //     KEY_CHASSIS_LEFT || KEY_CHASSIS_RIGHT)
+    // {
+    //     max_angle = SWING_MOVE_ANGLE;
+    // }
+    // else
+    // {
+    //     max_angle = SWING_NO_MOVE_ANGLE;
+    // }
 
-    //判断键盘输入是不是在控制底盘运动，底盘在运动减小摇摆角度
-    if (KEY_CHASSIS_FRONT || KEY_CHASSIS_BACK ||
-        KEY_CHASSIS_LEFT || KEY_CHASSIS_RIGHT)
-    {
-        max_angle = SWING_MOVE_ANGLE;
-    }
-    else
-    {
-        max_angle = SWING_NO_MOVE_ANGLE;
-    }
-
-    if (swing_switch)
-    {
-        swing_angle = max_angle * sin(swing_time);
-        swing_time += add_time;
-    }
-    else
-    {
-        swing_angle = 0.0f;
-    }
-    // sin函数不超过2pi
-    if (swing_time > 2 * PI)
-    {
-        swing_time -= 2 * PI;
-    }
+    // if (swing_switch)
+    // {
+    //     swing_angle = max_angle * sin(swing_time);
+    //     swing_time += add_time;
+    // }
+    // else
+    // {
+    //     swing_angle = 0.0f;
+    // }
+    // // sin函数不超过2pi
+    // if (swing_time > 2 * PI)
+    // {
+    //     swing_time -= 2 * PI;
+    // }
 
     /**************************小陀螺控制输入********************************/
     //单击F开启和关闭小陀螺
