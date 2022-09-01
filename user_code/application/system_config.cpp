@@ -1,5 +1,8 @@
-#include "start_task.h"
+//
+// Created by WSJ on 2021/11/2.
+//
 
+#include "system_config.h"
 #include "FreeRTOS.h"
 #include "task.h"
 
@@ -52,5 +55,5 @@ void Task_start(void)
 
         xTaskCreate(communicate_task, "communicate_task", Large_Stack_Size, NULL, PriorityHigh, &communicate_task_handle);
 
-        xTaskCreate(my_test_task, "my_test_task", Small_Stack_Size, NULL, PriorityHigh, &my_test_task_handle);
+        xTaskCreate(my_test_task, "my_test_task", Small_Stack_Size, NULL, PriorityNormal, &my_test_task_handle);
 }

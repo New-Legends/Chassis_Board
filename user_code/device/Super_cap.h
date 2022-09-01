@@ -11,6 +11,7 @@ public:
     float cap_vot;        //超级电容电压
     float input_current;  //输入电流
     float target_power;   //目标功率
+    float super_number;   //超电百分比
     bool  cap_change;        //超电电压过低标识符
     
     void init();

@@ -1,14 +1,12 @@
 #ifndef UI_H
 #define UI_H
 
-
-
 #include "struct_typedef.h"
 #include "main.h"
 #include "stm32f4xx.h"
 #include "stdarg.h"
 #include "usart.h"
-
+#include "Can_receive.h"
 #pragma pack(1) //按1字节对齐
 
 #define NULL 0
@@ -90,25 +88,25 @@ typedef unsigned char uint8_t;
 
 typedef struct
 {
-    uint8_t SOF;     //起始字节,固定0xA5
+    uint8_t SOF;          //起始字节,固定0xA5
     uint16_t Data_Length; //帧数据长度
-    uint8_t Seq;     //包序号
-    uint8_t CRC8;    //CRC8校验值
-    uint16_t CMD_ID; //命令ID
-} UI_Packhead;       //帧头
+    uint8_t Seq;          //包序号
+    uint8_t CRC8;         // CRC8校验值
+    uint16_t CMD_ID;      //命令ID
+} UI_Packhead;            //帧头
 
 typedef struct
 {
-    uint16_t Data_ID; //内容ID
-    uint16_t Sender_ID; //发送者ID
+    uint16_t Data_ID;     //内容ID
+    uint16_t Sender_ID;   //发送者ID
     uint16_t Receiver_ID; //接收者ID
-} UI_Data_Operate;   //操作定义帧
+} UI_Data_Operate;        //操作定义帧
 
 typedef struct
 {
     uint8_t Delete_Operate; //删除操作
     uint8_t Layer;          //删除图层
-} UI_Data_Delete;      //删除图层帧
+} UI_Data_Delete;           //删除图层帧
 
 typedef struct
 {
@@ -149,7 +147,6 @@ typedef struct
 } String_Data; //打印字符串数据
 
 extern UART_HandleTypeDef huart6;
-
 class Ui
 {
 public:
@@ -158,29 +155,43 @@ public:
     uint8_t *Robot_ID;   //当前机器人的ID
     uint16_t *Cilent_ID; //发送者机器人对应的客户端ID
 
-
-    Graph_Data G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11;
-    String_Data CH_SHOOT;
-    String_Data CH_FLRB;
-    String_Data CH_SUPERCAP;
-    String_Data CH_MODE;
-    String_Data CH_AUTO;
-    String_Data CH_MAG;
-    Float_Data FLOAT_SUPER;
-    char shoot_arr[5];
-    char flrb_arr[4];  
-    char super_arr[6];
-    char mode_arr[6];
+    Graph_Data G1, G2, G3, G4, G5, G6, G7; //瞄准线
+    Graph_Data G_SHOOT;                    //摩擦轮状态
+    Graph_Data G_TOP;                      //小陀螺状态
+    Graph_Data G_RECOVER;                  //无敌状态
+    Graph_Data G_AUTO_READY;               //自瞄准备状态
+    Graph_Data G_AUTO_AIM;                 //自瞄识别状态
+    Graph_Data G_SUPER_CAP;                //超电开关
+    Graph_Data G_COVER;                    //弹仓开关
+    Float_Data G_PITCH;                    // Pitch轴角度
+    Float_Data G_YAW;                      // Yaw轴角度
+    Float_Data G_SUPER_NUM;                //超电百分比
+    char shoot_arr[5];//摩擦轮
+    char rotate_arr[6];  //小陀螺
+    char super_arr[9];//超电
+    char cover_arr[6];//弹仓
     char auto_arr[4];  
     char mag_arr[7] ;
+    String_Data CH_SHOOT;
+    String_Data CH_ROTATE;
+    String_Data CH_SUPER_CAP;
+    String_Data CH_MODE;
+    String_Data CH_AUTO_READY;
+    String_Data CH_MAG;
+    String_Data CH_COVER;
+
 
     void init(uint8_t *Temp_Judge_Self_ID, uint16_t *Temp_Judge_SelfClient_ID);
 
     void run();
 
-    //基础图形绘制函数
-    void UI_SendByte(unsigned char ch);
+/*----------------------------UI功能函数----------------------------------------*/
+		void feedback_update();
+		void draw_super_cap(); //根据超电容量得到UI数据
+		void start();//重置ui
 
+/*----------------------------基础图形绘制函数----------------------------------------*/
+    void UI_SendByte(unsigned char ch);
     void UI_Delete(uint8_t Del_Operate, uint8_t Del_Layer);
     void Line_Draw(Graph_Data *image, char imagename[3], uint32_t Graph_Operate, uint32_t Graph_Layer, uint32_t Graph_Color, uint32_t Graph_Width, uint32_t Start_x, uint32_t Start_y, uint32_t End_x, uint32_t End_y);
     int UI_ReFresh(int cnt, ...);
@@ -193,6 +204,4 @@ public:
     int Char_ReFresh(String_Data string_Data);
     void Arc_Draw(Graph_Data *image, char imagename[3], uint32_t Graph_Operate, uint32_t Graph_Layer, uint32_t Graph_Color, uint32_t Graph_StartAngle, uint32_t Graph_EndAngle, uint32_t Graph_Width, uint32_t Start_x, uint32_t Start_y, uint32_t x_Length, uint32_t y_Length);
 };
-
-
 #endif
