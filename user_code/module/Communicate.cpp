@@ -60,7 +60,6 @@ void Communicate::run()
 #if UI_OPEN
     ui.run();
 #endif
-
     //向云台发送裁判数据
     uint16_t temp_id1_17mm_cooling_limit, temp_id1_17mm_cooling_rate, temp_id1_17mm_cooling_heat;
     uint8_t temp_color, temp_robot_id;

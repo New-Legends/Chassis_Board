@@ -228,3 +228,4 @@ void Can_receive::get_super_cap_data(uint8_t data[8])
 
     HAL_CAN_AddTxMessage(&CHASSIS_CAN, &chassis_tx_message, chassis_can_send_data, &send_mail_box);
 }
+	

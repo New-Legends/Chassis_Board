@@ -23,7 +23,7 @@ bool_t swing_switch = 0;
 uint8_t key_pressed_num_ctrl = 0;
 //小陀螺控制数据
 fp32 top_angle = 0;
-bool_t top_switch = 0;
+bool_t top_switch =0;
 
 Super_Cap cap;
 //45度角对敌数据
@@ -256,16 +256,6 @@ void Chassis::set_contorl() {
             chassis_wz_angle_pid.data.ref = &chassis_relative_angle;
             chassis_wz_angle_pid.data.set = &chassis_relative_angle_set;
         } 
-
-
-
-
-
-
-
-
-
-
         if(super_cap_switch == TRUE && top_switch == FALSE)
         {
                 x.min_speed = 1.5 * -NORMAL_MAX_CHASSIS_SPEED_X;
@@ -323,7 +313,6 @@ void Chassis::set_contorl() {
 
 fp32 wheel_speed[4] = {0.0f, 0.0f, 0.0f, 0.0f};  //动力电机目标速度
 fp32 rudder_angle[4] = {0.0f, 0.0f, 0.0f, 0.0f}; //舵向电机目标角度
-
 /**
   * @brief          解算数据,并进行pid计算
   * @param[out]     
@@ -398,17 +387,13 @@ void Chassis::solve() {
 
 fp32 chassis_power = 0.0f;
 fp32 chassis_power_limit = 0.0f;
+    fp32 total_current_limit = 0.0f;
 //缓冲能量 单位为J
 fp32 chassis_power_buffer = 0.0f;  //裁判剩余缓冲能量
 fp32 chassis_power_cap_buffer = 0.0f; //电容剩余能量
-/**
-  * @brief          底盘功率控制
-  * @param[in]     
-  * @retval         none
-  */
 void Chassis::power_ctrl() {
 
-    fp32 total_current_limit = 0.0f;
+
     fp32 total_current = 0.0f;
     uint8_t robot_id = 0;
     referee.get_robot_id(&robot_id);
@@ -422,82 +407,78 @@ void Chassis::power_ctrl() {
     else if (robot_id == RED_ENGINEER || robot_id == BLUE_ENGINEER || robot_id == 0)
     {
         total_current_limit = NO_JUDGE_TOTAL_CURRENT_LIMIT;
-        can_receive.can_cmd_super_cap_power(4500);
+//        can_receive.can_cmd_super_cap_power(12000);
     }
     else
     {   
         referee.get_chassis_power_and_buffer(&chassis_power, &chassis_power_buffer);
-        cap.read_cap_buff(&chassis_power_cap_buffer);
+//        cap.read_cap_buff(&chassis_power_cap_buffer);
 
         referee.get_chassis_power_limit(&chassis_power_limit);
 
-        //当超电能量低于阈值300 将超电关闭
-        if (chassis_power_cap_buffer < 300)
-        {
-            super_cap_switch = FALSE;
-        }
-        if(top_switch ==true&&chassis_power_buffer > 10.0f){
-				can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit) * 100+100);
-				}else if(top_switch ==false&&chassis_power_buffer > 10.0f){
-				can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit) * 100+1500);
-				}else{
-					can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit) * 100);
-				}
+        //当超电能量低于阈值700 将超电关闭
+//        if (chassis_power_cap_buffer < 700)
+//        {
+//            super_cap_switch = FALSE;
+//        }
+//        
+        //开启超电后 对超电设置功率进行修改
+//        if (super_cap_switch == TRUE)
+//        {
+//            can_receive.can_cmd_super_cap_power(uint16_t(chassis_power_limit)*100 + 1500);
+//        } else if (super_cap_switch == FALSE){
+//            can_receive.can_cmd_super_cap_power(10000);
+//        }
 
-		//电流限幅
-		if(super_cap_switch == true ){
-					total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT;
-		}
-		else{
-			total_current_limit = POWER_TOTAL_CURRENT_LIMIT;
-		}
-       }
+
+
 
         //功率超过上限 和缓冲能量小于50j,因为缓冲能量小于50意味着功率超过上限
-//        if (chassis_power_buffer < WARNING_POWER_BUFF)
-//        {
-//            fp32 power_scale;
-//            if (chassis_power_buffer > 5.0f)
-//            {
-//                //缩小WARNING_POWER_BUFF
-//                power_scale = chassis_power_buffer / WARNING_POWER_BUFF;
-//            }
-//            else
-//            {
-//                // only left 10% of WARNING_POWER_BUFF
-//                power_scale = 5.0f / WARNING_POWER_BUFF;
-//            }
+        if (chassis_power_buffer < WARNING_POWER_BUFF)
+        {
+            fp32 power_scale;
+            if (chassis_power_buffer > 5.0f)
+            {
+                //缩小WARNING_POWER_BUFF
+                power_scale = chassis_power_buffer / WARNING_POWER_BUFF;
+            }
+            else
+            {
+                // only left 10% of WARNING_POWER_BUFF
+                power_scale = 5.0f / WARNING_POWER_BUFF;
+            }
 
 
-//            //缩小
-//            total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT * power_scale;
-//        }
-//        else
-//        {
-//            //功率大于WARNING_POWER
-//            if (chassis_power > chassis_power_limit - WARNING_POWER_DISTANCE)
-//            {
-//                fp32 power_scale;
-//                //功率小于上限
-//               }   if (chassis_power < chassis_power_limit)
-//                {
-//                    //缩小
-//                    power_scale = (chassis_power_limit - chassis_power) / (chassis_power_limit - (chassis_power_limit - WARNING_POWER_DISTANCE));
-//              
-//                //功率大于上限
-//                else
-//                {
-//                    power_scale = 0.0f;
-//                }
+            //缩小
+							total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT * power_scale;
+        }
+        else
+        {
+            //功率大于WARNING_POWER
+            if (chassis_power > chassis_power_limit - WARNING_POWER_DISTANCE)
+            {
+                fp32 power_scale;
+                //功率小于上限
+                if (chassis_power < chassis_power_limit)
+                {
+                    //缩小
+                    power_scale = (chassis_power_limit - chassis_power) / (chassis_power_limit - (chassis_power_limit - WARNING_POWER_DISTANCE));
+                }
+                //功率大于上限
+                else
+                {
+                    power_scale = 0.0f;
+                }
 
-//                total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT + POWER_TOTAL_CURRENT_LIMIT * power_scale;
-//            }
-//            //功率小于WARNING_POWER
-//            else
-//            {
-//                total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT + POWER_TOTAL_CURRENT_LIMIT;
-//            }
-
+                total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT + POWER_TOTAL_CURRENT_LIMIT * power_scale;
+            }
+            //功率小于WARNING_POWER
+            else
+            {
+                total_current_limit = BUFFER_TOTAL_CURRENT_LIMIT + POWER_TOTAL_CURRENT_LIMIT;
+            }
+        }
+    }
 
     total_current = 0.0f;
     //计算原本电机电流设定
@@ -713,9 +694,9 @@ void Chassis::chassis_no_move_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set)
 
 //用于测试
 uint8_t if_move_top = 0;
-fp32 move_top_x_parm = 0.7;
-fp32 move_top_y_parm = 0.7;
-fp32 move_top_z_parm = 0.5;
+fp32 move_top_x_parm = 1.1;
+fp32 move_top_y_parm = 1.1;
+fp32 move_top_z_parm = 1.0;
 
 /**
   * @brief          底盘跟随云台的行为状态机下，底盘模式是跟随云台角度，底盘旋转速度会根据角度差计算底盘旋转的角速度
@@ -766,10 +747,6 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     // }
 
     static uint16_t last_swing_key_value = 0;
-		
-//    if(KEY_UI_UPDATE){
-//	     ui.start();
-//    }
     //单击C开启或关闭扭腰  TODO 有问题 暂时注释
     // if (if_key_singal_pessed(chassis_RC->key.v, last_swing_key_value, KEY_PRESSED_CHASSIS_SWING) && swing_switch == 0) //开启扭腰
     // {
@@ -788,11 +765,15 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     if(if_key_pessed(chassis_RC->key.v, KEY_PRESSED_UI_UPDATE)){
 	     ui.start();
     }
+		
     //判断键盘输入是不是在控制底盘运动，底盘在运动减小摇摆角度
     if (if_key_pessed(chassis_RC->key.v, KEY_PRESSED_CHASSIS_FRONT) || if_key_pessed(chassis_RC->key.v, KEY_PRESSED_CHASSIS_BACK) ||
         if_key_pessed(chassis_RC->key.v, KEY_PRESSED_CHASSIS_LEFT) || if_key_pessed(chassis_RC->key.v, KEY_PRESSED_CHASSIS_RIGHT))
     {
         max_angle = SWING_MOVE_ANGLE;
+					if(*angle_set<max_angle){
+			*angle_set=0;
+		}
     }
     else
     {
@@ -839,7 +820,7 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
         }
         else
         {
-            top_angle = TOP_WZ_ANGLE_STAND * 0.5;
+            top_angle = TOP_WZ_ANGLE_STAND * 0.7;
             //TODO 可能导致底盘移动缓慢,需要改进
             fp32 *src_vx_set = vx_set;
             fp32 *src_vy_set = vy_set;
@@ -849,15 +830,16 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
             *vy_set = *vy_set * move_top_y_parm;
             top_angle = TOP_WZ_ANGLE_STAND * move_top_z_parm;
 
-            // *vx_set = move_top_x_parm * x.max_speed * (*src_vx_set / sqrtf(pow(*src_vx_set, 2) + pow(*src_vy_set, 2) + 6 * pow(src_top_angle, 2)));
-            // *vy_set = move_top_y_parm * y.max_speed * (*src_vy_set / sqrtf(pow(*src_vx_set, 2) + pow(*src_vy_set, 2) + 6 * pow(src_top_angle, 2)));
-            // top_angle = move_top_z_parm * TOP_WZ_ANGLE_STAND * (src_top_angle * 2.5 / sqrtf(pow(*src_vx_set, 2) + pow(*src_vy_set, 2) + 6 * pow(src_top_angle, 2)));
+             *vx_set = move_top_x_parm * x.max_speed * (*src_vx_set / sqrtf(pow(*src_vx_set, 2) + pow(*src_vy_set, 2) + 6 * pow(src_top_angle, 2)));
+             *vy_set = move_top_y_parm * y.max_speed * (*src_vy_set / sqrtf(pow(*src_vx_set, 2) + pow(*src_vy_set, 2) + 6 * pow(src_top_angle, 2)));
+             top_angle = move_top_z_parm * TOP_WZ_ANGLE_STAND * (src_top_angle * 2.5 / sqrtf(pow(*src_vx_set, 2) + pow(*src_vy_set, 2) + 6 * pow(src_top_angle, 2)));
 
-            // *vx_set = move_top_x_parm * x.max_speed * (*vx_set / sqrtf(pow(*vx_set, 2) + pow(*vy_set, 2) + 6 * pow(top_angle, 2)));
-            // *vy_set = move_top_y_parm * y.max_speed * (*vy_set / sqrtf(pow(*vx_set, 2) + pow(*vy_set, 2) + 6 * pow(top_angle, 2)));
-            // top_angle = move_top_z_parm * TOP_WZ_ANGLE_STAND * (top_angle * 2.5 / sqrtf(pow(*vx_set, 2) + pow(*vy_set, 2) + 6 * pow(top_angle, 2)));
+             *vx_set = move_top_x_parm * x.max_speed * (*vx_set / sqrtf(pow(*vx_set, 2) + pow(*vy_set, 2) + 6 * pow(top_angle, 2)));
+             *vy_set = move_top_y_parm * y.max_speed * (*vy_set / sqrtf(pow(*vx_set, 2) + pow(*vy_set, 2) + 6 * pow(top_angle, 2)));
+             top_angle = move_top_z_parm * TOP_WZ_ANGLE_STAND * (top_angle * 2.5 / sqrtf(pow(*vx_set, 2) + pow(*vy_set, 2) + 6 * pow(top_angle, 2)));
 
-            if_move_top = 1;
+
+					if_move_top = 1;
         }
         
     }
@@ -901,6 +883,8 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     {
         *angle_set = swing_angle;
     }
+
+		
 }
 
 /**
@@ -1025,6 +1009,7 @@ void Chassis::chassis_rc_to_control_vector(fp32 * vx_set, fp32 * vy_set) {
 }
 
 fp32 last_rudder_angle[4] = {0};
+fp32 flag___1=0;
 /**
  * @brief          四个舵向电机角度和四个动力电机速度是通过三个参数计算出来的
  * @param[in]      wheel_speed: 动力电机速度
@@ -1049,7 +1034,10 @@ void Chassis::chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4], fp32 ru
     fp32 stop_set_num = 0.1 ;
     if ((x.speed_set >= -stop_set_num && x.speed_set <= stop_set_num) &&
         (y.speed_set >= -stop_set_num && y.speed_set <= stop_set_num) && 
-        (z.speed_set >= -stop_set_num*10 && z.speed_set <= stop_set_num*10))
+        (chassis_relative_angle >= -stop_set_num*2 && chassis_relative_angle <= stop_set_num*2)
+		    &&(top_switch ==0 )
+		)
+//		        (z.speed_set >= -stop_set_num*2 && z.speed_set <= stop_set_num*2))
     // if ((x.speed_set == 0) &&
     //     (y.speed_set == 0) &&
     //     (z.speed_set == 0))
@@ -1058,6 +1046,7 @@ void Chassis::chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4], fp32 ru
         rudder_angle[1] = last_rudder_angle[1];
         rudder_angle[2] = last_rudder_angle[2];
         rudder_angle[3] = last_rudder_angle[3];
+			flag___1=1;
     } 
     else 
     {
@@ -1065,6 +1054,7 @@ void Chassis::chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4], fp32 ru
         rudder_angle[1] = atan2(y.speed_set - z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set - z.speed_set * RUDDER_RADIUS * cos(theta));
         rudder_angle[2] = atan2(y.speed_set - z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta));
         rudder_angle[3] = atan2(y.speed_set + z.speed_set * RUDDER_RADIUS * sin(theta), x.speed_set + z.speed_set * RUDDER_RADIUS * cos(theta));
+			flag___1=0;
     }
 
     last_rudder_angle[0] = rudder_angle[0];

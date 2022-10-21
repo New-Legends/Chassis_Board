@@ -85,23 +85,23 @@
 //单个底盘电机最大速度
 #define MAX_WHEEL_SPEED 6.0f 
 //底盘运动过程最大前进速度
-#define NORMAL_MAX_CHASSIS_SPEED_Y 6.0f 
+#define NORMAL_MAX_CHASSIS_SPEED_Y 2.5f 
 //底盘运动过程最大平移速度
-#define NORMAL_MAX_CHASSIS_SPEED_X 5.0f 
+#define NORMAL_MAX_CHASSIS_SPEED_X 2.5f 
 //底盘运动过程最大旋转速度
-#define NORMAL_MAX_CHASSIS_SPEED_Z 12.0f
+#define NORMAL_MAX_CHASSIS_SPEED_Z 8.0f
 
 
 //原地旋转小陀螺下Z轴转速
 #define TOP_WZ_ANGLE_STAND 3.0f
 //移动状态下小陀螺转速
-#define TOP_WZ_ANGLE_MOVE 0.7f
+#define TOP_WZ_ANGLE_MOVE -3.5f
 
 
 //摇摆原地不动摇摆最大角度(rad)
 #define SWING_NO_MOVE_ANGLE 0.7f //0.7
 //摇摆过程底盘运动最大角度(rad)
-#define SWING_MOVE_ANGLE 0.31415926535897932384626433832795f
+#define SWING_MOVE_ANGLE 0.8f
 
 #define RUDDER_RADIUS 0.2f //轮中心距
 
@@ -135,16 +135,16 @@
 //底盘电机速度环PID
 #define MOTIVE_MOTOR_SPEED_PID_KP 2000.0f
 #define MOTIVE_MOTOR_SPEED_PID_KI 0.0f
-#define MOTIVE_MOTOR_SPEED_PID_KD 0.8f
+#define MOTIVE_MOTOR_SPEED_PID_KD 0.0f
 #define MOTIVE_MOTOR_SPEED_PID_MAX_IOUT 2000.0f
 #define MOTIVE_MOTOR_SPEED_PID_MAX_OUT 6000.0f
 
 //chassis follow angle PID
 //底盘旋转跟随PID
-#define CHASSIS_FOLLOW_GIMBAL_PID_KP 8.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_KP 15.0f
 #define CHASSIS_FOLLOW_GIMBAL_PID_KI 0.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_KD 4.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT 2.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_KD 7.5f
+#define CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT 0.0f
 #define CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT 20.0f
 
 //底盘舵向电机 速度环 PID参数以及 PID最大输出，积分输出
@@ -157,18 +157,18 @@
 //底盘舵向电机 角度环 角度由编码器解算 PID参数以及 PID最大输出，积分输出
 #define RUDDER_MATOR_ANGLE_PID_KP 20.0f //15
 #define RUDDER_MATOR_ANGLE_PID_KI 0.0f
-#define RUDDER_MATOR_ANGLE_PID_KD 5.0f
+#define RUDDER_MATOR_ANGLE_PID_KD 1.0f
 #define RUDDER_MATOR_ANGLE_PID_MAX_IOUT 0.0f
 #define RUDDER_MATOR_ANGLE_PID_MAX_OUT 6.0f
 
 //功率控制参数
 #define POWER_DEFAULT_LIMIT 50.0f  //默认功率限制
 #define WARNING_POWER_DISTANCE 10.0f //距离超过率的距离
-#define WARNING_POWER_BUFF 30.0f   
+#define WARNING_POWER_BUFF 40.0f   //30
  //警告能量缓冲  通过计算超级电容 电压低于12v得到的值
 
 #define NO_JUDGE_TOTAL_CURRENT_LIMIT 64000.0f // 16000 * 4,
-#define BUFFER_TOTAL_CURRENT_LIMIT 40000.0f
+#define BUFFER_TOTAL_CURRENT_LIMIT 6000.0f    //12000
 #define POWER_TOTAL_CURRENT_LIMIT 20000.0f
 
 typedef enum {

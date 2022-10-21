@@ -92,6 +92,10 @@ typedef struct
   uint8_t s0;
   uint8_t gimbal_behaviour;
   fp32    gimbal_yaw_angle;
+	fp32 gimbal_pitch_angle;
+  bool_t auto_state;
+  bool_t aim_state;
+  bool_t fric_state;
 } chassis_receive_t;
 
 
