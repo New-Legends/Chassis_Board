@@ -89,13 +89,13 @@
 //底盘运动过程最大平移速度
 #define NORMAL_MAX_CHASSIS_SPEED_X 2.5f 
 //底盘运动过程最大旋转速度
-#define NORMAL_MAX_CHASSIS_SPEED_Z 8.0f
+#define NORMAL_MAX_CHASSIS_SPEED_Z 14.0f
 
 
 //原地旋转小陀螺下Z轴转速
-#define TOP_WZ_ANGLE_STAND 3.0f
+#define TOP_WZ_ANGLE_STAND 10.0f
 //移动状态下小陀螺转速
-#define TOP_WZ_ANGLE_MOVE -3.5f
+#define TOP_WZ_ANGLE_MOVE -7.5f
 
 
 //摇摆原地不动摇摆最大角度(rad)

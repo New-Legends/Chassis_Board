@@ -32,7 +32,7 @@ extern "C"
   * * @param[in]      max_out: pid最大输出
   * @retval         none
   */
-void Pid::init(pid_mode_e mode_, const fp32 *pid_parm, fp32 *ref_, fp32 *set_, fp32 *erro_delta_)
+void Pid::init(pid_mode_e mode_, const fp32 *pid_parm, fp32 *ref_, fp32 *set_, fp32 erro_delta_)
 {
     mode = mode_;
     data.Kp = pid_parm[0];
@@ -63,14 +63,16 @@ fp32 Pid::pid_calc()
 
 
 
-    if (mode == PID_ANGLE)
+     if (mode == PID_ANGLE){
         data.error = rad_format(data.error);
+        data.error_delta = data.error - data.last_error;       
+        }
 
     data.Pout = data.Kp * data.error;
     data.Iout += data.Ki * data.error;
 
 
-    data.Dout = data.Kd * (*data.error_delta);
+    data.Dout = data.Kd * data.error_delta;
 
     if (mode == PID_SPEED)
     {
