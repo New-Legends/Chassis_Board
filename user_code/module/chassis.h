@@ -170,7 +170,7 @@ typedef enum
 
     CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW,  //正常底盘跟随云台,底盘移动速度由遥控器和键盘按键一起决定，同时会控制底盘跟随云台，从而计算旋转速度,应用于遥控器开关处于上位
 
-    CHASSIS_NO_FOLLOW_YAW,               //底盘移动速度和旋转速度均由遥控器决定,应用于只需要底盘控制的场合
+    CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW_AUTO, //底盘移动速度和旋转速度均由代码决定,应用于自动巡逻情况
 
     CHASSIS_OPEN,                        //遥控器的通道值直接转化成电机电流值发送到can总线上
 
@@ -181,7 +181,7 @@ typedef enum
 {
     CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW,  //底盘跟随云台,底盘移动速度由遥控器和键盘决定,旋转速度由云台角度差计算出CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW 选择的控制模式
 
-    CHASSIS_VECTOR_NO_FOLLOW_YAW,      //底盘不跟随云台,底盘移动速度和旋转速度由遥控器决定，无角度环控制CHASSIS_NO_FOLLOW_YAW 和 CHASSIS_NO_MOVE 选择的控制模式*/
+    CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW_AUTO,      //底盘跟随云台,底盘移动速度和旋转速度由代码决定，旋转速度由云台角度差计算出CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW 选择的控制模式*/
 
     CHASSIS_VECTOR_RAW,                //底盘不跟随云台.底盘电机电流控制值是直接由遥控器通道值计算出来的，将直接发送到 CAN 总线上CHASSIS_OPEN 和 CHASSIS_ZERO_FORCE 选择的控制模式*/
 
@@ -262,7 +262,7 @@ public:
 
     void chassis_engineer_follow_chassis_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *angle_set);
 
-    void chassis_no_follow_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set);
+    void chassis_infantry_follow_gimbal_yaw_control_auto(fp32 *vx_set, fp32 *vy_set, fp32 *angle_set);
 
     void chassis_open_set_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set);
 

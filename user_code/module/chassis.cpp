@@ -120,10 +120,10 @@ void Chassis::feedback_update()
     {
         chassis_relative_angle_set = INIT_YAW_SET;
     }
-    //切入不跟随云台模式
-    else if ((last_chassis_mode != CHASSIS_VECTOR_NO_FOLLOW_YAW) && (chassis_mode == CHASSIS_VECTOR_NO_FOLLOW_YAW))
+    //切入自动巡逻模式
+    else if ((last_chassis_mode != CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW_AUTO) && (chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW_AUTO))
     {
-        chassis_yaw_set = 0;
+        chassis_relative_angle_set = INIT_YAW_SET;
     }
     //切入不跟随云台模式
     else if ((last_chassis_mode != CHASSIS_VECTOR_RAW) && (chassis_mode == CHASSIS_VECTOR_RAW))
@@ -228,13 +228,53 @@ void Chassis::set_contorl()
         y.speed_set = fp32_constrain(y.speed_set, y.min_speed, y.max_speed);
         z.speed_set = fp32_constrain(z.speed_set, z.min_speed, z.max_speed);
     }
-    else if (chassis_mode == CHASSIS_VECTOR_NO_FOLLOW_YAW)
+    else if (chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW_AUTO)
     {
-        //“angle_set” 是旋转速度控制
-        z.speed_set = angle_set;
+        fp32 sin_yaw = 0.0f, cos_yaw = 0.0f;
+        //旋转控制底盘速度方向，保证前进方向是云台方向，有利于运动平稳
+        sin_yaw = sin(-chassis_relative_angle);
+        cos_yaw = cos(-chassis_relative_angle);
+
+        x.speed_set = cos_yaw * vx_set + sin_yaw * vy_set;
+        y.speed_set = -sin_yaw * vx_set + cos_yaw * vy_set;
+
+        //设置控制相对云台角度
+        chassis_relative_angle_set = rad_format(angle_set);
+
+        //计算旋转PID角速度 如果是小陀螺,固定转速 如果是45度角对敌,选择固定角度
+        if (top_switch == TRUE)
+        {
+            z.speed_set = angle_set;
+        }
+
+        else
+        {
+            chassis_wz_angle_pid.data.ref = &chassis_relative_angle;
+            chassis_wz_angle_pid.data.set = &chassis_relative_angle_set;
+            z.speed_set = -chassis_wz_angle_pid.pid_calc();
+        }
+
+        if (super_cap_switch == TRUE && top_switch == FALSE)
+        {
+            x.min_speed = -3 * NORMAL_MAX_CHASSIS_SPEED_X;
+            x.max_speed = 3 * NORMAL_MAX_CHASSIS_SPEED_X;
+            y.min_speed = -3 * NORMAL_MAX_CHASSIS_SPEED_Y;
+            y.max_speed = 3 * NORMAL_MAX_CHASSIS_SPEED_Y;
+					 
+					  
+        }
+        else
+        {
+            x.min_speed = -NORMAL_MAX_CHASSIS_SPEED_X;
+            x.max_speed = NORMAL_MAX_CHASSIS_SPEED_X;
+            y.min_speed = -NORMAL_MAX_CHASSIS_SPEED_Y;
+            y.max_speed = NORMAL_MAX_CHASSIS_SPEED_Y;
+        }
+
         //速度限幅
-        x.speed_set = fp32_constrain(vx_set, x.min_speed, x.max_speed);
-        y.speed_set = fp32_constrain(vy_set, y.min_speed, y.max_speed);
+        x.speed_set = fp32_constrain(x.speed_set, x.min_speed, x.max_speed);
+        y.speed_set = fp32_constrain(y.speed_set, y.min_speed, y.max_speed);
+        z.speed_set = fp32_constrain(z.speed_set, z.min_speed, z.max_speed);
     }
     else if (chassis_mode == CHASSIS_VECTOR_RAW)
     {
@@ -406,13 +446,13 @@ void Chassis::chassis_behaviour_mode_set()
     last_chassis_mode = chassis_mode;
 
     //遥控器设置模式
-    if (switch_is_up(chassis_RC->rc.s[CHASSIS_MODE_CHANNEL])) //右拨杆上 底盘行为 跟随云台
+    if (switch_is_up(chassis_RC->rc.s[CHASSIS_MODE_CHANNEL])) //右拨杆上 底盘行为 自动巡逻
+    {
+        chassis_behaviour_mode = CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW_AUTO;
+    }
+    else if (switch_is_mid(chassis_RC->rc.s[CHASSIS_MODE_CHANNEL])) //右拨杆中 底盘行为 跟随云台
     {
         chassis_behaviour_mode = CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW;
-    }
-    else if (switch_is_mid(chassis_RC->rc.s[CHASSIS_MODE_CHANNEL])) //右拨杆中 底盘行为 自主运动
-    {
-        chassis_behaviour_mode = CHASSIS_NO_FOLLOW_YAW;
     }
     else if (switch_is_down(chassis_RC->rc.s[CHASSIS_MODE_CHANNEL])) //右拨杆下 底盘行为 无力
     {
@@ -426,13 +466,13 @@ void Chassis::chassis_behaviour_mode_set()
     {
         chassis_mode = CHASSIS_VECTOR_RAW;
     }
-    else if (chassis_behaviour_mode == CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW) //右拨杆上 底盘控制 闭环 跟随云台
+    else if (chassis_behaviour_mode == CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW) //右拨杆中 底盘控制 闭环 跟随云台
     {
         chassis_mode = CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW;
     }
-    else if (chassis_behaviour_mode == CHASSIS_NO_FOLLOW_YAW) //右拨杆中 底盘控制 闭环 自主运动
+    else if (chassis_behaviour_mode == CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW_AUTO) //右拨杆上 底盘控制 闭环 自主运动
     {
-        chassis_mode = CHASSIS_VECTOR_NO_FOLLOW_YAW;
+        chassis_mode = CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW_AUTO;
     }
 }
 
@@ -460,9 +500,9 @@ void Chassis::chassis_behaviour_control_set(fp32 *vx_set, fp32 *vy_set, fp32 *an
     {
         chassis_infantry_follow_gimbal_yaw_control(vx_set, vy_set, angle_set);
     }
-    else if (chassis_behaviour_mode == CHASSIS_NO_FOLLOW_YAW)
+    else if (chassis_behaviour_mode == CHASSIS_INFANTRY_FOLLOW_GIMBAL_YAW_AUTO)
     {
-        chassis_no_follow_yaw_control(vx_set, vy_set, angle_set);
+        chassis_infantry_follow_gimbal_yaw_control_auto(vx_set, vy_set, angle_set);
     }
     else if (chassis_behaviour_mode == CHASSIS_OPEN) //底盘控制 测试用 直接将遥控器杆量转化为电流值
     {
@@ -648,7 +688,7 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
 }
 
 /**
- * @brief          底盘不跟随角度的行为状态机下，底盘模式是不跟随角度，底盘旋转速度由参数直接设定
+ * @brief          底盘自动巡逻，底盘旋转速度由参数直接设定
  * @author         RM
  * @param[in]      vx_set前进的速度,正值 前进速度， 负值 后退速度
  * @param[in]      vy_set左右的速度,正值 左移速度， 负值 右移速度
@@ -656,16 +696,51 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
  * @param[in]      数据
  * @retval         返回空
  */
-void Chassis::chassis_no_follow_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set)
+void Chassis::chassis_infantry_follow_gimbal_yaw_control_auto(fp32 *vx_set, fp32 *vy_set, fp32 *angle_set)
 {
 
-    if (vx_set == NULL || vy_set == NULL || wz_set == NULL)
+    if (vx_set == NULL || vy_set == NULL || angle_set == NULL)
     {
         return;
     }
 
+    //遥控器的通道值以及键盘按键 得出 一般情况下的速度设定值
     chassis_rc_to_control_vector(vx_set, vy_set);
-    *wz_set = -CHASSIS_WZ_RC_SEN * chassis_RC->rc.ch[CHASSIS_WZ_CHANNEL];
+
+    /**************************小陀螺控制输入********************************/
+    //单击F开启和关闭小陀螺
+    if (KEY_CHASSIS_TOP && top_switch == 0) //开启小陀螺
+    {
+        top_switch = 1;
+    }
+    else if (KEY_CHASSIS_TOP && top_switch == 1) //关闭小陀螺
+    {
+        top_switch = 0;
+    }
+
+    if (top_switch == 1)
+    {
+        if ((fabs(*vx_set) < 0.001) && (fabs(*vy_set) < 0.001))
+            top_angle = TOP_WZ_ANGLE_STAND;
+        else
+            top_angle = TOP_WZ_ANGLE_MOVE;
+    }
+    else
+    {
+        top_angle = 0;
+    }
+
+    //开启超电
+    if (KEY_CHASSIS_SUPER_CAP && super_cap_switch == 0) //打开超电
+    {
+        super_cap_switch = TRUE;
+    }
+    else if (KEY_CHASSIS_SUPER_CAP && super_cap_switch != 0) //关闭超电
+    {
+        super_cap_switch = FALSE;
+    }
+
+    *angle_set = swing_angle + top_angle;
 }
 
 /**
