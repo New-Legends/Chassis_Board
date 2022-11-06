@@ -181,7 +181,7 @@ void Chassis::feedback_update()
     for (uint8_t i = 0; i < 4; ++i) {
         //更新动力电机速度，加速度是速度的PID微分
         chassis_motive_motor[i].speed = CHASSIS_MOTOR_RPM_TO_VECTOR_SEN * chassis_motive_motor[i].motor_measure->speed_rpm;
-        chassis_motive_motor[i].accel = chassis_motive_motor[i].speed_pid.data.error_delta * CHASSIS_CONTROL_FREQUENCE;
+        chassis_motive_motor[i].accel = *chassis_motive_motor[i].speed_pid.data.error_delta * CHASSIS_CONTROL_FREQUENCE;
 
         //更新舵向电机角度，
         chassis_rudder_motor[i].angle = -motor_ecd_to_angle_change(chassis_rudder_motor[i].motor_measure->ecd,
