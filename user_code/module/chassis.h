@@ -167,9 +167,9 @@
 #define WARNING_POWER_BUFF 40.0f   //30
  //警告能量缓冲  通过计算超级电容 电压低于12v得到的值
 
-#define NO_JUDGE_TOTAL_CURRENT_LIMIT 64000.0f // 16000 * 4,
-#define BUFFER_TOTAL_CURRENT_LIMIT 6000.0f    //12000
-#define POWER_TOTAL_CURRENT_LIMIT 20000.0f
+#define NO_JUDGE_TOTAL_CURRENT_LIMIT 48000.0f // 16000 * 4,
+#define BUFFER_TOTAL_CURRENT_LIMIT 120000.0f    //12000
+#define POWER_TOTAL_CURRENT_LIMIT 16000.0f
 
 typedef enum {
     CHASSIS_ZERO_FORCE,                  // chassis will be like no power,底盘无力, 跟没上电那样
