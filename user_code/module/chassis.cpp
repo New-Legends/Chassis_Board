@@ -168,6 +168,11 @@ void Chassis::set_contorl()
 
     //获取三个控制设置值
     chassis_behaviour_control_set(&vx_set, &vy_set, &angle_set);
+    if(CHASSIS_IF_OMNI == 1)
+    {
+        vx_set = chassis_RC->rc.ch[3]/300;
+        vy_set = chassis_RC->rc.ch[4]/400;
+    }
 
     //跟随云台模式
     if (chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
@@ -301,7 +306,10 @@ void Chassis::solve()
     uint8_t i = 0;
 
     //麦轮运动分解
-    chassis_vector_to_mecanum_wheel_speed(wheel_speed);
+    //chassis_vector_to_mecanum_wheel_speed(wheel_speed);
+
+    //全向轮运动分解
+    chassis_vector_to_omni_wheel_speed(wheel_speed);
 
     if (chassis_mode == CHASSIS_VECTOR_RAW)
     {
@@ -848,6 +856,27 @@ void Chassis::chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4])
     wheel_speed[2] = x.speed_set + y.speed_set - MOTOR_DISTANCE_TO_CENTER * z.speed_set;
     wheel_speed[3] = -x.speed_set + y.speed_set - MOTOR_DISTANCE_TO_CENTER * z.speed_set;
 }
+
+/**
+ * @brief          四个全向轮速度是通过三个参数计算出来的
+ * @param[in]      vx_set: 纵向速度
+ * @param[in]      vy_set: 横向速度
+ * @param[in]      wz_set: 旋转速度
+ * @param[out]     wheel_speed: 四个麦轮速度
+ * @retval         none
+ */
+void Chassis::chassis_vector_to_omni_wheel_speed(fp32 wheel_speed[4])
+{
+    float wheel_rpm_ratio;//转速比
+
+    wheel_rpm_ratio = 60.0f/(WHEEL_PERIMETER*3.14f)*CHASSIS_DECELE_RATIO*1000;
+
+    wheel_speed[0] = -x.speed_set - y.speed_set - (LENGTH_A+LENGTH_B) * wheel_rpm_ratio * z.speed_set;
+    wheel_speed[1] = x.speed_set - y.speed_set - MOTOR_DISTANCE_TO_CENTER * z.speed_set;
+    wheel_speed[2] = x.speed_set + y.speed_set - MOTOR_DISTANCE_TO_CENTER * z.speed_set;
+    wheel_speed[3] = -x.speed_set + y.speed_set - MOTOR_DISTANCE_TO_CENTER * z.speed_set;
+}
+
 
 /**
  * @brief          计算ecd与offset_ecd之间的相对角度

@@ -23,6 +23,11 @@
         }                                                \
     }
 
+#define LENGTH_A  100//底盘长的一半
+#define LENGTH_B  100//底盘宽的一半
+#define WHEEL_PERIMETER  20//车轮周长
+#define CHASSIS_DECELE_RATIO  19//减速比
+
 //任务开始空闲一段时间
 #define CHASSIS_TASK_INIT_TIME 357
 
@@ -270,6 +275,8 @@ public:
     void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set);
 
     void chassis_vector_to_mecanum_wheel_speed(fp32 wheel_speed[4]);
+
+    void chassis_vector_to_omni_wheel_speed(fp32 wheel_speed[4]);
 
     fp32 motor_ecd_to_angle_change(uint16_t ecd, uint16_t offset_ecd);
 };
