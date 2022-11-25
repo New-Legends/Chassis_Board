@@ -170,8 +170,8 @@ void Chassis::set_contorl()
     chassis_behaviour_control_set(&vx_set, &vy_set, &angle_set);
     if(CHASSIS_IF_OMNI == 1)
     {
-        vx_set = chassis_RC->rc.ch[3]/300;
-        vy_set = chassis_RC->rc.ch[4]/400;
+        vx_set = chassis.chassis_RC->rc.ch[2]/300;
+        vy_set = chassis.chassis_RC->rc.ch[3]/400;
     }
 
     //跟随云台模式
@@ -182,7 +182,7 @@ void Chassis::set_contorl()
         sin_yaw = sin(-chassis_relative_angle);
         cos_yaw = cos(-chassis_relative_angle);
 
-        x.speed_set = cos_yaw * vx_set + sin_yaw * vy_set;
+        x.speed_set = cos_yaw * vx_set - sin_yaw * vy_set;
         y.speed_set = -sin_yaw * vx_set + cos_yaw * vy_set;
 
         //设置控制相对云台角度
@@ -648,6 +648,10 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_
     {
         top_switch = 1;
     }
+    // if (top_switch == 0) //开启小陀螺
+    // {
+    //     top_switch = 1;
+    // }
     else if (KEY_CHASSIS_TOP && top_switch == 1) //关闭小陀螺
     {
         top_switch = 0;
@@ -872,9 +876,9 @@ void Chassis::chassis_vector_to_omni_wheel_speed(fp32 wheel_speed[4])
     wheel_rpm_ratio = 60.0f/(WHEEL_PERIMETER*3.14f)*CHASSIS_DECELE_RATIO*1000;
 
     wheel_speed[0] = -x.speed_set - y.speed_set - (LENGTH_A+LENGTH_B) * wheel_rpm_ratio * z.speed_set;
-    wheel_speed[1] = x.speed_set - y.speed_set - MOTOR_DISTANCE_TO_CENTER * z.speed_set;
-    wheel_speed[2] = x.speed_set + y.speed_set - MOTOR_DISTANCE_TO_CENTER * z.speed_set;
-    wheel_speed[3] = -x.speed_set + y.speed_set - MOTOR_DISTANCE_TO_CENTER * z.speed_set;
+    wheel_speed[1] = x.speed_set - y.speed_set - (LENGTH_A+LENGTH_B) * wheel_rpm_ratio  * z.speed_set;
+    wheel_speed[2] = x.speed_set + y.speed_set - (LENGTH_A+LENGTH_B) * wheel_rpm_ratio  * z.speed_set;
+    wheel_speed[3] = -x.speed_set + y.speed_set - (LENGTH_A+LENGTH_B) * wheel_rpm_ratio  * z.speed_set;
 }
 
 
