@@ -721,7 +721,11 @@ void Chassis::chassis_infantry_follow_gimbal_yaw_control_auto(fp32 *vx_set, fp32
 
     /**************************小陀螺控制输入********************************/
     //单击F开启和关闭小陀螺
-    if (KEY_CHASSIS_TOP && top_switch == 0) //开启小陀螺
+    // if (KEY_CHASSIS_TOP && top_switch == 0) //开启小陀螺
+    // {
+    //     top_switch = 1;
+    // }
+    if (top_switch == 0) //开启小陀螺
     {
         top_switch = 1;
     }
